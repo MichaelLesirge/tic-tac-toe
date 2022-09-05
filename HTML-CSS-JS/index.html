@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="resources/style.css">
+    <title>Tic Tac Toe</title>
+</head>
+<body>
+    <header class="header">
+        <h1 class="title">Welcome To Simple Tic Tac Toe</h1>
+    </header>
+    <main class="centered-container">
+        <div class="game-form">
+            <form class="form-group centered-container" action="game.html" method="get">
+                <h3>Create Your Board</h3>
+                
+                <div class="form-field">
+                    <label for="width">Width</label>
+                    <input type="number" value="3" min="1" max="100" name="width" id="width" placeholder="width">
+                </div>
+                
+                <div class="form-field">
+                    <label for="height">Height</label>
+                    <input type="number" value="3" min="1" max="100" name="height" id="height" placeholder="height">
+                </div>
+    
+                <div class="form-field">
+                    <input type="reset" value="Reset to defulats">
+                </div>
+                <input class="form-field submit-btn" type="submit" value="Play Game">
+            </form>
+        </div>
+    </main>
+</body>
+</html>
