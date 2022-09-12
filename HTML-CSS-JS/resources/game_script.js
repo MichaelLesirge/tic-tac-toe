@@ -75,7 +75,8 @@ class Board {
 
         for (let i = 0; i < this.height; i++) {
             for (let j = 0; j < this.width; j++) {
-                this.set(i, j, DEFUALT_CHAR);
+                // this.set(i, j, DEFUALT_CHAR);
+                this.set(i, j, "(" + i + "," + j + ")")
                 let cell = this.getCell(i, j);
                 cell.classList.remove('occupied');
                 cell.onclick = () => this.playerTurn(i, j)
@@ -89,6 +90,14 @@ class Board {
 
 
 const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'));
+
+document.querySelectorAll("td").forEach((td) => {
+    if (td.getBoundingClientRect().left < 0){
+        document.querySelector(".board").classList.remove("centered-container")
+        document.body.style.overflowX = "scroll"
+    }
+})
+
 
 document.querySelector('.reset-board').onclick = () => board.reset();
 board.reset();
