@@ -69,7 +69,6 @@ body {
 
 .info, .header {
     text-align: center;
-    background-color: white;
 }
 
 .game-over {
@@ -105,7 +104,7 @@ body {
     background-color: white;
     cursor: pointer;
 
-    /* font-size: var(--board-box-size); */
+    font-size: var(--board-box-size);
     text-align: center;
     font-family: monospace;
 }
