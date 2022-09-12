@@ -1,3 +1,6 @@
+# Run here by copying and pasting code in to main file:
+# https://www.programiz.com/python-programming/online-compiler/
+
 def main():
     print("Welcome to tic-tac-toe with python!")
 
