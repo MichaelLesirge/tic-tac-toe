@@ -1,3 +1,6 @@
+# Run here by copying and pasting code in to main file:
+# https://www.programiz.com/python-programming/online-compiler/
+
 def main():
     print("Welcome to tic-tac-toe with python!")
 
@@ -199,9 +202,7 @@ def print_invalid(exs):
 
 def bool_input(prompt):
     user_input = input(prompt + " (y/n): ").strip().lower()
-    if user_input in ("y", "yes", "true"):
-        return True
-    return False
+    return user_input in ("y", "yes", "true")
 
 
 def int_input(prompt):
@@ -218,7 +219,7 @@ def create_player():
     while True:
         try:
             char = input("Letter: ").strip()
-            color = None
+            player = player(char)
             if Player.color_mode:
                 color = input("Color: ").strip()
             player = Player(char, color)

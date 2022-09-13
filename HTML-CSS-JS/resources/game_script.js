@@ -20,7 +20,7 @@ function getValidSizeParam(name) {
     return DEFAULT_SIZE
 }
 
-DEFUALT_CHAR = ''
+BLANK_CHAR = ''
 class Board {
     constructor(width = DEFAULT_SIZE, height = DEFAULT_SIZE) {
         this.width = width;
@@ -58,7 +58,7 @@ class Board {
         let cell = this.getCell(i, j);
         cell.innerText = this.boardMap[i][j] = char;
 
-        if (char !== DEFUALT_CHAR) {
+        if (char !== BLANK_CHAR) {
             cell.classList.add('occupied');
         }
     }
@@ -82,8 +82,8 @@ class Board {
 
         for (let i = 0; i < this.height; i++) {
             for (let j = 0; j < this.width; j++) {
-                // this.set(i, j, DEFUALT_CHAR);
-                this.set(i, j, "(" + i + "," + j + ")")
+                this.set(i, j, BLANK_CHAR);
+                // this.set(i, j, "(" + i + "," + j + ")")
                 let cell = this.getCell(i, j);
                 cell.classList.remove('occupied');
                 cell.onclick = () => this.playerTurn(i, j)
