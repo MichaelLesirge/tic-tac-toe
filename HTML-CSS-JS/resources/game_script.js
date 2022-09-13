@@ -34,8 +34,6 @@ class Board {
         this.boardArray = Array(this.height);
         this.boardBody = document.querySelector('.board-body');
 
-        let noOverflow = true;
-
         // create board on page and in array
         for (let i = 0; i < this.height; i++) {
             this.boardArray[i] = Array(this.width);
@@ -43,14 +41,10 @@ class Board {
             for (let j = 0; j < this.width; j++) {
                 let cell = document.createElement('td');
                 tableRow.insertCell(cell);
-                if (noOverflow && cell.getBoundingClientRect().left < 0){
-                    noOverflow = false;
-                    document.querySelector(".board").classList.remove("centered-container")
-                    document.body.style.overflowX = "scroll"
-                }
             }
         }
     }
+    
 
     getCell(i, j) { return this.boardBody.children[i].children[j]; }
 
@@ -64,7 +58,6 @@ class Board {
     }
 
     playerTurn(i, j) {
-        console.log(this.turnCount, this.currentPlayerIndex);
         if (!this.getCell(i, j).classList.contains('occupied')) {
             this.set(i, j, players[this.currentPlayerIndex]);
 
@@ -100,6 +93,14 @@ class Board {
         }
     }
 
+    isOverflowing() {
+        for (let i = 0; i < this.height; i++) {
+            for (let j = 0; j < this.width; j++) {
+                if (this.getCell(i, j).getBoundingClientRect().left < 0) { return true; }
+            }
+        }
+    }
+
     #isWinningArray(array) {
         for (let i = 1; i < array.length; i++) {
             const element = array[i];
@@ -110,6 +111,11 @@ class Board {
 
 
 const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'));
+
+if (board.isOverflowing()) {
+    document.querySelector(".board").classList.remove("centered-container");
+    document.body.style.overflowX = "scroll";
+}
 
 document.querySelector('.reset-board').onclick = () => board.reset();
 board.reset();
