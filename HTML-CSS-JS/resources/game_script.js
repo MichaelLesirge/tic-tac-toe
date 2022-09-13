@@ -34,6 +34,8 @@ class Board {
         this.boardArray = Array(this.height);
         this.boardBody = document.querySelector('.board-body');
 
+        let noOverflow = true;
+
         // create board on page and in array
         for (let i = 0; i < this.height; i++) {
             this.boardArray[i] = Array(this.width);
@@ -41,6 +43,11 @@ class Board {
             for (let j = 0; j < this.width; j++) {
                 let cell = document.createElement('td');
                 tableRow.insertCell(cell);
+                if (noOverflow && cell.getBoundingClientRect().left < 0){
+                    noOverflow = false;
+                    document.querySelector(".board").classList.remove("centered-container")
+                    document.body.style.overflowX = "scroll"
+                }
             }
         }
     }
@@ -103,14 +110,6 @@ class Board {
 
 
 const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'));
-
-document.querySelectorAll("td").forEach((td) => {
-    if (td.getBoundingClientRect().left < 0){
-        document.querySelector(".board").classList.remove("centered-container")
-        document.body.style.overflowX = "scroll"
-    }
-})
-
 
 document.querySelector('.reset-board').onclick = () => board.reset();
 board.reset();
