@@ -31,12 +31,12 @@ class Board {
         this.gameCount = 0;
         this.currentPlayerIndex = 0;
 
-        this.boardMap = Array(this.height);
+        this.boardArray = Array(this.height);
         this.boardBody = document.querySelector('.board-body');
 
         // create board on page and in array
         for (let i = 0; i < this.height; i++) {
-            this.boardMap[i] = Array(this.width);
+            this.boardArray[i] = Array(this.width);
             let tableRow = this.boardBody.insertRow();
             for (let j = 0; j < this.width; j++) {
                 let cell = document.createElement('td');
@@ -49,7 +49,7 @@ class Board {
 
     set(i, j, char) {
         let cell = this.getCell(i, j);
-        cell.innerText = this.boardMap[i][j] = char;
+        cell.innerText = this.boardArray[i][j] = char;
 
         if (char !== BLANK_CHAR) {
             cell.classList.add('occupied');
@@ -86,6 +86,19 @@ class Board {
     }
 
     getStringSize() { return '(' + this.width + 'x' + this.height + ')'; }
+
+    isPlayerWinner(player) {
+        for (let i = 0; i < this.width; i++) {
+
+        }
+    }
+
+    #isWinningArray(array) {
+        for (let i = 1; i < array.length; i++) {
+            const element = array[i];
+            
+        }
+    }
 }
 
 
