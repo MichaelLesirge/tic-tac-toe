@@ -77,19 +77,6 @@ body {
     margin: 3px 0px;
 }
 
-.game-over-overlay {
-    position: absolute;
-    z-index: top;
-
-    color: red;
-    background-color: rgba(255, 0, 0, 0.315);
-    font-size: calc(var(--board-box-size) / 4);
-
-    display: flex;
-    align-items: stretch;
-    justify-content: center;
-}
-
 .board-table {
     border-collapse: separate;
     border-spacing: max(0.3em, 3px);
@@ -107,6 +94,11 @@ body {
     font-size: var(--board-box-size);
     text-align: center;
     font-family: monospace;
+}
+
+.cords {
+    font-size: inherit !important;
+    color: hsl(0, 0%, 22%);
 }
 
 .occupied {

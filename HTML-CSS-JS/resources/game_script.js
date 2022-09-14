@@ -20,7 +20,7 @@ function getValidSizeParam(name) {
     return DEFAULT_SIZE
 }
 
-BLANK_CHAR = ''
+const BLANK_CHAR = ''
 class Board {
     constructor(width = DEFAULT_SIZE, height = DEFAULT_SIZE) {
         this.width = width;
@@ -59,11 +59,17 @@ class Board {
 
     playerTurn(i, j) {
         if (!this.getCell(i, j).classList.contains('occupied')) {
-            this.set(i, j, players[this.currentPlayerIndex]);
+            const currentPlayer = players[this.currentPlayerIndex];
+            this.set(i, j, currentPlayer);
 
+            if (this.isPlayerWinner(currentPlayer)) {
+                setWinner(currentPlayer);
+            }
+            else {
+                currentPlayerSpan.innerText = players[this.currentPlayerIndex] + "s turn.";
+            }
+            
             this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length;
-            currentPlayerSpan.innerText = players[this.currentPlayerIndex] + "s turn.";
-
             this.turnCount++;
         }
     }
@@ -88,10 +94,15 @@ class Board {
     getStringSize() { return '(' + this.width + 'x' + this.height + ')'; }
 
     isPlayerWinner(player) {
-        for (let i = 0; i < this.width; i++) {
-
+        for (let i = 0; i < this.height; i++) {
+            let row = this.boardArray[i];
+            if (this.#isWinningArray(row, player)) {
+                return true;
+            }
         }
     }
+
+    #isWinningArray = (array, player) => array.every( el => el === player );
 
     isOverflowing() {
         for (let i = 0; i < this.height; i++) {
@@ -100,22 +111,30 @@ class Board {
             }
         }
     }
-
-    #isWinningArray(array) {
-        for (let i = 1; i < array.length; i++) {
-            const element = array[i];
-            
-        }
-    }
 }
-
 
 const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'));
 
-if (board.isOverflowing()) {
-    document.querySelector(".board").classList.remove("centered-container");
-    document.body.style.overflowX = "scroll";
+function setWinner(player) {
+    currentPlayerSpan.innerText = player + " Wins!";
+
 }
+
+function fixOverflow() {
+    const boardClassList = document.querySelector(".board").classList
+    const bodyStyle = document.body.style
+    if (board.isOverflowing()) {
+        boardClassList.remove("centered-container");
+        bodyStyle.overflowX = "scroll";
+    }
+    else {
+        boardClassList.add("centered-container");
+        bodyStyle.overflowX = "default";
+    }
+}
+
+fixOverflow();
+window.onresize = fixOverflow;
 
 document.querySelector('.reset-board').onclick = () => board.reset();
 board.reset();
