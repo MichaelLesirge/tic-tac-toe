@@ -51,16 +51,19 @@ class Board {
     set(i, j, char) {
         let cell = this.getCell(i, j);
         cell.innerText = this.boardArray[i][j] = char;
-
         if (char !== BLANK_CHAR) {
             cell.classList.add('occupied');
         }
     }
 
+
     playerTurn(i, j) {
         if (!this.getCell(i, j).classList.contains('occupied')) {
             const currentPlayer = players[this.currentPlayerIndex];
             this.set(i, j, currentPlayer);
+            
+            this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length;
+            this.turnCount++;
 
             if (this.isPlayerWinner(currentPlayer)) {
                 setWinner(currentPlayer);
@@ -68,13 +71,10 @@ class Board {
             else {
                 currentPlayerSpan.innerText = players[this.currentPlayerIndex] + "s turn.";
             }
-            
-            this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length;
-            this.turnCount++;
         }
     }
 
-    reset() {
+    reset(showCords=false) {
         this.currentPlayerIndex = this.gameCount % players.length
         currentPlayerSpan.innerText = "Starting game with " + players[this.currentPlayerIndex] + "s.";
         this.turnCount = 0;
@@ -82,7 +82,13 @@ class Board {
         for (let i = 0; i < this.height; i++) {
             for (let j = 0; j < this.width; j++) {
                 this.set(i, j, BLANK_CHAR);
-                // this.set(i, j, "(" + i + "," + j + ")")
+                if (showCords) {
+                    const cords = document.createElement("span")
+                    cords.classList.add("cords")
+                    cords.innerText = "(" + i + "," + j + ")"
+                    this.getCell(i, j).appendChild(cords)
+                }
+                
                 let cell = this.getCell(i, j);
                 cell.classList.remove('occupied');
                 cell.onclick = () => this.playerTurn(i, j)
@@ -97,6 +103,8 @@ class Board {
         for (let i = 0; i < this.height; i++) {
             let row = this.boardArray[i];
             if (this.#isWinningArray(row, player)) {
+                console.log("WINNER " + player)
+                console.log(row)
                 return true;
             }
         }
@@ -136,7 +144,10 @@ function fixOverflow() {
 fixOverflow();
 window.onresize = fixOverflow;
 
-document.querySelector('.reset-board').onclick = () => board.reset();
-board.reset();
+var showCords = true
+reset = () => board.reset(showCords);
+
+document.querySelector('.reset-board').onclick = reset;
+reset();
 
 document.querySelector('title').innerText += ' ' + board.getStringSize();

@@ -97,7 +97,7 @@ body {
 }
 
 .cords {
-    font-size: inherit !important;
+    font-size: medium !important;
     color: hsl(0, 0%, 22%);
 }
 
