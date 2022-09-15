@@ -153,11 +153,9 @@ function setWinner(player) {
 
 }
 
-const boardClassList = document.querySelector(".board").classList
+const boardClassList = document.querySelector(".board-container").classList
 const bodyStyle = document.body.style
 function fixOverflow() {
-    const boardClassList = document.querySelector(".board-container").classList
-    const bodyStyle = document.body.style
     if (board.isOverflowing()) {
         boardClassList.remove("centered-container");
         bodyStyle.overflowX = "scroll";
