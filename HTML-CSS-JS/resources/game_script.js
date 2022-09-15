@@ -103,8 +103,6 @@ class Board {
         for (let i = 0; i < this.height; i++) {
             let row = this.boardArray[i];
             if (this.#isWinningArray(row, player)) {
-                console.log("WINNER " + player)
-                console.log(row)
                 return true;
             }
         }
@@ -125,11 +123,13 @@ const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'))
 
 function setWinner(player) {
     currentPlayerSpan.innerText = player + " Wins!";
+    board.boardBody.style.visibility = "hidden"
+
 
 }
 
 function fixOverflow() {
-    const boardClassList = document.querySelector(".board").classList
+    const boardClassList = document.querySelector(".board-container").classList
     const bodyStyle = document.body.style
     if (board.isOverflowing()) {
         boardClassList.remove("centered-container");
