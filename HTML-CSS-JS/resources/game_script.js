@@ -108,10 +108,6 @@ class Board {
     isPlayerWinner(player) {
         // check horizontal
         for (let i = 0; i < this.height; i++) {
-<<<<<<< HEAD
-            let row = this.boardArray[i];
-            if (this.#isWinningArray(row, player)) {
-=======
             let isWinningRow = true
             for (let j = 0; j < this.width; i++) {
                 if (this.boardArray[i][j] !== player) {
@@ -120,7 +116,6 @@ class Board {
                 }
             }
             if (isWinningRow) {
->>>>>>> 94511dc54a636adfe2898d4fd201480167a3ecdf
                 return true;
             }
             
@@ -161,11 +156,8 @@ function setWinner(player) {
 const boardClassList = document.querySelector(".board").classList
 const bodyStyle = document.body.style
 function fixOverflow() {
-<<<<<<< HEAD
     const boardClassList = document.querySelector(".board-container").classList
     const bodyStyle = document.body.style
-=======
->>>>>>> 94511dc54a636adfe2898d4fd201480167a3ecdf
     if (board.isOverflowing()) {
         boardClassList.remove("centered-container");
         bodyStyle.overflowX = "scroll";
