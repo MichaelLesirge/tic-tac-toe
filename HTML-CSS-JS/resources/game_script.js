@@ -48,17 +48,18 @@ class Board {
 
     getCell(i, j) { return this.boardBody.children[i].children[j]; }
 
-    set(i, j, char) {
+    set(i, j, char, setOccupied=true) {
         let cell = this.getCell(i, j);
         cell.innerText = this.boardArray[i][j] = char;
-        if (char !== BLANK_CHAR) {
+        if (setOccupied || char===BLANK_CHAR) {
             cell.classList.add('occupied');
         }
     }
 
 
     playerTurn(i, j) {
-        if (!this.getCell(i, j).classList.contains('occupied')) {
+        let cell = this.getCell(i, j);
+        if (!cell.classList.contains('occupied')) {
             const currentPlayer = players[this.currentPlayerIndex];
             this.set(i, j, currentPlayer);
             
@@ -71,44 +72,73 @@ class Board {
             else {
                 currentPlayerSpan.innerText = players[this.currentPlayerIndex] + "s turn.";
             }
+            // cell.onclick = () => {}
         }
     }
 
     reset(showCords=false) {
-        this.currentPlayerIndex = this.gameCount % players.length
-        currentPlayerSpan.innerText = "Starting game with " + players[this.currentPlayerIndex] + "s.";
-        this.turnCount = 0;
-
         for (let i = 0; i < this.height; i++) {
             for (let j = 0; j < this.width; j++) {
-                this.set(i, j, BLANK_CHAR);
+                this.set(i, j, BLANK_CHAR, false);
                 if (showCords) {
                     const cords = document.createElement("span")
                     cords.classList.add("cords")
                     cords.innerText = "(" + i + "," + j + ")"
                     this.getCell(i, j).appendChild(cords)
                 }
-                
                 let cell = this.getCell(i, j);
                 cell.classList.remove('occupied');
                 cell.onclick = () => this.playerTurn(i, j)
             }
         }
+    }
+
+    newGame() {
+        this.currentPlayerIndex = this.gameCount % players.length
+        currentPlayerSpan.innerText = "Starting game with " + players[this.currentPlayerIndex] + "s.";
+        this.turnCount = 0;
+
+        this.reset()
+
         this.gameCount++;
     }
 
     getStringSize() { return '(' + this.width + 'x' + this.height + ')'; }
 
     isPlayerWinner(player) {
+        // check horizontal
         for (let i = 0; i < this.height; i++) {
+<<<<<<< HEAD
             let row = this.boardArray[i];
             if (this.#isWinningArray(row, player)) {
+=======
+            let isWinningRow = true
+            for (let j = 0; j < this.width; i++) {
+                if (this.boardArray[i][j] !== player) {
+                    isWinningRow = false;
+                    break
+                }
+            }
+            if (isWinningRow) {
+>>>>>>> 94511dc54a636adfe2898d4fd201480167a3ecdf
                 return true;
             }
+            
         }
-    }
 
-    #isWinningArray = (array, player) => array.every( el => el === player );
+        // check vertical
+        for (let i = 0; i < this.width; i++) {
+            const collum = new Array();
+            // collum.push
+        }
+
+        // check diagnals if board is a square
+        if (this.width === this.height) {
+
+        }
+
+
+    }
 
     isOverflowing() {
         for (let i = 0; i < this.height; i++) {
@@ -128,9 +158,14 @@ function setWinner(player) {
 
 }
 
+const boardClassList = document.querySelector(".board").classList
+const bodyStyle = document.body.style
 function fixOverflow() {
+<<<<<<< HEAD
     const boardClassList = document.querySelector(".board-container").classList
     const bodyStyle = document.body.style
+=======
+>>>>>>> 94511dc54a636adfe2898d4fd201480167a3ecdf
     if (board.isOverflowing()) {
         boardClassList.remove("centered-container");
         bodyStyle.overflowX = "scroll";
@@ -144,10 +179,10 @@ function fixOverflow() {
 fixOverflow();
 window.onresize = fixOverflow;
 
-var showCords = true
-reset = () => board.reset(showCords);
+let showCords = true
+const newGame = () => board.newGame(showCords);
 
-document.querySelector('.reset-board').onclick = reset;
-reset();
+document.querySelector('.reset-board').onclick = newGame;
+newGame();
 
 document.querySelector('title').innerText += ' ' + board.getStringSize();
