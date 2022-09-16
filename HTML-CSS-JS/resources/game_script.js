@@ -80,45 +80,40 @@ class Board {
         for (let i = 0; i < this.height; i++) {
             for (let j = 0; j < this.width; j++) {
                 this.set(i, j, BLANK_CHAR, false);
+                let cell = this.getCell(i, j);
                 if (showCords) {
                     const cords = document.createElement("span")
                     cords.classList.add("cords")
-                    cords.innerText = "(" + i + "," + j + ")"
-                    this.getCell(i, j).appendChild(cords)
+                    cords.innerText = "(" + i + "," + j + ")";
+                    cell.appendChild(cords);
                 }
-                let cell = this.getCell(i, j);
                 cell.classList.remove('occupied');
                 cell.onclick = () => this.playerTurn(i, j)
             }
         }
     }
 
-    newGame() {
+    newGame(showCords=false) {
         this.currentPlayerIndex = this.gameCount % players.length
         currentPlayerSpan.innerText = "Starting game with " + players[this.currentPlayerIndex] + "s.";
         this.turnCount = 0;
 
-        this.reset()
+        this.reset(showCords)
 
         this.gameCount++;
     }
 
     getStringSize() { return '(' + this.width + 'x' + this.height + ')'; }
 
+    #isWinningArray(array, player) { return array.every( val => val === player ) }
+
     isPlayerWinner(player) {
         // check horizontal
         for (let i = 0; i < this.height; i++) {
-            let isWinningRow = true
-            for (let j = 0; j < this.width; i++) {
-                if (this.boardArray[i][j] !== player) {
-                    isWinningRow = false;
-                    break
-                }
-            }
-            if (isWinningRow) {
+            const row = this.boardArray[i];
+            if (this.#isWinningArray(row, player)) {
                 return true;
-            }
-            
+            }   
         }
 
         // check vertical
@@ -131,8 +126,6 @@ class Board {
         if (this.width === this.height) {
 
         }
-
-
     }
 
     isOverflowing() {
@@ -147,10 +140,9 @@ class Board {
 const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'));
 
 function setWinner(player) {
+    console.log(player + " wins")
     currentPlayerSpan.innerText = player + " Wins!";
-    board.boardBody.style.visibility = "hidden"
-
-
+    // board.boardBody.style.visibility = "hidden"
 }
 
 const boardClassList = document.querySelector(".board-container").classList
@@ -169,7 +161,7 @@ function fixOverflow() {
 fixOverflow();
 window.onresize = fixOverflow;
 
-let showCords = true
+let showCords = true;
 const newGame = () => board.newGame(showCords);
 
 document.querySelector('.reset-board').onclick = newGame;
