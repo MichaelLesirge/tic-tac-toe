@@ -82,9 +82,10 @@ class Board {
                 this.set(x, y, BLANK_CHAR, false);
                 let cell = this.getCell(x, y);
                 if (showCords) {
-                    const cords = document.createElement("span")
-                    cords.classList.add("cords")
-                    cords.innerText = "(" + (x+1) + "," + (y+1) + ")";
+                    const cords = document.createElement("span");
+                    cords.classList.add("cords");
+                    // cords.innerText = "(" + (x+1) + "," + (this.height-y) + ")";
+                    cords.innerText = "(" + (y) + "," + (x) + ")";
                     cell.appendChild(cords);
                 }
                 cell.classList.remove('occupied');
@@ -113,18 +114,44 @@ class Board {
             const row = this.boardArray[y];
             if (this.#isWinningArray(row, player)) {
                 return true;
-            }   
+            }
         }
 
         // check vertical
         for (let x = 0; x < this.width; x++) {
-            const collum = new Array();
-            // collum.push
+            const collum = new Array(this.height);
+            for (let y = 0; y < this.height; y++) {
+                collum.push(this.boardArray[y][x])
+            }
+            if (this.#isWinningArray(collum, player)) {
+                return true;
+            }
         }
 
         // check diagnals if board is a square
         if (this.width === this.height) {
+            
+            const horizontalLeftToRight = new Array(this.width)
 
+            // check top left to buttom right
+            for (let i = 0; i < this.width; i++) {
+                horizontalLeftToRight.push(this.boardArray[i][i])
+            }
+            if (this.#isWinningArray(horizontalLeftToRight, player)) {
+                return true;
+            }
+
+            const horizontalRightToLeft = new Array(this.width)
+
+            // check top right to button left
+            for (let i = 0; i < this.width; i++) {
+                horizontalRightToLeft.push(this.boardArray[i][this.width-i-1])
+            }
+            if (this.#isWinningArray(horizontalRightToLeft, player)) {
+                return true;
+            }
+
+            
         }
     }
 
