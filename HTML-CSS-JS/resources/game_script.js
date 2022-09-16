@@ -7,20 +7,20 @@ const currentPlayerSpan = document.querySelector(".current-player");
 const gameOverSpan = document.querySelector(".game-over");
 
 // TODO allow users to specify num of players and there letters in home page (index.html)
-const players = ["x", "o"].map(element => { return element.toUpperCase(); });
+const players = ["x", "o"].map(element => element.toUpperCase());
 
 const params = new URLSearchParams(location.search);
 function getValidSizeParam(name) {
     if (params.has(name)) {
         const size = parseInt(params.get(name));
         if (!isNaN(size)) {
-            return Math.max(size, MIN_SIZE)
+            return Math.max(size, MIN_SIZE);
         }
     }
-    return DEFAULT_SIZE
+    return DEFAULT_SIZE;
 }
 
-const BLANK_CHAR = ''
+const BLANK_CHAR = '';
 class Board {
     constructor(width = DEFAULT_SIZE, height = DEFAULT_SIZE) {
         this.width = width;
@@ -89,17 +89,17 @@ class Board {
                     cell.appendChild(cords);
                 }
                 cell.classList.remove('occupied');
-                cell.onclick = () => this.playerTurn(x, y)
+                cell.onclick = () => this.playerTurn(x, y);
             }
         }
     }
 
     newGame(showCords=false) {
-        this.currentPlayerIndex = this.gameCount % players.length
+        this.currentPlayerIndex = this.gameCount % players.length;
         currentPlayerSpan.innerText = "Starting game with " + players[this.currentPlayerIndex] + "s.";
         this.turnCount = 0;
 
-        this.reset(showCords)
+        this.reset(showCords);
 
         this.gameCount++;
     }
@@ -121,7 +121,7 @@ class Board {
         for (let x = 0; x < this.width; x++) {
             const collum = new Array(this.height);
             for (let y = 0; y < this.height; y++) {
-                collum.push(this.boardArray[y][x])
+                collum.push(this.boardArray[y][x]);
             }
             if (this.#isWinningArray(collum, player)) {
                 return true;
@@ -131,21 +131,21 @@ class Board {
         // check diagnals if board is a square
         if (this.width === this.height) {
             
-            const horizontalLeftToRight = new Array(this.width)
+            const horizontalLeftToRight = new Array(this.width);
 
             // check top left to buttom right
             for (let i = 0; i < this.width; i++) {
-                horizontalLeftToRight.push(this.boardArray[i][i])
+                horizontalLeftToRight.push(this.boardArray[i][i]);
             }
             if (this.#isWinningArray(horizontalLeftToRight, player)) {
                 return true;
             }
 
-            const horizontalRightToLeft = new Array(this.width)
+            const horizontalRightToLeft = new Array(this.width);
 
             // check top right to button left
             for (let i = 0; i < this.width; i++) {
-                horizontalRightToLeft.push(this.boardArray[i][this.width-i-1])
+                horizontalRightToLeft.push(this.boardArray[i][this.width-i-1]);
             }
             if (this.#isWinningArray(horizontalRightToLeft, player)) {
                 return true;
@@ -167,9 +167,8 @@ class Board {
 const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'));
 
 function setWinner(player) {
-    console.log(player + " wins")
     currentPlayerSpan.innerText = player + " Wins!";
-    // board.boardBody.style.visibility = "hidden"
+    // board.boardBody.style.visibility = "hidden";
 }
 
 const boardClassList = document.querySelector(".board-container").classList
