@@ -35,10 +35,10 @@ class Board {
         this.boardBody = document.querySelector('.board-body');
 
         // create board on page and in array
-        for (let i = 0; i < this.height; i++) {
-            this.boardArray[i] = Array(this.width);
+        for (let y = 0; y < this.height; y++) {
+            this.boardArray[y] = Array(this.width);
             let tableRow = this.boardBody.insertRow();
-            for (let j = 0; j < this.width; j++) {
+            for (let x = 0; x < this.width; x++) {
                 let cell = document.createElement('td');
                 tableRow.insertCell(cell);
             }
@@ -46,22 +46,22 @@ class Board {
     }
     
 
-    getCell(i, j) { return this.boardBody.children[i].children[j]; }
-
-    set(i, j, char, setOccupied=true) {
-        let cell = this.getCell(i, j);
-        cell.innerText = this.boardArray[i][j] = char;
-        if (setOccupied || char===BLANK_CHAR) {
+    getCell(x, y) { return this.boardBody.children[y].children[x]; }
+    
+    set(x, y, char, setOccupied=true) {
+        let cell = this.getCell(x, y);
+        cell.innerText = this.boardArray[y][x] = char;
+        if (setOccupied) {
             cell.classList.add('occupied');
         }
     }
 
 
-    playerTurn(i, j) {
-        let cell = this.getCell(i, j);
+    playerTurn(x, y) {
+        let cell = this.getCell(x, y);
         if (!cell.classList.contains('occupied')) {
             const currentPlayer = players[this.currentPlayerIndex];
-            this.set(i, j, currentPlayer);
+            this.set(x, y, currentPlayer);
             
             this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length;
             this.turnCount++;
@@ -77,18 +77,18 @@ class Board {
     }
 
     reset(showCords=false) {
-        for (let i = 0; i < this.height; i++) {
-            for (let j = 0; j < this.width; j++) {
-                this.set(i, j, BLANK_CHAR, false);
-                let cell = this.getCell(i, j);
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                this.set(x, y, BLANK_CHAR, false);
+                let cell = this.getCell(x, y);
                 if (showCords) {
                     const cords = document.createElement("span")
                     cords.classList.add("cords")
-                    cords.innerText = "(" + i + "," + j + ")";
+                    cords.innerText = "(" + (x+1) + "," + (y+1) + ")";
                     cell.appendChild(cords);
                 }
                 cell.classList.remove('occupied');
-                cell.onclick = () => this.playerTurn(i, j)
+                cell.onclick = () => this.playerTurn(x, y)
             }
         }
     }
@@ -109,15 +109,15 @@ class Board {
 
     isPlayerWinner(player) {
         // check horizontal
-        for (let i = 0; i < this.height; i++) {
-            const row = this.boardArray[i];
+        for (let y = 0; y < this.height; y++) {
+            const row = this.boardArray[y];
             if (this.#isWinningArray(row, player)) {
                 return true;
             }   
         }
 
         // check vertical
-        for (let i = 0; i < this.width; i++) {
+        for (let x = 0; x < this.width; x++) {
             const collum = new Array();
             // collum.push
         }
@@ -129,9 +129,9 @@ class Board {
     }
 
     isOverflowing() {
-        for (let i = 0; i < this.height; i++) {
-            for (let j = 0; j < this.width; j++) {
-                if (this.getCell(i, j).getBoundingClientRect().left < 0) { return true; }
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                if (this.getCell(x, y).getBoundingClientRect().left < 0) { return true; }
             }
         }
     }

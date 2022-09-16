@@ -1,6 +1,6 @@
 :root {
     --board-box-size: min(20vh, 20vw);
-    --cords-visibility: hidden;
+    --cords-visibility: default;
 }
 
 html {
@@ -100,7 +100,7 @@ body {
 .cords {
     font-size: medium !important;
     color: hsl(0, 0%, 22%);
-    /* visibility: var(--cords-visibility); */
+    visibility: var(--cords-visibility);
 }
 
 .occupied {
