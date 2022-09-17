@@ -30,6 +30,7 @@ class Board {
         this.turnCount = 0;
         this.gameCount = 0;
         this.currentPlayerIndex = 0;
+        this.gameOver = false;
 
         this.boardArray = Array(this.height);
         this.boardBody = document.querySelector('.board-body');
@@ -59,15 +60,20 @@ class Board {
 
     playerTurn(x, y) {
         let cell = this.getCell(x, y);
-        if (!cell.classList.contains('occupied')) {
+        if (!this.gameOver && !cell.classList.contains('occupied')) {
             const currentPlayer = players[this.currentPlayerIndex];
             this.set(x, y, currentPlayer);
             
             this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length;
             this.turnCount++;
 
-            if (this.isPlayerWinner(currentPlayer)) {
-                setWinner(currentPlayer);
+            if (this.turnCount >= this.size) {
+                this.gameOver = true;
+                displayTie()
+            }
+            else if (this.isPlayerWinner(currentPlayer)) {
+                this.gameOver = true;
+                displayWinner(currentPlayer);
             }
             else {
                 currentPlayerSpan.innerText = players[this.currentPlayerIndex] + "s turn.";
@@ -98,6 +104,7 @@ class Board {
         this.currentPlayerIndex = this.gameCount % players.length;
         currentPlayerSpan.innerText = "Starting game with " + players[this.currentPlayerIndex] + "s.";
         this.turnCount = 0;
+        this.gameOver = false;
 
         this.reset(showCords);
 
@@ -149,9 +156,7 @@ class Board {
             }
             if (this.#isWinningArray(horizontalRightToLeft, player)) {
                 return true;
-            }
-
-            
+            }    
         }
     }
 
@@ -166,9 +171,18 @@ class Board {
 
 const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'));
 
-function setWinner(player) {
+function displayWinner(player) {
     currentPlayerSpan.innerText = player + " Wins!";
-    // board.boardBody.style.visibility = "hidden";
+    startNewGame();
+}
+
+function displayTie() {
+    currentPlayerSpan.innerText = "Tie";
+    startNewGame();
+}
+
+function startNewGame() {
+
 }
 
 const boardClassList = document.querySelector(".board-container").classList
