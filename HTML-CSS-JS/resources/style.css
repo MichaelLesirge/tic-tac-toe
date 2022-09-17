@@ -81,6 +81,10 @@ body {
 .board-table {
     border-collapse: separate;
     border-spacing: max(0.3em, 3px);
+    
+    padding: 7px;
+    border-radius: 25px;
+    background-color: hsl(184, 78%, 46%);
 }
 
 .board-table td {
@@ -89,8 +93,9 @@ body {
     min-width: var(--board-box-size);
     min-height: var(--board-box-size);
 
-    background-color: white;
+    /* background-color: white; */
     cursor: pointer;
+    border: 1px solid;
 
     font-size: var(--board-box-size);
     text-align: center;
