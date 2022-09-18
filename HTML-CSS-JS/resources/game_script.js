@@ -45,18 +45,6 @@ class Board {
             }
         }
     }
-    
-
-    getCell(x, y) { return this.boardBody.children[y].children[x]; }
-    
-    set(x, y, char, setOccupied=true) {
-        let cell = this.getCell(x, y);
-        cell.innerText = this.boardArray[y][x] = char;
-        if (setOccupied) {
-            cell.classList.add('occupied');
-        }
-    }
-
 
     playerTurn(x, y) {
         let cell = this.getCell(x, y);
@@ -82,6 +70,17 @@ class Board {
         }
     }
 
+    newGame(showCords=false) {
+        this.currentPlayerIndex = this.gameCount % players.length;
+        currentPlayerSpan.innerText = "Starting game with " + players[this.currentPlayerIndex] + "s.";
+        this.turnCount = 0;
+        this.gameOver = false;
+
+        this.reset(showCords);
+
+        this.gameCount++;
+    }
+
     reset(showCords=false) {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
@@ -100,37 +99,33 @@ class Board {
         }
     }
 
-    newGame(showCords=false) {
-        this.currentPlayerIndex = this.gameCount % players.length;
-        currentPlayerSpan.innerText = "Starting game with " + players[this.currentPlayerIndex] + "s.";
-        this.turnCount = 0;
-        this.gameOver = false;
-
-        this.reset(showCords);
-
-        this.gameCount++;
-    }
-
-    getStringSize() { return '(' + this.width + 'x' + this.height + ')'; }
-
     #isWinningArray(array, player) { return array.every( val => val === player ) }
 
     isPlayerWinner(player) {
         // check horizontal
         for (let y = 0; y < this.height; y++) {
-            const row = this.boardArray[y];
-            if (this.#isWinningArray(row, player)) {
-                return true;
+            let isWinningRow = true;
+            for (let x = 0; x < this.width; x++) {
+                if (this.getElement(x, y) !== player) {
+                    isWinningRow = false;
+                    break;
+                }
+            }
+            if (isWinningRow) {
+                return true
             }
         }
 
         // check vertical
         for (let x = 0; x < this.width; x++) {
-            const collum = new Array(this.height);
+            let isWinningCollum = true;
             for (let y = 0; y < this.height; y++) {
-                collum.push(this.boardArray[y][x]);
+                if (this.getElement(x, y) !== player) {
+                    isWinningCollum = false;
+                    break;
+                }
             }
-            if (this.#isWinningArray(collum, player)) {
+            if (isWinningCollum) {
                 return true;
             }
         }
@@ -167,6 +162,19 @@ class Board {
             }
         }
     }
+
+    getStringSize() { return '(' + this.width + 'x' + this.height + ')'; }
+
+    getCell = (x, y) => this.boardBody.children[y].children[x];
+    getElement = (x,y) => this.boardArray[y][x];
+    
+    set(x, y, char, setOccupied=true) {
+        let cell = this.getCell(x, y);
+        cell.innerText = this.boardArray[y][x] = char;
+        if (setOccupied) {
+            cell.classList.add('occupied');
+        }
+    }
 }
 
 const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'));
@@ -201,7 +209,7 @@ function fixOverflow() {
 fixOverflow();
 window.onresize = fixOverflow;
 
-let showCords = true;
+let showCords = false;
 const newGame = () => board.newGame(showCords);
 
 document.querySelector('.reset-board').onclick = newGame;
