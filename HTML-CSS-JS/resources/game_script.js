@@ -99,49 +99,53 @@ class Board {
         }
     }
 
-    checkWinHorizontal(player) {
+    isPlayerWinner(player) {  
+        let isWin;
+
+        // check horizontal
         for (let y = 0; y < this.height; y++) {
+            isWin = true;
             for (let x = 0; x < this.width; x++) {
                 if (this.getElement(x, y) !== player) {
-                    return false;
+                    isWin = false;
+                    break;
                 }
             }
-            return true;
+            if (isWin) return true;
         }
-    }
 
-    checkWinVertical(player) {
+        // check vertical
         for (let x = 0; x < this.width; x++) {
+            isWin = true;
             for (let y = 0; y < this.height; y++) {
                 if (this.getElement(x, y) !== player) {
-                    return false
+                    isWin = false;
+                    break;
                 }
             }
-            return true
+            if (isWin) return true;
         }
-    }
 
-    checkWinHorizontalLeftToRight(player) {
-        for (let i = 0; i < this.width; i++) {
-            if (this.getElement(i, i) !== player) {
-                return false
+        // check diagonals if board is square
+        if (this.width == this.height) {
+            isWin = true;
+            for (let i = 0; i < this.width; i++) {
+                if (this.getElement(i, i) !== player) {
+                    isWin = false;
+                    break;
+                }
             }
-        }
-        return true
-    }
+            if (isWin) return true;
 
-
-    checkWinHorizontalRightToLeft(player) {
-        for (let i = 0; i < this.width; i++) {
-            if (this.getElement(this.width-i-1, i) !== player) {
-                return false
+            isWin = true;
+            for (let i = 0; i < this.width; i++) {
+                if (this.getElement(this.width-i-1, i) !== player) {
+                    isWin = false;
+                    break;
+                }
             }
+            if (isWin) return true;
         }
-        return true
-    }
-
-    isPlayerWinner(player) {
-        return this.checkWinHorizontal(player) || this.checkWinVertical(player) || (this.width === this.height && (this.checkWinHorizontalLeftToRight(player) || this.checkWinHorizontalRightToLeft(player)))
     }
 
     isOverflowing() {
@@ -150,6 +154,7 @@ class Board {
                 if (this.getCell(x, y).getBoundingClientRect().left < 0) { return true; }
             }
         }
+        return false
     }
 
     getStringSize() { return '(' + this.width + 'x' + this.height + ')'; }
