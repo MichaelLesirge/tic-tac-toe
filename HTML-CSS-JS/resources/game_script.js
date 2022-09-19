@@ -99,60 +99,49 @@ class Board {
         }
     }
 
-    #isWinningArray(array, player) { return array.every( val => val === player ) }
-
-    isPlayerWinner(player) {
-        // check horizontal
+    checkWinHorizontal(player) {
         for (let y = 0; y < this.height; y++) {
-            let isWinningRow = true;
             for (let x = 0; x < this.width; x++) {
                 if (this.getElement(x, y) !== player) {
-                    isWinningRow = false;
-                    break;
+                    return false;
                 }
             }
-            if (isWinningRow) {
-                return true
-            }
+            return true;
         }
+    }
 
-        // check vertical
+    checkWinVertical(player) {
         for (let x = 0; x < this.width; x++) {
-            let isWinningCollum = true;
             for (let y = 0; y < this.height; y++) {
                 if (this.getElement(x, y) !== player) {
-                    isWinningCollum = false;
-                    break;
+                    return false
                 }
             }
-            if (isWinningCollum) {
-                return true;
+            return true
+        }
+    }
+
+    checkWinHorizontalLeftToRight(player) {
+        for (let i = 0; i < this.width; i++) {
+            if (this.getElement(i, i) !== player) {
+                return false
             }
         }
+        return true
+    }
 
-        // check diagnals if board is a square
-        if (this.width === this.height) {
-            
-            const horizontalLeftToRight = new Array(this.width);
 
-            // check top left to buttom right
-            for (let i = 0; i < this.width; i++) {
-                horizontalLeftToRight.push(this.boardArray[i][i]);
+    checkWinHorizontalRightToLeft(player) {
+        for (let i = 0; i < this.width; i++) {
+            if (this.getElement(this.width-i-1, i) !== player) {
+                return false
             }
-            if (this.#isWinningArray(horizontalLeftToRight, player)) {
-                return true;
-            }
-
-            const horizontalRightToLeft = new Array(this.width);
-
-            // check top right to button left
-            for (let i = 0; i < this.width; i++) {
-                horizontalRightToLeft.push(this.boardArray[i][this.width-i-1]);
-            }
-            if (this.#isWinningArray(horizontalRightToLeft, player)) {
-                return true;
-            }    
         }
+        return true
+    }
+
+    isPlayerWinner(player) {
+        return this.checkWinHorizontal(player) || this.checkWinVertical(player) || (this.width === this.height && (this.checkWinHorizontalLeftToRight(player) || this.checkWinHorizontalRightToLeft(player)))
     }
 
     isOverflowing() {
