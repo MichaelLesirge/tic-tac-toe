@@ -32,6 +32,8 @@ class Board {
         this.currentPlayerIndex = 0;
         this.gameOver = false;
 
+        this.minTurnsToWin = Math.min(this.width, this.height)
+
         this.boardArray = Array(this.height);
         this.boardBody = document.querySelector('.board-body');
 
@@ -49,24 +51,25 @@ class Board {
     playerTurn(x, y) {
         let cell = this.getCell(x, y);
         if (!this.gameOver && !cell.classList.contains('occupied')) {
+            cell.onclick = () => {}
+
             const currentPlayer = players[this.currentPlayerIndex];
             this.set(x, y, currentPlayer);
             
             this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length;
             this.turnCount++;
 
-            if (this.turnCount >= this.size) {
-                this.gameOver = true;
-                displayTie()
-            }
-            else if (this.isPlayerWinner(currentPlayer)) {
+            if (this.isPlayerWinner(currentPlayer)) {
                 this.gameOver = true;
                 displayWinner(currentPlayer);
+            }
+            else if (this.turnCount >= this.size) {
+                this.gameOver = true;
+                displayTie()
             }
             else {
                 currentPlayerSpan.innerText = players[this.currentPlayerIndex] + "s turn.";
             }
-            // cell.onclick = () => {}
         }
     }
 
@@ -99,7 +102,10 @@ class Board {
         }
     }
 
-    isPlayerWinner(player) {  
+    isPlayerWinner(player) {
+        if ((this.turnCount / players.length)+1 < this.minTurnsToWin) return false;
+
+
         let isWin;
 
         // check horizontal
@@ -154,7 +160,7 @@ class Board {
                 if (this.getCell(x, y).getBoundingClientRect().left < 0) { return true; }
             }
         }
-        return false
+        return false;
     }
 
     getStringSize() { return '(' + this.width + 'x' + this.height + ')'; }
@@ -203,7 +209,7 @@ function fixOverflow() {
 fixOverflow();
 window.onresize = fixOverflow;
 
-let showCords = false;
+let showCords = true;
 const newGame = () => board.newGame(showCords);
 
 document.querySelector('.reset-board').onclick = newGame;
