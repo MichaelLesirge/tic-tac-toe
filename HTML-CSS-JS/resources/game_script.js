@@ -190,7 +190,7 @@ function displayTie() {
 }
 
 function startNewGame() {
-
+    
 }
 
 const boardClassList = document.querySelector(".board-container").classList

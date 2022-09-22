@@ -10,12 +10,21 @@
     <title>Tic Tac Toe</title>
 </head>
 <body>
-    <header class="centered-container fixed-container">
-        <div class="fixed-content header">
-            <h1 class="title">Play Simple Tic Tac Toe</h1>
-            <span class="current-player">Loading...</span>
+    <nav class="fixed-container">
+        <div class="fixed-content navbar">
+            <div class="title">
+                <h1>Play Simple Tic Tac Toe</h1>
+            </div>
+            <div class="info">
+                <h4 class="current-player">Loading...</h4>
+                <button class="reset-board">Reset Board</button>
+            </div>
+            <div>
+                <a href="index.html">Home</a>
+                <a href="game.html">Play game</a>
+            </div>
         </div>
-    </header>
+    </nav>
 
     <main class="centered-container board-container">
         <table class="board-table">
@@ -24,13 +33,6 @@
             </tbody>
         </table>
     </main>
-
-    <section class="centered-container fixed-container">
-        <div class="fixed-content info">
-            <button class="reset-board">Reset Board</button>
-            <a href="index.html">Home</a>
-        </div>
-    </section>
 
     <script src="resources/game_script.js"></script>
 </body>

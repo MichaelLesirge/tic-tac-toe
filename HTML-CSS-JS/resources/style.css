@@ -9,7 +9,7 @@ html {
 
 body {
     background: rgb(34, 193, 195);
-    background: linear-gradient(hsl(181, 70%, 45%), hsl(209, 98%, 58%));
+    background: linear-gradient(hsl(200, 70%, 45%), hsl(200, 70%, 35%));
     background-repeat: no-repeat;
     background-attachment: fixed;
 
@@ -22,10 +22,30 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    padding: 0.5rem;
 }
 
-.title {
-    text-align: center;
+.fixed-container {
+    height: 100px;
+}
+
+.fixed-content {
+    float: center;
+    position: fixed;
+}
+
+.navbar {
+    width: 100%;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background-color: hsl(209, 98%, 58%);
+}
+
+.navbar div {
+    margin: 0 1rem;
 }
 
 .game-form {
@@ -58,33 +78,27 @@ body {
     text-decoration: none;
     font-size: 16px;
 }
-
 .submit-btn:hover {
     background-color: hsl(122, 50%, 56%);
     padding: 15px 34px;
 }
-
 .submit-btn:active {
     background-color: hsl(126, 100%, 50%);
 }
 
-.info, .header {
-    text-align: center;
-}
+.info {
+    display: flex;
+    justify-content: space-between;
 
-.game-over {
-    text-align: center;
-    font-size: 30px;
-    margin: 3px 0px;
+    width: 16rem;
 }
 
 .board-table {
     border-collapse: separate;
     border-spacing: max(0.3em, 3px);
     
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    background-color: hsl(184, 78%, 46%);
+    /* border-radius: 0.5rem; */
+    /* background-color: hsl(184, 78%, 46%); */
 }
 
 .board-table td {
@@ -93,9 +107,9 @@ body {
     min-width: var(--board-box-size);
     min-height: var(--board-box-size);
 
-    /* background-color: white; */
     cursor: pointer;
-    border: 1px solid;
+    background-color: white;
+    /* border: 1px solid black; */
 
     font-size: var(--board-box-size);
     text-align: center;
@@ -110,13 +124,4 @@ body {
 
 .occupied {
     cursor: not-allowed !important;
-}
-
-.fixed-container {
-    height: 100px;
-}
-
-.fixed-content {
-    float: center;
-    position: fixed;
 }
