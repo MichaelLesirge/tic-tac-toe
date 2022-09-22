@@ -190,7 +190,7 @@ function displayTie() {
 }
 
 function startNewGame() {
-    
+
 }
 
 const boardClassList = document.querySelector(".board-container").classList
@@ -209,7 +209,7 @@ function fixOverflow() {
 fixOverflow();
 window.onresize = fixOverflow;
 
-let showCords = true;
+let showCords = false;
 const newGame = () => board.newGame(showCords);
 
 document.querySelector('.reset-board').onclick = newGame;

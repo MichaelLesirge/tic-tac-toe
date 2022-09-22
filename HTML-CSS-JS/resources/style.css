@@ -36,6 +36,7 @@ body {
 
 .navbar {
     width: 100%;
+    min-height: 2em;
 
     display: flex;
     justify-content: space-between;
@@ -44,8 +45,14 @@ body {
     background-color: hsl(209, 98%, 58%);
 }
 
+.navbar a{
+    margin: 0 1vw;
+    white-space: nowrap;
+}
+
 .navbar div {
-    margin: 0 1rem;
+    margin: 0 0.4rem;
+    font-size: 1em;
 }
 
 .game-form {
@@ -86,11 +93,10 @@ body {
     background-color: hsl(126, 100%, 50%);
 }
 
-.info {
-    display: flex;
-    justify-content: space-between;
-
-    width: 16rem;
+@media only screen and (max-width: 600px) {
+    .title {
+        visibility: hidden;
+    }
 }
 
 .board-table {
