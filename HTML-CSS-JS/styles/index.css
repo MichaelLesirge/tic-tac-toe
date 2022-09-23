@@ -1,36 +1,31 @@
 .game-form {
     text-align: center;
     background-color: hsl(167, 25%, 29%);
-    width: 250px;
+    width: 15rem;
 }
 
 .form-group {
-    padding: 30px;
-}
-
-.form-field label {
-    display: inline-block;
+    padding: 1rem;
 }
 
 .form-field {
-    margin: 10px;
+    margin: 0.5rem 0;
 }
 
 .submit-btn {
     background-color: hsl(122, 39%, 49%);
     color: white;
 
-    padding: 15px 32px;
+    padding: 1rem 2.5rem;
     display: inline-block;
     border: none;
 
     text-align: center;
-    text-decoration: none;
-    font-size: 16px;
+    font-size: 1.2rem;
 }
 .submit-btn:hover {
     background-color: hsl(122, 50%, 56%);
-    padding: 15px 34px;
+    padding: 1rem 2.7rem;
 }
 .submit-btn:active {
     background-color: hsl(126, 100%, 50%);

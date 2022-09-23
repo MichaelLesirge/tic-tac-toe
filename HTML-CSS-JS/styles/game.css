@@ -5,7 +5,7 @@
 
 .board-table {
     border-collapse: separate;
-    border-spacing: max(0.3em, 3px);
+    border-spacing: max(0.3rem, 3px);
     
     /* border-radius: 0.2rem;
     border: 1px solid black; */
@@ -32,6 +32,7 @@
 .cords {
     font-size: medium;
     color: hsl(0, 0%, 20%);
+    
     visibility: var(--cords-visibility);
 }
 
