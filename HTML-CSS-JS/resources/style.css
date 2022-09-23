@@ -122,6 +122,10 @@ body {
     font-family: monospace;
 }
 
+.board-table td:hover:not(.occupied) {
+    background-color: hsl(0, 0%, 75%);
+}
+
 .cords {
     font-size: medium !important;
     color: hsl(0, 0%, 22%);
