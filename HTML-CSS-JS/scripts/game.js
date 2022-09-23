@@ -4,10 +4,10 @@ const MIN_SIZE = 1;
 const MAX_SIZE = 100;
 const DEFAULT_SIZE = 3;
 
+const root = document.documentElement
+
 const infoSpan = document.querySelector("#info");
-function displayInfo(msg) {
-    infoSpan.innerText = msg;
-}
+function displayInfo(msg) { infoSpan.innerText = msg; }
 
 // TODO allow users to specify num of players and there letters in home page (index.html)
 const players = ["x", "o"].map(element => element.toUpperCase());
@@ -34,6 +34,9 @@ class Board {
         this.gameCount = 0;
         this.currentPlayerIndex = 0;
         this.isPlaying = true;
+
+        this.isDisplayingCords = false;
+        root.style.setProperty("--cords-visibility", this.isDisplayingCords ? "defalt" : "hidden")
 
         this.minTurnsToWin = Math.min(this.width, this.height)
 
@@ -74,13 +77,13 @@ class Board {
         }
     }
 
-    newGame(showCords=false) {
+    newGame() {
         this.currentPlayerIndex = this.gameCount % players.length;
         infoSpan.innerText = "Starting game with " + players[this.currentPlayerIndex] + "s.";
         this.turnCount = 0;
         this.isPlaying = true;
 
-        this.reset(showCords);
+        this.reset();
 
         this.gameCount++;
     }
@@ -93,17 +96,17 @@ class Board {
         })
     }
 
-    reset(showCords=false) {
+    reset() {
         this.forEach((x, y) => {
             this.set(x, y, BLANK_CHAR, false);
             let cell = this.getCell(x, y);
-            if (showCords) {
-                const cords = document.createElement("span");
-                cords.classList.add("cords");
-                // cords.innerText = "(" + (x+1) + "," + (this.height-y) + ")";
-                cords.innerText = "(" + (y) + "," + (x) + ")";
-                cell.appendChild(cords);
-            }
+
+            const cords = document.createElement("span");
+            cords.classList.add("cords");
+            cords.innerText = "(" + (x+1) + "," + (this.height-y) + ")";
+            // cords.innerText = "(" + (y) + "," + (x) + ")";
+            cell.appendChild(cords);
+
             cell.classList.remove('occupied');
             cell.onclick = () => this.playerTurn(x, y);
         })
@@ -161,10 +164,18 @@ class Board {
     }
 
     isOverflowing() {
-        this.forEach((x, y) => {
-            if (this.getCell(x, y).getBoundingClientRect().left < 0) { return true; }
-        })
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                if (this.getCell(x, y).getBoundingClientRect().left < 0) { return true; }
+            }
+        }
+
         return false;
+    }
+
+    toggleCords() {
+        this.isDisplayingCords = !this.isDisplayingCords;
+        root.style.setProperty("--cords-visibility", this.isDisplayingCords ? "defalt" : "hidden")
     }
 
     getStringSize() { return '(' + this.width + 'x' + this.height + ')'; }
@@ -193,6 +204,7 @@ const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'))
 
 const boardClassList = document.querySelector(".board-container").classList
 const bodyStyle = document.body.style
+
 function fixOverflow() {
     if (board.isOverflowing()) {
         boardClassList.remove("centered-container");
@@ -207,7 +219,9 @@ function fixOverflow() {
 fixOverflow();
 window.onresize = fixOverflow;
 
-const newGame = () => board.newGame(false);
+document.querySelector("#toggle-cords").onclick = () => board.toggleCords();
+
+const newGame = () => board.newGame(true);
 
 document.querySelector('#reset-button').onclick = newGame;
 newGame();

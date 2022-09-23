@@ -3,8 +3,8 @@ html {
 }
 
 body {
-    background: rgb(34, 193, 195);
-    background: linear-gradient(hsl(200, 70%, 45%), hsl(200, 70%, 35%));
+    background: hsl(200, 70%, 40%);
+    background: linear-gradient(hsl(200, 70%, 46%), hsl(200, 70%, 34%));
     background-repeat: no-repeat;
     background-attachment: fixed;
 
@@ -39,7 +39,7 @@ body {
     justify-content: space-between;
     align-items: center;
 
-    background-color: hsl(209, 98%, 58%);
+    background-color: hsl(200, 70%, 60%);
 }
 
 .navbar a{
