@@ -1,0 +1,40 @@
+:root {
+    --board-box-size: calc(min(20vh, 20vw) + 1rem);
+    --cords-visibility: default;
+}
+
+.board-table {
+    border-collapse: separate;
+    border-spacing: max(0.3em, 3px);
+    
+    /* border-radius: 0.2rem;
+    border: 1px solid black; */
+}
+
+.board-table td {
+    width: var(--board-box-size);
+    height: var(--board-box-size);
+    min-width: var(--board-box-size);
+    min-height: var(--board-box-size);
+
+    cursor: pointer;
+    background-color: hsl(0, 0%, 100%);
+
+    font-size: var(--board-box-size);
+    text-align: center;
+    font-family: monospace;
+}
+
+.board-table td:hover:not(.occupied) {
+    background-color: hsl(0, 0%, 85%);
+}
+
+.cords {
+    font-size: medium;
+    color: hsl(0, 0%, 20%);
+    visibility: var(--cords-visibility);
+}
+
+.occupied {
+    cursor: default !important;
+}

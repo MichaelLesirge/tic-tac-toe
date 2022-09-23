@@ -1,0 +1,53 @@
+html {
+    line-height: 1;
+}
+
+body {
+    background: rgb(34, 193, 195);
+    background: linear-gradient(hsl(200, 70%, 45%), hsl(200, 70%, 35%));
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+
+    margin: 0;
+    padding: 0;
+}
+
+.centered-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5rem;
+}
+
+.fixed-container {
+    height: 100px;
+}
+
+.fixed-content {
+    float: center;
+    position: fixed;
+}
+
+.navbar {
+    width: 100%;
+    min-height: 2.5rem;
+
+    font-size: 1.5rem;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    background-color: hsl(209, 98%, 58%);
+}
+
+.navbar a{
+    margin: 0 1vw;
+    white-space: nowrap;
+}
+
+.navbar div {
+    margin: 0 0.4rem;
+    font-size: 1em;
+}

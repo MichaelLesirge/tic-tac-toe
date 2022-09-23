@@ -1,6 +1,7 @@
 // I have very little javascript experience currently.
 
 const MIN_SIZE = 1;
+const MAX_SIZE = 100;
 const DEFAULT_SIZE = 3;
 
 const currentPlayerSpan = document.querySelector(".current-player");
@@ -209,8 +210,7 @@ function fixOverflow() {
 fixOverflow();
 window.onresize = fixOverflow;
 
-let showCords = false;
-const newGame = () => board.newGame(showCords);
+const newGame = () => board.newGame(true);
 
 document.querySelector('.reset-board').onclick = newGame;
 newGame();
