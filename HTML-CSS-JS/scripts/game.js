@@ -4,8 +4,10 @@ const MIN_SIZE = 1;
 const MAX_SIZE = 100;
 const DEFAULT_SIZE = 3;
 
-const currentPlayerSpan = document.querySelector(".current-player");
-const gameOverSpan = document.querySelector(".game-over");
+const infoSpan = document.querySelector("#info");
+function displayInfo(msg) {
+    infoSpan.innerText = msg;
+}
 
 // TODO allow users to specify num of players and there letters in home page (index.html)
 const players = ["x", "o"].map(element => element.toUpperCase());
@@ -31,7 +33,7 @@ class Board {
         this.turnCount = 0;
         this.gameCount = 0;
         this.currentPlayerIndex = 0;
-        this.gameOver = false;
+        this.isPlaying = true;
 
         this.minTurnsToWin = Math.min(this.width, this.height)
 
@@ -51,7 +53,7 @@ class Board {
 
     playerTurn(x, y) {
         let cell = this.getCell(x, y);
-        if (!this.gameOver && !cell.classList.contains('occupied')) {
+        if (this.isPlaying) {
             cell.onclick = () => {}
 
             const currentPlayer = players[this.currentPlayerIndex];
@@ -61,51 +63,54 @@ class Board {
             this.turnCount++;
 
             if (this.isPlayerWinner(currentPlayer)) {
-                this.gameOver = true;
-                displayWinner(currentPlayer);
+                this.gameOver(currentPlayer + " Wins");
             }
             else if (this.turnCount >= this.size) {
-                this.gameOver = true;
-                displayTie()
+                this.gameOver("Tie")
             }
             else {
-                currentPlayerSpan.innerText = players[this.currentPlayerIndex] + "s turn.";
+                displayInfo(players[this.currentPlayerIndex] + "s turn.");
             }
         }
     }
 
     newGame(showCords=false) {
         this.currentPlayerIndex = this.gameCount % players.length;
-        currentPlayerSpan.innerText = "Starting game with " + players[this.currentPlayerIndex] + "s.";
+        infoSpan.innerText = "Starting game with " + players[this.currentPlayerIndex] + "s.";
         this.turnCount = 0;
-        this.gameOver = false;
+        this.isPlaying = true;
 
         this.reset(showCords);
 
         this.gameCount++;
     }
 
+    gameOver(msg) {
+        displayInfo(msg + "!")
+        this.isPlaying = false;
+        this.forEach((x, y) => {
+            this.getCell(x, y).classList.add('occupied')
+        })
+    }
+
     reset(showCords=false) {
-        for (let y = 0; y < this.height; y++) {
-            for (let x = 0; x < this.width; x++) {
-                this.set(x, y, BLANK_CHAR, false);
-                let cell = this.getCell(x, y);
-                if (showCords) {
-                    const cords = document.createElement("span");
-                    cords.classList.add("cords");
-                    // cords.innerText = "(" + (x+1) + "," + (this.height-y) + ")";
-                    cords.innerText = "(" + (y) + "," + (x) + ")";
-                    cell.appendChild(cords);
-                }
-                cell.classList.remove('occupied');
-                cell.onclick = () => this.playerTurn(x, y);
+        this.forEach((x, y) => {
+            this.set(x, y, BLANK_CHAR, false);
+            let cell = this.getCell(x, y);
+            if (showCords) {
+                const cords = document.createElement("span");
+                cords.classList.add("cords");
+                // cords.innerText = "(" + (x+1) + "," + (this.height-y) + ")";
+                cords.innerText = "(" + (y) + "," + (x) + ")";
+                cell.appendChild(cords);
             }
-        }
+            cell.classList.remove('occupied');
+            cell.onclick = () => this.playerTurn(x, y);
+        })
     }
 
     isPlayerWinner(player) {
         if ((this.turnCount / players.length)+1 < this.minTurnsToWin) return false;
-
 
         let isWin;
 
@@ -156,11 +161,9 @@ class Board {
     }
 
     isOverflowing() {
-        for (let y = 0; y < this.height; y++) {
-            for (let x = 0; x < this.width; x++) {
-                if (this.getCell(x, y).getBoundingClientRect().left < 0) { return true; }
-            }
-        }
+        this.forEach((x, y) => {
+            if (this.getCell(x, y).getBoundingClientRect().left < 0) { return true; }
+        })
         return false;
     }
 
@@ -168,6 +171,14 @@ class Board {
 
     getCell = (x, y) => this.boardBody.children[y].children[x];
     getElement = (x,y) => this.boardArray[y][x];
+
+    forEach (callback) {
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                callback(x, y)
+            }
+        }
+    }
     
     set(x, y, char, setOccupied=true) {
         let cell = this.getCell(x, y);
@@ -179,20 +190,6 @@ class Board {
 }
 
 const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'));
-
-function displayWinner(player) {
-    currentPlayerSpan.innerText = player + " Wins!";
-    startNewGame();
-}
-
-function displayTie() {
-    currentPlayerSpan.innerText = "Tie";
-    startNewGame();
-}
-
-function startNewGame() {
-
-}
 
 const boardClassList = document.querySelector(".board-container").classList
 const bodyStyle = document.body.style
@@ -210,9 +207,9 @@ function fixOverflow() {
 fixOverflow();
 window.onresize = fixOverflow;
 
-const newGame = () => board.newGame(true);
+const newGame = () => board.newGame(false);
 
-document.querySelector('.reset-board').onclick = newGame;
+document.querySelector('#reset-button').onclick = newGame;
 newGame();
 
 document.querySelector('title').innerText += ' ' + board.getStringSize();
