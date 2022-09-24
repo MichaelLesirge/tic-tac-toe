@@ -1,5 +1,5 @@
 :root {
-    --board-box-size: calc(min(20vh, 20vw) + 1rem);
+    --board-box-size: calc(20vmin + 1rem);
     --cords-visibility: default;
 }
 

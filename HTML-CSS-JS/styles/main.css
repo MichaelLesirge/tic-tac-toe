@@ -33,7 +33,7 @@ body {
     width: 100%;
     min-height: 2.5rem;
 
-    font-size: 1.5rem;
+    padding: 0.2rem 0;
 
     display: flex;
     justify-content: space-between;
@@ -42,12 +42,18 @@ body {
     background-color: hsl(200, 70%, 60%);
 }
 
-.navbar a{
-    margin: 0 1vw;
-    white-space: nowrap;
+.nav-section {
+    width: 20rem;
+    margin: 0 0.4rem;
+    font-size: max(1.2rem, 20px);
 }
 
-.navbar div {
-    margin: 0 0.4rem;
-    font-size: 1em;
+.nav-centered {
+    display: flex;
+    justify-content: center;
+}
+
+.navbar a{
+    margin: 0 0.2rem;
+    white-space: nowrap;
 }
