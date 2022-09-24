@@ -1,5 +1,5 @@
 # Tic-tac-toe in all the programming languages I learn.
-Every time I learn a new programming langauge well enought I try to create a version of tic-tac-toe with it. Every time I try and do it slightly differently. 
+Every time I learn a new programming langauge well enough I try to create a version of tic-tac-toe with it. Every time I try and do it slightly differently. 
 
 ## How to play games without download
 Run python game (tic-tac-toe.py) [here](https://www.programiz.com/python-programming/online-compiler/).  
