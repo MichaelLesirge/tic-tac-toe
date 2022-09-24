@@ -39,3 +39,7 @@
 .occupied {
     cursor: default !important;
 }
+
+.highlighted {
+    color: green !important;
+}

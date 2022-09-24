@@ -55,7 +55,7 @@ class Board {
     }
 
     playerTurn(x, y) {
-        let cell = this.getCell(x, y);
+        let cell = this.getTd(x, y);
         if (this.isPlaying) {
             resetBoardButton.disabled = false;
             cell.onclick = () => {}
@@ -66,7 +66,10 @@ class Board {
             this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length;
             this.turnCount++;
 
-            if (this.isPlayerWinner(currentPlayer)) {
+            let [isWinner, winningArray] = this.isPlayerWinner(currentPlayer);
+            console.log(isWinner, winningArray)
+            if (isWinner) {
+                this.highlightArray(winningArray);
                 this.gameOver(currentPlayer + " Wins");
             }
             else if (this.turnCount >= this.size) {
@@ -94,14 +97,14 @@ class Board {
         displayInfo(msg + "!")
         this.isPlaying = false;
         this.forEach((x, y) => {
-            this.getCell(x, y).classList.add("occupied")
+            this.getTd(x, y).classList.add("occupied")
         })
     }
 
     reset() {
         this.forEach((x, y) => {
             this.set(x, y, BLANK_CHAR, false);
-            let cell = this.getCell(x, y);
+            let cell = this.getTd(x, y);
 
             const cords = document.createElement("span");
             cords.classList.add("cords");
@@ -109,15 +112,17 @@ class Board {
             // cords.innerText = "(" + (y) + "," + (x) + ")";
             cell.appendChild(cords);
 
-            cell.classList.remove("occupied");
+            cell.classList.remove("occupied", "highlighted");
             cell.onclick = () => this.playerTurn(x, y);
         })
     }
 
     isPlayerWinner(player) {
-        if ((this.turnCount / players.length)+1 < this.minTurnsToWin) return false;
+        if ((this.turnCount / players.length)+1 < this.minTurnsToWin) return [false, null];
 
-        let isWin;
+        let isWin = false;
+        let winningArrayHeight = new Array(this.height);
+        let winningArrayWidth = new Array(this.width)
 
         // check horizontal
         for (let y = 0; y < this.height; y++) {
@@ -128,7 +133,12 @@ class Board {
                     break;
                 }
             }
-            if (isWin) return true;
+            if (isWin) {
+                for (let x = 0; x < this.width; x++) {
+                    winningArrayWidth[x] = this.getTd(x, y)
+                }
+                return [true, winningArrayWidth];
+            }
         }
 
         // check vertical
@@ -140,7 +150,12 @@ class Board {
                     break;
                 }
             }
-            if (isWin) return true;
+            if (isWin) {
+                for (let y = 0; y < this.height; y++) {
+                    winningArrayHeight[y] = this.getTd(x, y)
+                }
+                return [true, winningArrayHeight];
+            }
         }
 
         // check diagonals if board is square
@@ -152,7 +167,12 @@ class Board {
                     break;
                 }
             }
-            if (isWin) return true;
+            if (isWin) {
+                for (let i = 0; x < this.width; x++) {
+                    winningArrayWidth[i] = this.getTd(i, i)
+                }
+                return [true, winningArrayWidth];
+            }
 
             isWin = true;
             for (let i = 0; i < this.width; i++) {
@@ -161,18 +181,31 @@ class Board {
                     break;
                 }
             }
-            if (isWin) return true;
+            if (isWin) {
+                for (let i = 0; i < this.width; i++) {
+                    winningArrayWidth[i] = this.getTd(this.width-i-1, i)
+                }
+                return [true, winningArrayWidth];
+            }
+
+            return [false, null];
         }
     }
 
     isOverflowing() {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
-                if (this.getCell(x, y).getBoundingClientRect().left < 0) { return true; }
+                if (this.getTd(x, y).getBoundingClientRect().left < 0) { return true; }
             }
         }
 
         return false;
+    }
+
+    highlightArray(array) {
+        array.forEach(el => {
+            el.classList.add("highlighted")
+        })
     }
 
     toggleCords() {
@@ -182,7 +215,7 @@ class Board {
 
     getStringSize() { return '(' + this.width + 'x' + this.height + ')'; }
 
-    getCell = (x, y) => this.boardBody.children[y].children[x];
+    getTd = (x, y) => this.boardBody.children[y].children[x];
     getElement = (x,y) => this.boardArray[y][x];
 
     forEach (callback) {
@@ -194,7 +227,7 @@ class Board {
     }
     
     set(x, y, char, setOccupied=true) {
-        let cell = this.getCell(x, y);
+        let cell = this.getTd(x, y);
         cell.innerText = this.boardArray[y][x] = char;
         if (setOccupied) {
             cell.classList.add('occupied');
