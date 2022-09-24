@@ -1,12 +1,12 @@
-import {MIN_SIZE, MAX_SIZE, DEFAULT_SIZE} from "./consts.js"
+import {MIN_SIZE, MAX_SIZE, DEFAULT_SIZE} from "./consts.js";
 
-const root = document.documentElement
+const root = document.documentElement;
 
 const infoSpan = document.querySelector("#info");
-function displayInfo(msg) { infoSpan.innerText = msg; }
+const displayInfo = msg => infoSpan.innerText = msg;
 
 const toggleCordsButton = document.querySelector("#toggle-cords");
-const resetBoardButton = document.querySelector("#reset-button")
+const resetBoardButton = document.querySelector("#reset-button");
 
 // TODO allow users to specify num of players and there letters in home page (index.html)
 const players = ["x", "o"].map(element => element.toUpperCase());
@@ -38,7 +38,7 @@ class Board {
         this.isDisplayingCords = false;
         root.style.setProperty("--cords-visibility", this.isDisplayingCords ? "defalt" : "hidden")
 
-        this.minTurnsToWin = Math.min(this.width, this.height)
+        this.minTurnsToWin = Math.min(this.width, this.height);
 
         this.boardArray = Array(this.height);
         this.boardBody = document.querySelector(".board-body");
@@ -55,8 +55,8 @@ class Board {
     }
 
     playerTurn(x, y) {
-        let cell = this.getTd(x, y);
         if (this.isPlaying) {
+            let cell = this.getCell(x, y);
             resetBoardButton.disabled = false;
             cell.onclick = () => {}
 
@@ -67,13 +67,13 @@ class Board {
             this.turnCount++;
 
             let [isWinner, winningArray] = this.isPlayerWinner(currentPlayer);
-            console.log(isWinner, winningArray)
+
             if (isWinner) {
                 this.highlightArray(winningArray);
                 this.gameOver(currentPlayer + " Wins");
             }
             else if (this.turnCount >= this.size) {
-                this.gameOver("Tie")
+                this.gameOver("Tie");
             }
             else {
                 displayInfo(players[this.currentPlayerIndex] + "s turn.");
@@ -82,10 +82,10 @@ class Board {
     }
 
     newGame() {
+        this.isPlaying = true;
         this.currentPlayerIndex = this.gameCount % players.length;
         infoSpan.innerText = "Starting game with " + players[this.currentPlayerIndex] + "s.";
         this.turnCount = 0;
-        this.isPlaying = true;
 
         this.reset();
         document.querySelector("#reset-button").disabled = true;
@@ -94,17 +94,15 @@ class Board {
     }
 
     gameOver(msg) {
-        displayInfo(msg + "!")
         this.isPlaying = false;
-        this.forEach((x, y) => {
-            this.getTd(x, y).classList.add("occupied")
-        })
+        displayInfo(msg + "!")
+        this.forEach((x, y) => this.getCell(x, y).classList.add("occupied"));
     }
 
     reset() {
         this.forEach((x, y) => {
             this.set(x, y, BLANK_CHAR, false);
-            let cell = this.getTd(x, y);
+            let cell = this.getCell(x, y);
 
             const cords = document.createElement("span");
             cords.classList.add("cords");
@@ -135,7 +133,7 @@ class Board {
             }
             if (isWin) {
                 for (let x = 0; x < this.width; x++) {
-                    winningArrayWidth[x] = this.getTd(x, y)
+                    winningArrayWidth[x] = this.getCell(x, y)
                 }
                 return [true, winningArrayWidth];
             }
@@ -152,7 +150,7 @@ class Board {
             }
             if (isWin) {
                 for (let y = 0; y < this.height; y++) {
-                    winningArrayHeight[y] = this.getTd(x, y)
+                    winningArrayHeight[y] = this.getCell(x, y)
                 }
                 return [true, winningArrayHeight];
             }
@@ -168,8 +166,8 @@ class Board {
                 }
             }
             if (isWin) {
-                for (let i = 0; x < this.width; x++) {
-                    winningArrayWidth[i] = this.getTd(i, i)
+                for (let i = 0; i < this.width; i++) {
+                    winningArrayWidth[i] = this.getCell(i, i)
                 }
                 return [true, winningArrayWidth];
             }
@@ -183,39 +181,34 @@ class Board {
             }
             if (isWin) {
                 for (let i = 0; i < this.width; i++) {
-                    winningArrayWidth[i] = this.getTd(this.width-i-1, i)
+                    winningArrayWidth[i] = this.getCell(this.width-i-1, i)
                 }
                 return [true, winningArrayWidth];
             }
 
-            return [false, null];
-        }
+            }
+        return [false, null];
     }
 
     isOverflowing() {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
-                if (this.getTd(x, y).getBoundingClientRect().left < 0) { return true; }
+                if (this.getCell(x, y).getBoundingClientRect().left < 0) return true;
             }
         }
-
         return false;
     }
 
-    highlightArray(array) {
-        array.forEach(el => {
-            el.classList.add("highlighted")
-        })
-    }
+    highlightArray = (array) => array.forEach(el =>  el.classList.add("highlighted"));
 
     toggleCords() {
         this.isDisplayingCords = !this.isDisplayingCords;
         root.style.setProperty("--cords-visibility", this.isDisplayingCords ? "defalt" : "hidden")
     }
 
-    getStringSize() { return '(' + this.width + 'x' + this.height + ')'; }
+    getStringSize = () => '(' + this.width + 'x' + this.height + ')';
 
-    getTd = (x, y) => this.boardBody.children[y].children[x];
+    getCell = (x, y) => this.boardBody.children[y].children[x];
     getElement = (x,y) => this.boardArray[y][x];
 
     forEach (callback) {
@@ -227,7 +220,7 @@ class Board {
     }
     
     set(x, y, char, setOccupied=true) {
-        let cell = this.getTd(x, y);
+        let cell = this.getCell(x, y);
         cell.innerText = this.boardArray[y][x] = char;
         if (setOccupied) {
             cell.classList.add('occupied');
