@@ -1,6 +1,8 @@
 // Run here by copying and pasting code in to main file:
 // https://www.programiz.com/cpp-programming/online-compiler/
 
+// THIS PROJECT IS NOT COMPLETE
+
 #include <iostream>
 #include <string>
 
@@ -27,6 +29,8 @@ int main()
 {  
     bool isPlaying = true;
     String shouldPlayAgien;
+
+    std::cout << "This project is incomplete." << "\n" ;
 
     while (isPlaying)
     {
