@@ -1,13 +1,12 @@
-// I have very little javascript experience currently.
-
-const MIN_SIZE = 1;
-const MAX_SIZE = 100;
-const DEFAULT_SIZE = 3;
+import {MIN_SIZE, MAX_SIZE, DEFAULT_SIZE} from "./consts.js"
 
 const root = document.documentElement
 
 const infoSpan = document.querySelector("#info");
 function displayInfo(msg) { infoSpan.innerText = msg; }
+
+const toggleCordsButton = document.querySelector("#toggle-cords");
+const resetBoardButton = document.querySelector("#reset-button")
 
 // TODO allow users to specify num of players and there letters in home page (index.html)
 const players = ["x", "o"].map(element => element.toUpperCase());
@@ -17,6 +16,7 @@ function getValidSizeParam(name) {
     if (params.has(name)) {
         const size = parseInt(params.get(name));
         if (!isNaN(size)) {
+            // no check for to big becuase if someone wants to try it I wont stop them
             return Math.max(size, MIN_SIZE);
         }
     }
@@ -41,14 +41,14 @@ class Board {
         this.minTurnsToWin = Math.min(this.width, this.height)
 
         this.boardArray = Array(this.height);
-        this.boardBody = document.querySelector('.board-body');
+        this.boardBody = document.querySelector(".board-body");
 
         // create board on page and in array
         for (let y = 0; y < this.height; y++) {
             this.boardArray[y] = Array(this.width);
             let tableRow = this.boardBody.insertRow();
             for (let x = 0; x < this.width; x++) {
-                let cell = document.createElement('td');
+                let cell = document.createElement("td");
                 tableRow.insertCell(cell);
             }
         }
@@ -57,6 +57,7 @@ class Board {
     playerTurn(x, y) {
         let cell = this.getCell(x, y);
         if (this.isPlaying) {
+            resetBoardButton.disabled = false;
             cell.onclick = () => {}
 
             const currentPlayer = players[this.currentPlayerIndex];
@@ -84,6 +85,7 @@ class Board {
         this.isPlaying = true;
 
         this.reset();
+        document.querySelector("#reset-button").disabled = true;
 
         this.gameCount++;
     }
@@ -92,7 +94,7 @@ class Board {
         displayInfo(msg + "!")
         this.isPlaying = false;
         this.forEach((x, y) => {
-            this.getCell(x, y).classList.add('occupied')
+            this.getCell(x, y).classList.add("occupied")
         })
     }
 
@@ -107,7 +109,7 @@ class Board {
             // cords.innerText = "(" + (y) + "," + (x) + ")";
             cell.appendChild(cords);
 
-            cell.classList.remove('occupied');
+            cell.classList.remove("occupied");
             cell.onclick = () => this.playerTurn(x, y);
         })
     }
@@ -219,11 +221,11 @@ function fixOverflow() {
 fixOverflow();
 window.onresize = fixOverflow;
 
-document.querySelector("#toggle-cords").onclick = () => board.toggleCords();
+toggleCordsButton.onclick = () => board.toggleCords();
 
 const newGame = () => board.newGame(true);
 
-document.querySelector('#reset-button').onclick = newGame;
+resetBoardButton.onclick = newGame;
 newGame();
 
 document.querySelector('title').innerText += ' ' + board.getStringSize();
