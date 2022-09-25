@@ -30,7 +30,7 @@ body {
 
 .navbar {
     width: 100vw;
-    min-height: 2.5rem;
+    min-height: 2.5rem; 
 
     padding: 0.4rem 0;
 
@@ -39,8 +39,7 @@ body {
     align-items: center;
 
     background-color: hsl(200, 70%, 60%);
-}
-
+}   
 .nav-section {
     width: 20rem;
     margin: 0 0.4rem;
