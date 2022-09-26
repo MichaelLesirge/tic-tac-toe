@@ -199,19 +199,19 @@ class Board {
         return false;
     }
 
-    highlightArray = (array) => array.forEach(el =>  el.classList.add("highlighted"));
+    highlightArray(array) { array.forEach(el =>  el.classList.add("highlighted")) };
 
     toggleCords() {
         this.isDisplayingCords = !this.isDisplayingCords;
         root.style.setProperty("--cords-visibility", this.isDisplayingCords ? "defalt" : "hidden")
     }
 
-    getStringSize = () => '(' + this.width + 'x' + this.height + ')';
+    getStringSize() { '(' + this.width + 'x' + this.height + ')'; }
 
-    getCell = (x, y) => this.boardBody.children[y].children[x];
-    getElement = (x,y) => this.boardArray[y][x];
+    getCell(x, y) { this.boardBody.children[y].children[x]; }
+    getElement(x,y) { return this.boardArray[y][x]; }
 
-    forEach (callback) {
+    forEach(callback) {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
                 callback(x, y)
