@@ -84,7 +84,7 @@ class Board {
     newGame() {
         this.isPlaying = true;
         this.currentPlayerIndex = this.gameCount % players.length;
-        infoSpan.innerText = "Starting game " + players[this.currentPlayerIndex] + "s.";
+        infoSpan.innerText = "Starting with" + players[this.currentPlayerIndex] + "s.";
         this.turnCount = 0;
 
         this.reset();
