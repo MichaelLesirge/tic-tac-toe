@@ -116,77 +116,77 @@ class Board {
     }
 
     isPlayerWinner(player) {
-        if ((this.turnCount / players.length)+1 < this.minTurnsToWin) return [false, null];
+        if ((this.turnCount / players.length)+1 > this.minTurnsToWin) {
+            let isWin = false;
+            let winningArrayHeight = new Array(this.height);
+            let winningArrayWidth = new Array(this.width)
 
-        let isWin = false;
-        let winningArrayHeight = new Array(this.height);
-        let winningArrayWidth = new Array(this.width)
-
-        // check horizontal
-        for (let y = 0; y < this.height; y++) {
-            isWin = true;
-            for (let x = 0; x < this.width; x++) {
-                if (this.getElement(x, y) !== player) {
-                    isWin = false;
-                    break;
-                }
-            }
-            if (isWin) {
-                for (let x = 0; x < this.width; x++) {
-                    winningArrayWidth[x] = this.getCell(x, y)
-                }
-                return [true, winningArrayWidth];
-            }
-        }
-
-        // check vertical
-        for (let x = 0; x < this.width; x++) {
-            isWin = true;
+            // check horizontal
             for (let y = 0; y < this.height; y++) {
-                if (this.getElement(x, y) !== player) {
-                    isWin = false;
-                    break;
+                isWin = true;
+                for (let x = 0; x < this.width; x++) {
+                    if (this.getElement(x, y) !== player) {
+                        isWin = false;
+                        break;
+                    }
+                }
+                if (isWin) {
+                    for (let x = 0; x < this.width; x++) {
+                        winningArrayWidth[x] = this.getCell(x, y)
+                    }
+                    return [true, winningArrayWidth];
                 }
             }
-            if (isWin) {
+
+            // check vertical
+            for (let x = 0; x < this.width; x++) {
+                isWin = true;
                 for (let y = 0; y < this.height; y++) {
-                    winningArrayHeight[y] = this.getCell(x, y)
+                    if (this.getElement(x, y) !== player) {
+                        isWin = false;
+                        break;
+                    }
                 }
-                return [true, winningArrayHeight];
+                if (isWin) {
+                    for (let y = 0; y < this.height; y++) {
+                        winningArrayHeight[y] = this.getCell(x, y)
+                    }
+                    return [true, winningArrayHeight];
+                }
+            }
+
+            // check diagonals if board is square
+            if (this.width == this.height) {
+                isWin = true;
+                for (let i = 0; i < this.width; i++) {
+                    if (this.getElement(i, i) !== player) {
+                        isWin = false;
+                        break;
+                    }
+                }
+                if (isWin) {
+                    for (let i = 0; i < this.width; i++) {
+                        winningArrayWidth[i] = this.getCell(i, i)
+                    }
+                    return [true, winningArrayWidth];
+                }
+
+                isWin = true;
+                for (let i = 0; i < this.width; i++) {
+                    if (this.getElement(this.width-i-1, i) !== player) {
+                        isWin = false;
+                        break;
+                    }
+                }
+                if (isWin) {
+                    for (let i = 0; i < this.width; i++) {
+                        winningArrayWidth[i] = this.getCell(this.width-i-1, i)
+                    }
+                    return [true, winningArrayWidth];
+                }
+
             }
         }
-
-        // check diagonals if board is square
-        if (this.width == this.height) {
-            isWin = true;
-            for (let i = 0; i < this.width; i++) {
-                if (this.getElement(i, i) !== player) {
-                    isWin = false;
-                    break;
-                }
-            }
-            if (isWin) {
-                for (let i = 0; i < this.width; i++) {
-                    winningArrayWidth[i] = this.getCell(i, i)
-                }
-                return [true, winningArrayWidth];
-            }
-
-            isWin = true;
-            for (let i = 0; i < this.width; i++) {
-                if (this.getElement(this.width-i-1, i) !== player) {
-                    isWin = false;
-                    break;
-                }
-            }
-            if (isWin) {
-                for (let i = 0; i < this.width; i++) {
-                    winningArrayWidth[i] = this.getCell(this.width-i-1, i)
-                }
-                return [true, winningArrayWidth];
-            }
-
-            }
         return [false, null];
     }
 
