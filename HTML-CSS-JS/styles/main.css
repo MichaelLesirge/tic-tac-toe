@@ -29,7 +29,7 @@ body {
 }
 
 .navbar {
-    width: 100vw;
+    width: 100%;
     min-height: 2.5rem; 
 
     padding: 0.4rem 0;
@@ -39,16 +39,22 @@ body {
     align-items: center;
 
     background-color: hsl(200, 70%, 60%);
-}   
+}
+
 .nav-section {
     width: 20rem;
-    margin: 0 0.4rem;
-    font-size: max(1.2rem, 20px);
+    font-size: 1.2rem;
 }
 
 .nav-centered {
     display: flex;
     justify-content: center;
+    flex-wrap: wrap;
+}
+
+.navbar button {
+    width: 7rem;
+    font-size: 0.8rem;
 }
 
 .navbar a{
