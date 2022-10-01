@@ -206,9 +206,9 @@ class Board {
         root.style.setProperty("--cords-visibility", this.isDisplayingCords ? "defalt" : "hidden")
     }
 
-    getStringSize() { '(' + this.width + 'x' + this.height + ')'; }
+    getStringSize() { return '(' + this.width + 'x' + this.height + ')'; }
 
-    getCell(x, y) { this.boardBody.children[y].children[x]; }
+    getCell(x, y) { return this.boardBody.children[y].children[x]; }
     getElement(x,y) { return this.boardArray[y][x]; }
 
     forEach(callback) {
