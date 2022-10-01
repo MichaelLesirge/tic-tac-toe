@@ -36,7 +36,7 @@ class Board {
         this.isPlaying = true;
 
         this.isDisplayingCords = false;
-        root.style.setProperty("--cords-visibility", this.isDisplayingCords ? "defalt" : "hidden")
+        this.setCordsVisablity(this.isDisplayingCords);
 
         this.minTurnsToWin = Math.min(this.width, this.height);
 
@@ -203,7 +203,12 @@ class Board {
 
     toggleCords() {
         this.isDisplayingCords = !this.isDisplayingCords;
-        root.style.setProperty("--cords-visibility", this.isDisplayingCords ? "defalt" : "hidden")
+        this.setCordsVisablity(this.isDisplayingCords);
+    }
+
+    setCordsVisablity(visibility) {
+        toggleCordsButton.innerText = (visibility ?  "Hide" : "Display") + " Cords";
+        root.style.setProperty("--cords-visibility", visibility ? "defalt" : "hidden");
     }
 
     getStringSize() { return '(' + this.width + 'x' + this.height + ')'; }
