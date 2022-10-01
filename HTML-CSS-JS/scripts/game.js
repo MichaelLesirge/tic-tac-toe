@@ -213,9 +213,6 @@ class Board {
 
     getStringSize() { return '(' + this.width + 'x' + this.height + ')'; }
 
-    getCell(x, y) { return this.boardBody.children[y].children[x]; }
-    getElement(x,y) { return this.boardArray[y][x]; }
-
     forEach(callback) {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
@@ -231,6 +228,9 @@ class Board {
             cell.classList.add('occupied');
         }
     }
+
+    getCell(x, y) { return this.boardBody.children[y].children[x]; }
+    getElement(x,y) { return this.boardArray[y][x]; }
 }
 
 document.addEventListener("DOMContentLoaded", event => { 
