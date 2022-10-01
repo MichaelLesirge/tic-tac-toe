@@ -84,11 +84,11 @@ class Board {
     newGame() {
         this.isPlaying = true;
         this.currentPlayerIndex = this.gameCount % players.length;
-        infoSpan.innerText = "Starting with" + players[this.currentPlayerIndex] + "s.";
+        infoSpan.innerText = "Starting with " + players[this.currentPlayerIndex] + "s.";
         this.turnCount = 0;
 
         this.reset();
-        document.querySelector("#reset-button").disabled = true;
+        resetBoardButton.disabled = true;
 
         this.gameCount++;
     }
@@ -233,30 +233,32 @@ class Board {
     }
 }
 
-const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'));
+document.addEventListener("DOMContentLoaded", event => { 
+    const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'));
 
-const boardClassList = document.querySelector(".board-container").classList
-const bodyStyle = document.body.style
+    const boardClassList = document.querySelector(".board-container").classList
+    const bodyStyle = document.body.style
 
-function fixOverflow() {
-    if (board.isOverflowing()) {
-        boardClassList.remove("centered-container");
-        bodyStyle.overflowX = "scroll";
+    function fixOverflow() {
+        if (board.isOverflowing()) {
+            boardClassList.remove("centered-container");
+            bodyStyle.overflowX = "scroll";
+        }
+        else {
+            boardClassList.add("centered-container");
+            bodyStyle.overflowX = "default";
+        }
     }
-    else {
-        boardClassList.add("centered-container");
-        bodyStyle.overflowX = "default";
-    }
-}
 
-fixOverflow();
-window.onresize = fixOverflow;
+    fixOverflow();
+    window.onresize = fixOverflow;
 
-toggleCordsButton.onclick = () => board.toggleCords();
+    toggleCordsButton.onclick = () => board.toggleCords();
 
-const newGame = () => board.newGame(true);
+    const newGame = () => board.newGame(true);
 
-resetBoardButton.onclick = newGame;
-newGame();
+    resetBoardButton.onclick = newGame;
+    newGame();
 
-document.querySelector('title').innerText += ' ' + board.getStringSize();
+    document.querySelector('title').innerText += ' ' + board.getStringSize();
+});
