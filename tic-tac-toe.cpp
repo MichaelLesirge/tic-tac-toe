@@ -13,9 +13,9 @@ class Board{
 private:
     static const int s_DEFAULT_SIZE = 3;
 public:
-    int width;
-    int height;
-    int size;
+    const int width;
+    const int height;
+    const int size;
 
     Board(int width = s_DEFAULT_SIZE, int height = s_DEFAULT_SIZE)
         : width(width), height(height), size(width * height)
