@@ -9,7 +9,7 @@ const toggleCordsButton = document.querySelector("#toggle-cords");
 const resetBoardButton = document.querySelector("#reset-button");
 
 // TODO allow users to specify num of players and there letters in home page (index.html)
-const players = ["x", "o"].map(element => element.toUpperCase());
+const players = ["x", "o",].map(element => element.toUpperCase());
 
 const params = new URLSearchParams(location.search);
 function getValidSizeParam(name) {
@@ -38,7 +38,8 @@ class Board {
         this.isDisplayingCords = false;
         this.setCordsVisablity(this.isDisplayingCords);
 
-        this.minTurnsToWin = Math.min(this.width, this.height);
+        this.winRowLength = Math.min(this.width, this.height);
+        this.winCheckAfter = ((this.winRowLength - 1) * players.length);
 
         this.boardArray = Array(this.height);
         this.boardBody = document.querySelector(".board-body");
@@ -116,7 +117,7 @@ class Board {
     }
 
     isPlayerWinner(player) {
-        if ((this.turnCount / players.length)+1 > this.minTurnsToWin) {
+        if (this.turnCount > this.winCheckAfter) {
             let isWin = false;
             let winningArrayHeight = new Array(this.height);
             let winningArrayWidth = new Array(this.width)
