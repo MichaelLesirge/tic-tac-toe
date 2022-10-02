@@ -11,14 +11,11 @@ using String = std::string;
 
 class Board{
 private:
-    static const int s_DEFAULT_SIZE = 3;
+    static const int SIZE = 3;
 public:
-    const int width;
-    const int height;
-    const int size;
+    char board[3][3];
 
-    Board(int width = s_DEFAULT_SIZE, int height = s_DEFAULT_SIZE)
-        : width(width), height(height), size(width * height)
+    Board()
     {
         
     }
