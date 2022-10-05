@@ -32,31 +32,58 @@ public:
     {
         board[SIZE-y][x+1] = val;
     };
-
-    char detectWinner(char potentialWinner)
-    {
-        
-    }
 };
 
-String input(const String& prompt) {
+
+void print(const String& s, const String& end = "\n")
+{
+    std::cout << s << end;
+}
+
+String input(const String& prompt)
+{
     String val;
-    std::cout << prompt;
+    print(prompt, "");
     std::cin >> val;
     return val;
 }
 
+void splitInput(const String& s, int& val1, int& val2)
+{
+    int mid = s.find_first_of(',');
+    val1 = std::stoi(s.substr(0, mid));
+    val2 = std::stoi(s.substr(mid+1, s.length()));
+}
+
 int main()
-{  
+{   
     bool isPlaying = true;
     int choiceX, choiceY;
-    String choice;
 
-    std::cout << "This project is incomplete." << "\n" ;
+    Board board;
 
-    while (isPlaying)
-    {
-        choice = input("Enter \"QUIT\" to quit: ");
-        isPlaying = choice != "QUIT";
+    std::cout << "This project is incomplete." << "\n\n" ;
+
+    while(isPlaying)
+    {   
+        bool hasGotValidInput = false;
+        while(!hasGotValidInput)
+        {
+            try
+            {   
+                String choice = input("Where do you want to go: ");
+                if (choice=="QUIT") { exit(0); }
+
+                splitInput(choice, choiceX, choiceY);
+                hasGotValidInput = true;
+            }
+            catch (const std::exception& ex)
+            {
+                print("Invalid input. must be 2 comma seprated numbers. Example: \"2,3\"");
+            }
+        }
+        board.place(choiceX, choiceY, 'X');
+
+        std::cout << choiceX << ", " << choiceY << '\n';
     }
 }
