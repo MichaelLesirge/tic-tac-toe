@@ -11,9 +11,12 @@ using String = std::string;
 
 class Board{
 private:
-    static const int SIZE = 3;
-    static const char BLANK = ' ';
 public:
+    static const int SIZE = 3;
+    static const int TOTAL_SIZE = SIZE*SIZE;
+
+    static const char BLANK = ' ';
+
     char board[SIZE][SIZE];
 
     Board()
@@ -23,6 +26,16 @@ public:
                 board[i][j] = BLANK;
             }
         }
+    }
+
+    inline void place(int x, int y, char val)
+    {
+        board[SIZE-y][x+1] = val;
+    };
+
+    char detectWinner(char potentialWinner)
+    {
+        
     }
 };
 
@@ -36,11 +49,14 @@ String input(const String& prompt) {
 int main()
 {  
     bool isPlaying = true;
+    int choiceX, choiceY;
+    String choice;
 
     std::cout << "This project is incomplete." << "\n" ;
 
     while (isPlaying)
     {
-        isPlaying = input("Enter \"QUIT\" to quit: ") != "QUIT";
+        choice = input("Enter \"QUIT\" to quit: ");
+        isPlaying = choice != "QUIT";
     }
 }
