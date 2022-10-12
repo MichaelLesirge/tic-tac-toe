@@ -16,14 +16,49 @@ function getValidSizeParam(name) {
     if (params.has(name)) {
         const size = parseInt(params.get(name));
         if (!isNaN(size)) {
-            // no check for to big becuase if someone wants to try it I wont stop them
+            // no check for to large becuase if someone wants to try it I wont stop them
             return Math.max(size, MIN_SIZE);
         }
     }
     return DEFAULT_SIZE;
 }
 
-const BLANK_CHAR = '';
+
+const BLANK_SYMBAL = '';
+
+class Cell {
+    constructor(x, y, text=BLANK_SYMBAL) {
+        this.x = x;
+        this.y = y;
+
+        this.el = document.createElement("td");
+        this.val = text;
+
+        this.set(text)
+    }
+
+    set(text) {
+        this.val = text
+        this.el.innerText = text;
+    }
+
+    disable() {
+        this.el.onclick = () => {};
+        this.el.classList.add("occupied");
+    }
+
+    reset() {
+        this.set(BLANK_SYMBAL);
+        this.el.classList.remove("occupied", "highlighted");
+    }
+
+    setOnClick(onclickFunc) {
+        this.el.onclick = onclickFunc;
+    }
+}  
+
+
+
 class Board {
     constructor(width = DEFAULT_SIZE, height = DEFAULT_SIZE) {
         this.width = width;
@@ -49,21 +84,25 @@ class Board {
             this.boardArray[y] = Array(this.width);
             let tableRow = this.boardBody.insertRow();
             for (let x = 0; x < this.width; x++) {
-                let cell = document.createElement("td");
-                tableRow.insertCell(cell);
+                let cell = new Cell(x, y)
+                this.boardArray[y][x] = cell;
+                tableRow.insertCell(cell.el);
+
+                cell.set("a")
             }
         }
     }
 
-    playerTurn(x, y) {
+    playerTurn(cell) {
+        console.log("click");
         if (this.isPlaying) {
-            let cell = this.getCell(x, y);
             resetBoardButton.disabled = false;
-            cell.onclick = () => {}
 
             const currentPlayer = players[this.currentPlayerIndex];
-            this.set(x, y, currentPlayer);
-            
+
+            cell.set(currentPlayer);
+            cell.disable()
+
             this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length;
             this.turnCount++;
 
@@ -71,10 +110,12 @@ class Board {
 
             if (isWinner) {
                 this.highlightArray(winningArray);
-                this.gameOver(currentPlayer + " Wins");
+                this.gameOver();
+                displayInfo(currentPlayer + " Wins!")
             }
             else if (this.turnCount >= this.size) {
-                this.gameOver("Tie");
+                this.gameOver();
+                displayInfo("Tie!")
             }
             else {
                 displayInfo(players[this.currentPlayerIndex] + "s turn.");
@@ -85,7 +126,7 @@ class Board {
     newGame() {
         this.isPlaying = true;
         this.currentPlayerIndex = this.gameCount % players.length;
-        infoSpan.innerText = "Starting with " + players[this.currentPlayerIndex] + "s.";
+        displayInfo("Starting with " + players[this.currentPlayerIndex] + "s.");
         this.turnCount = 0;
 
         this.reset();
@@ -94,25 +135,20 @@ class Board {
         this.gameCount++;
     }
 
-    gameOver(msg) {
+    gameOver() {
         this.isPlaying = false;
-        displayInfo(msg + "!")
-        this.forEach((x, y) => this.getCell(x, y).classList.add("occupied"));
+        this.forEach(cell => cell.disable());
     }
 
     reset() {
-        this.forEach((x, y) => {
-            this.set(x, y, BLANK_CHAR, false);
-            let cell = this.getCell(x, y);
-
+        this.forEach(cell => {
             const cords = document.createElement("span");
             cords.classList.add("cords");
-            cords.innerText = "(" + (x+1) + "," + (this.height-y) + ")";
-            // cords.innerText = "(" + (y) + "," + (x) + ")";
-            cell.appendChild(cords);
+            cords.innerText = "(" + (cell.x+1) + "," + (this.height-cell.y) + ")";
+            cell.el.appendChild(cords);
 
-            cell.classList.remove("occupied", "highlighted");
-            cell.onclick = () => this.playerTurn(x, y);
+            cell.reset();
+            cell.setOnClick(() => { this.playerTurn(cell) });
         })
     }
 
@@ -126,14 +162,14 @@ class Board {
             for (let y = 0; y < this.height; y++) {
                 isWin = true;
                 for (let x = 0; x < this.width; x++) {
-                    if (this.getElement(x, y) !== player) {
+                    if (this.getCell(x, y).val !== player) {
                         isWin = false;
                         break;
                     }
                 }
                 if (isWin) {
                     for (let x = 0; x < this.width; x++) {
-                        winningArrayWidth[x] = this.getCell(x, y)
+                        winningArrayWidth[x] = this.getCell(x, y).el
                     }
                     return [true, winningArrayWidth];
                 }
@@ -143,14 +179,14 @@ class Board {
             for (let x = 0; x < this.width; x++) {
                 isWin = true;
                 for (let y = 0; y < this.height; y++) {
-                    if (this.getElement(x, y) !== player) {
+                    if (this.getCell(x, y).val !== player) {
                         isWin = false;
                         break;
                     }
                 }
                 if (isWin) {
                     for (let y = 0; y < this.height; y++) {
-                        winningArrayHeight[y] = this.getCell(x, y)
+                        winningArrayHeight[y] = this.getCell(x, y).el
                     }
                     return [true, winningArrayHeight];
                 }
@@ -160,28 +196,28 @@ class Board {
             if (this.width == this.height) {
                 isWin = true;
                 for (let i = 0; i < this.width; i++) {
-                    if (this.getElement(i, i) !== player) {
+                    if (this.getCell(i, i).val !== player) {
                         isWin = false;
                         break;
                     }
                 }
                 if (isWin) {
                     for (let i = 0; i < this.width; i++) {
-                        winningArrayWidth[i] = this.getCell(i, i)
+                        winningArrayWidth[i] = this.getCellEl(i, i)
                     }
                     return [true, winningArrayWidth];
                 }
 
                 isWin = true;
                 for (let i = 0; i < this.width; i++) {
-                    if (this.getElement(this.width-i-1, i) !== player) {
+                    if (this.getCell(this.width-i-1, i) !== player) {
                         isWin = false;
                         break;
                     }
                 }
                 if (isWin) {
                     for (let i = 0; i < this.width; i++) {
-                        winningArrayWidth[i] = this.getCell(this.width-i-1, i)
+                        winningArrayWidth[i] = this.getCellEl(this.width-i-1, i)
                     }
                     return [true, winningArrayWidth];
                 }
@@ -191,16 +227,16 @@ class Board {
         return [false, null];
     }
 
+    highlightArray(array) { array.forEach(cell =>  cell.el.classList.add("highlighted")) };
+
     isOverflowing() {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
-                if (this.getCell(x, y).getBoundingClientRect().left < 0) return true;
+                if (this.getCell(x, y).el.getBoundingClientRect().left < 0) return true;
             }
         }
         return false;
     }
-
-    highlightArray(array) { array.forEach(el =>  el.classList.add("highlighted")) };
 
     toggleCords() {
         this.isDisplayingCords = !this.isDisplayingCords;
@@ -217,25 +253,21 @@ class Board {
     forEach(callback) {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
-                callback(x, y)
+                callback(this.getCell(x, y))
             }
         }
     }
     
-    set(x, y, char, setOccupied=true) {
-        let cell = this.getCell(x, y);
-        cell.innerText = this.boardArray[y][x] = char;
-        if (setOccupied) {
-            cell.classList.add('occupied');
-        }
-    }
-
-    getCell(x, y) { return this.boardBody.children[y].children[x]; }
-    getElement(x,y) { return this.boardArray[y][x]; }
+    getCell(x, y) { return this.boardArray[y][x]; }
 }
 
 document.addEventListener("DOMContentLoaded", event => { 
     const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'));
+
+    const newGame = () => board.newGame(true);
+
+    resetBoardButton.onclick = newGame;
+    newGame();
 
     const boardClassList = document.querySelector(".board-container").classList
     const bodyStyle = document.body.style
@@ -255,11 +287,6 @@ document.addEventListener("DOMContentLoaded", event => {
     window.onresize = fixOverflow;
 
     toggleCordsButton.onclick = () => board.toggleCords();
-
-    const newGame = () => board.newGame(true);
-
-    resetBoardButton.onclick = newGame;
-    newGame();
 
     document.querySelector('title').innerText += ' ' + board.getStringSize();
 });
