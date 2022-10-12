@@ -27,13 +27,13 @@ function getValidSizeParam(name) {
 const BLANK_SYMBAL = '';
 
 class Cell {
-    constructor(x, y, text=BLANK_SYMBAL) {
+    constructor(x, y, el) {
         this.x = x;
         this.y = y;
 
-        this.el = document.createElement("div");
+        this.el = el;
         
-        // this.set(text)
+        this.val = this.el.innerText = BLANK_SYMBAL
     }
 
     set(text) {
@@ -82,17 +82,16 @@ class Board {
             this.boardArray[y] = Array(this.width);
             let tableRow = this.boardBody.insertRow();
             for (let x = 0; x < this.width; x++) {
-                let cell = new Cell(x, y)
+                let el = tableRow.insertCell();
+
+                let cell = new Cell(x, y, el)
                 this.boardArray[y][x] = cell;
-                el = document.createElement("td")
-                el.innerText = "d"
-                tableRow.insertCell(el);
+
             }
         }
     }
 
     playerTurn(cell) {
-        console.log("click");
         if (this.isPlaying) {
             resetBoardButton.disabled = false;
 
@@ -168,7 +167,7 @@ class Board {
                 }
                 if (isWin) {
                     for (let x = 0; x < this.width; x++) {
-                        winningArrayWidth[x] = this.getCell(x, y).el
+                        winningArrayWidth[x] = this.getCell(x, y)
                     }
                     return [true, winningArrayWidth];
                 }
@@ -185,7 +184,7 @@ class Board {
                 }
                 if (isWin) {
                     for (let y = 0; y < this.height; y++) {
-                        winningArrayHeight[y] = this.getCell(x, y).el
+                        winningArrayHeight[y] = this.getCell(x, y)
                     }
                     return [true, winningArrayHeight];
                 }
@@ -193,6 +192,8 @@ class Board {
 
             // check diagonals if board is square
             if (this.width == this.height) {
+
+                // top left to buttom right
                 isWin = true;
                 for (let i = 0; i < this.width; i++) {
                     if (this.getCell(i, i).val !== player) {
@@ -202,21 +203,22 @@ class Board {
                 }
                 if (isWin) {
                     for (let i = 0; i < this.width; i++) {
-                        winningArrayWidth[i] = this.getCellEl(i, i)
+                        winningArrayWidth[i] = this.getCell(i, i);
                     }
                     return [true, winningArrayWidth];
                 }
 
+                // top right to buttom left
                 isWin = true;
                 for (let i = 0; i < this.width; i++) {
-                    if (this.getCell(this.width-i-1, i) !== player) {
+                    if (this.getCell(this.width-i-1, i).val !== player) {
                         isWin = false;
                         break;
                     }
                 }
                 if (isWin) {
                     for (let i = 0; i < this.width; i++) {
-                        winningArrayWidth[i] = this.getCellEl(this.width-i-1, i)
+                        winningArrayWidth[i] = this.getCell(this.width-i-1, i);
                     }
                     return [true, winningArrayWidth];
                 }
@@ -226,7 +228,7 @@ class Board {
         return [false, null];
     }
 
-    highlightArray(array) { array.forEach(cell =>  cell.el.classList.add("highlighted")) };
+    highlightArray(array) { array.forEach((cell) => cell.el.classList.add("highlighted")) };
 
     isOverflowing() {
         for (let y = 0; y < this.height; y++) {
@@ -252,7 +254,7 @@ class Board {
     forEach(callback) {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
-                callback(this.getCell(x, y))
+                callback(this.getCell(x, y));
             }
         }
     }
@@ -266,7 +268,7 @@ document.addEventListener("DOMContentLoaded", event => {
     const newGame = () => board.newGame(true);
 
     resetBoardButton.onclick = newGame;
-    // newGame();
+    newGame();
 
     const boardClassList = document.querySelector(".board-container").classList
     const bodyStyle = document.body.style
