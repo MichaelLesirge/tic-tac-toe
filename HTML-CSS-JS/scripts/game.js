@@ -42,12 +42,16 @@ class Cell {
 
     disable() {
         this.el.onclick = () => {};
-        this.el.classList.add("occupied");
+        this.el.classList.add("disabled");
+    }
+
+    highlight() {
+        this.el.classList.add("highlighted")
     }
 
     reset() {
         this.set(BLANK_SYMBAL);
-        this.el.classList.remove("occupied", "highlighted");
+        this.el.classList.remove("disabled", "highlighted");
     }
 
     setOnClick(onclickFunc) {
@@ -228,7 +232,7 @@ class Board {
         return [false, null];
     }
 
-    highlightArray(array) { array.forEach((cell) => cell.el.classList.add("highlighted")) };
+    highlightArray(array) { array.forEach((cell) => cell.highlight()) };
 
     isOverflowing() {
         for (let y = 0; y < this.height; y++) {

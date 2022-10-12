@@ -33,7 +33,7 @@
     visibility: var(--cords-visibility);
 }
 
-.occupied {
+.disabled {
     cursor: default !important;
 }
 
