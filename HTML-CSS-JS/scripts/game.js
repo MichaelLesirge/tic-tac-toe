@@ -31,15 +31,13 @@ class Cell {
         this.x = x;
         this.y = y;
 
-        this.el = document.createElement("td");
-        this.val = text;
-
-        this.set(text)
+        this.el = document.createElement("div");
+        
+        // this.set(text)
     }
 
     set(text) {
-        this.val = text
-        this.el.innerText = text;
+        this.val = this.el.innerText = text;
     }
 
     disable() {
@@ -86,9 +84,9 @@ class Board {
             for (let x = 0; x < this.width; x++) {
                 let cell = new Cell(x, y)
                 this.boardArray[y][x] = cell;
-                tableRow.insertCell(cell.el);
-
-                cell.set("a")
+                el = document.createElement("td")
+                el.innerText = "d"
+                tableRow.insertCell(el);
             }
         }
     }
@@ -148,6 +146,7 @@ class Board {
             cell.el.appendChild(cords);
 
             cell.reset();
+            
             cell.setOnClick(() => { this.playerTurn(cell) });
         })
     }
@@ -267,7 +266,7 @@ document.addEventListener("DOMContentLoaded", event => {
     const newGame = () => board.newGame(true);
 
     resetBoardButton.onclick = newGame;
-    newGame();
+    // newGame();
 
     const boardClassList = document.querySelector(".board-container").classList
     const bodyStyle = document.body.style
