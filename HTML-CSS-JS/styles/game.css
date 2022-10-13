@@ -22,16 +22,10 @@
     font-family: monospace;
 }
 
-.board-table td:hover:not(.occupied) {
+.board-table td:hover:not(.disabled) {
     background-color: hsl(0, 0%, 85%);
 }
 
-.cords {
-    font-size: medium;
-    color: hsl(0, 0%, 20%);
-    
-    visibility: var(--cords-visibility);
-}
 
 .disabled {
     cursor: default !important;
@@ -39,6 +33,13 @@
 
 .highlighted {
     color: green !important;
+}
+
+.cords {
+    font-size: medium;
+    color: hsl(0, 0%, 20%);
+    
+    visibility: var(--cords-visibility);
 }
 
 

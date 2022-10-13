@@ -1,12 +1,10 @@
 import {MIN_SIZE, MAX_SIZE, DEFAULT_SIZE} from "./consts.js";
 
-const root = document.documentElement;
+const toggleCordsButton = document.querySelector("#toggle-cords");
+const resetBoardButton = document.querySelector("#reset-button");
 
 const infoSpan = document.querySelector("#info");
 const displayInfo = msg => infoSpan.innerText = msg;
-
-const toggleCordsButton = document.querySelector("#toggle-cords");
-const resetBoardButton = document.querySelector("#reset-button");
 
 // TODO allow users to specify num of players and there letters in home page (index.html)
 const players = ["x", "o",].map(element => element.toUpperCase());
@@ -78,26 +76,27 @@ class Board {
         this.isPlaying = true;
 
         this.isDisplayingCords = false;
-        this.setCordsVisablity(this.isDisplayingCords);
-
+        
         this.winRowLength = Math.min(this.width, this.height);
         this.winCheckAfter = ((this.winRowLength - 1) * players.length);
-
+        
         this.boardArray = Array(this.height);
         this.boardBody = document.querySelector(".board-body");
-
+        
         // create board on page and in array
         for (let y = 0; y < this.height; y++) {
             this.boardArray[y] = Array(this.width);
             let tableRow = this.boardBody.insertRow();
             for (let x = 0; x < this.width; x++) {
                 let el = tableRow.insertCell();
-
+                
                 let cell = new Cell(x, y, el)
                 this.boardArray[y][x] = cell;
-
+                
             }
         }
+        
+        this.updateCordsVisablity();
     }
 
     playerTurn(cell) {
@@ -245,12 +244,12 @@ class Board {
 
     toggleCords() {
         this.isDisplayingCords = !this.isDisplayingCords;
-        this.setCordsVisablity(this.isDisplayingCords);
+        this.updateCordsVisablity(this.isDisplayingCords);
     }
 
-    setCordsVisablity(visibility) {
-        toggleCordsButton.innerText = (visibility ?  "Hide" : "Display") + " Cords";
-        root.style.setProperty("--cords-visibility", visibility ? "defalt" : "hidden");
+    updateCordsVisablity() {
+        toggleCordsButton.innerText = (this.isDisplayingCords ?  "Hide" : "Display") + " Cords";
+        this.boardBody.style.setProperty("--cords-visibility", this.isDisplayingCords ? "defalt" : "hidden");
     }
 
     getStringSize() { return '(' + this.width + 'x' + this.height + ')'; }
@@ -268,14 +267,13 @@ class Board {
 
 const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'));
 
-const newGame = () => board.newGame();
+board.newGame();
+resetBoardButton.onclick = board.newGame();
 
-newGame();
-resetBoardButton.onclick = newGame;
+toggleCordsButton.onclick = () => board.toggleCords();
 
 const boardClassList = document.querySelector(".board-container").classList
 const bodyStyle = document.body.style
-
 function fixOverflow() {
     if (board.isOverflowing()) {
         boardClassList.remove("centered-container");
@@ -289,7 +287,5 @@ function fixOverflow() {
 
 fixOverflow();
 window.onresize = fixOverflow;
-
-toggleCordsButton.onclick = () => board.toggleCords();
 
 document.querySelector('title').innerText += ' ' + board.getStringSize();
