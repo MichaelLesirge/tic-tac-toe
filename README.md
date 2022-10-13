@@ -10,4 +10,4 @@ Just copy and paste it into the main file and hit run.
 
 ## Plans
 
-This directory kind of empty currently but I am tring to learn C++. I also want to learn Java and C# at some point.
+This directory kind of empty currently but I am tring to learn C++. I also want to learn Java, C#, and Go at some point.
