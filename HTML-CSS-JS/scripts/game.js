@@ -57,9 +57,14 @@ class Cell {
     setOnClick(onclickFunc) {
         this.el.onclick = onclickFunc;
     }
-}  
 
-
+    addCords() {
+        const cords = document.createElement("span");
+        cords.classList.add("cords");
+        cords.innerText = "(" + (this.x+1) + "," + (this.y+1) + ")";
+        this.el.appendChild(cords)
+    }
+}
 
 class Board {
     constructor(width = DEFAULT_SIZE, height = DEFAULT_SIZE) {
@@ -143,13 +148,8 @@ class Board {
 
     reset() {
         this.forEach(cell => {
-            const cords = document.createElement("span");
-            cords.classList.add("cords");
-            cords.innerText = "(" + (cell.x+1) + "," + (this.height-cell.y) + ")";
-            cell.el.appendChild(cords);
-
             cell.reset();
-            
+            cell.addCords();
             cell.setOnClick(() => { this.playerTurn(cell) });
         })
     }
