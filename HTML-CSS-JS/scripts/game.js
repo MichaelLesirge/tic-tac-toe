@@ -268,7 +268,7 @@ class Board {
 
 const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'));
 
-const newGame = () => board.newGame(true);
+const newGame = () => board.newGame();
 
 resetBoardButton.onclick = newGame;
 newGame();
