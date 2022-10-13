@@ -270,8 +270,8 @@ const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'))
 
 const newGame = () => board.newGame();
 
-resetBoardButton.onclick = newGame;
 newGame();
+resetBoardButton.onclick = newGame;
 
 const boardClassList = document.querySelector(".board-container").classList
 const bodyStyle = document.body.style
