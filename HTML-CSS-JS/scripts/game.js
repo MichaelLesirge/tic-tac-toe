@@ -194,7 +194,7 @@ class Board {
             }
 
             // check diagonals if board is square
-            if (this.width == this.height) {
+            if (this.width === this.height) {
 
                 // top left to buttom right
                 isWin = true;
