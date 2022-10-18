@@ -2,6 +2,7 @@ import {MIN_SIZE, MAX_SIZE, DEFAULT_SIZE} from "./consts.js";
 
 const toggleCordsButton = document.querySelector("#toggle-cords");
 const resetBoardButton = document.querySelector("#reset-button");
+console.log(resetBoardButton)
 
 const infoSpan = document.querySelector("#info");
 const displayInfo = msg => infoSpan.innerText = msg;
@@ -286,7 +287,7 @@ if (wUpdate || hUpdate) {
 const board = new Board(width, height);
 
 board.newGame();
-resetBoardButton.onclick = board.newGame();
+resetBoardButton.onclick = () => board.newGame();
 
 toggleCordsButton.onclick = () => board.toggleCords();
 
