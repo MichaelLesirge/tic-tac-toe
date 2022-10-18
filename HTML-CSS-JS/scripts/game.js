@@ -10,19 +10,31 @@ const displayInfo = msg => infoSpan.innerText = msg;
 const players = ["x", "o",].map(element => element.toUpperCase());
 
 const params = new URLSearchParams(location.search);
-function getValidSizeParam(name) {
+
+function getValidNumberParam(name, min, max, defalt) {
     if (params.has(name)) {
         const size = parseInt(params.get(name));
         if (!isNaN(size)) {
-            // no check for to large becuase if someone wants to try it I wont stop them
-            return Math.max(size, MIN_SIZE);
+            return Math.max(Math.min(size, max), min);
         }
     }
-    return DEFAULT_SIZE;
+    return defalt;
 }
 
+function GetUpdateValidNumberParem(name, min, max, defalt) {
+    let needUpdate = false;
+    const num = getValidNumberParam(name, min, max, defalt);
+    if (params.get(name) != num) {
+        params.set(name, num);
+        needUpdate = true
+    }
+    return [needUpdate, num];
+}
 
-const BLANK_SYMBAL = '';
+const getUpdateValidSizeParam = (name) => GetUpdateValidNumberParem(name, MIN_SIZE, MAX_SIZE*10, DEFAULT_SIZE); // im not gonna stop them from making a massive board
+
+
+const BLANK_SYMBAL = "";
 
 class Cell {
     constructor(x, y, el) {
@@ -252,7 +264,7 @@ class Board {
         this.boardBody.style.setProperty("--cords-visibility", this.isDisplayingCords ? "defalt" : "hidden");
     }
 
-    getStringSize() { return '(' + this.width + 'x' + this.height + ')'; }
+    getStringSize() { return "(" + this.width + "x" + this.height + ")"; }
 
     forEach(callback) {
         for (let y = 0; y < this.height; y++) {
@@ -265,7 +277,13 @@ class Board {
     getCell(x, y) { return this.boardArray[y][x]; }
 }
 
-const board = new Board(getValidSizeParam('width'), getValidSizeParam('height'));
+const [wUpdate, width] = getUpdateValidSizeParam("width");
+const [hUpdate, height] = getUpdateValidSizeParam("height");
+if (wUpdate || hUpdate) {
+    location.search = params.toString();
+}
+
+const board = new Board(width, height);
 
 board.newGame();
 resetBoardButton.onclick = board.newGame();
@@ -288,4 +306,4 @@ function fixOverflow() {
 fixOverflow();
 window.onresize = fixOverflow;
 
-document.querySelector('title').innerText += ' ' + board.getStringSize();
+document.querySelector("title").innerText += " " + board.getStringSize();
