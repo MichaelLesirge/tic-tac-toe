@@ -32,7 +32,7 @@ function GetUpdateValidNumberParem(name, min, max, defalt) {
     return [needUpdate, num];
 }
 
-const getUpdateValidSizeParam = (name) => GetUpdateValidNumberParem(name, MIN_SIZE, MAX_SIZE*10, DEFAULT_SIZE); // im not gonna stop them from making a massive board
+const getUpdateValidSizeParam = (name) => GetUpdateValidNumberParem(name, MIN_SIZE, Infinity, DEFAULT_SIZE); // im not gonna stop them from making a massive board
 
 
 const BLANK_SYMBAL = "";
