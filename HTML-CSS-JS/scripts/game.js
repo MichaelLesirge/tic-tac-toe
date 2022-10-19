@@ -8,7 +8,7 @@ const infoSpan = document.querySelector("#info");
 const displayInfo = msg => infoSpan.innerText = msg;
 
 // TODO allow users to specify num of players and there letters in home page (index.html)
-const players = ["a", "b"].map(element => element.charAt(0).toUpperCase());
+const players = ["x", "o"].map(element => element.charAt(0).toUpperCase());
 
 const params = new URLSearchParams(location.search);
 
