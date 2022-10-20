@@ -262,11 +262,8 @@ function validNumber(num, min, max, fallback) {
 function getUpdateValidNumberParam(name, min, max, fallback) {
     let num = getNumberParam(name)
 
-    if (num > max) {
-        let purposfulyLarge = confirm(`Board ${name} of ${num} is to larger than recomend max of ${max}. Are you sure you want this size?`)
-        if (purposfulyLarge) {
-            max = Infinity
-        }
+    if (num > max && confirm(`Board ${name} of ${num} is to larger than recomend max of ${max}. Are you sure you want this size?`)) {
+        max = Infinity
     }
 
     let newNum = validNumber(num, min, max, fallback)
