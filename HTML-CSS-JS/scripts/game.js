@@ -2,40 +2,12 @@ import {MIN_SIZE, MAX_SIZE, DEFAULT_SIZE} from "./consts.js";
 
 const toggleCordsButton = document.querySelector("#toggle-cords");
 const resetBoardButton = document.querySelector("#reset-button");
-console.log(resetBoardButton)
 
 const infoSpan = document.querySelector("#info");
 const displayInfo = msg => infoSpan.innerText = msg;
 
 // TODO allow users to specify num of players and there letters in home page (index.html)
 const players = ["x", "o"].map(element => element.charAt(0).toUpperCase());
-
-const params = new URLSearchParams(location.search);
-
-function getValidNumberParam(name, min, max, defalt) {
-    if (params.has(name)) {
-        const size = parseInt(params.get(name));
-        if (!isNaN(size)) {
-            return Math.max(Math.min(size, max), min);
-        }
-    }
-    return defalt;
-}
-
-function GetUpdateValidNumberParem(name, min, max, defalt) {
-    let needUpdate = false;
-    const num = getValidNumberParam(name, min, max, defalt);
-    if (params.get(name) != num) {
-        params.set(name, num);
-        needUpdate = true
-    }
-    return [needUpdate, num];
-}
-
-const getUpdateValidSizeParam = (name) => GetUpdateValidNumberParem(name, MIN_SIZE, Infinity, DEFAULT_SIZE); // im not gonna stop them from making a massive board
-
-
-const BLANK_SYMBAL = "";
 
 class Cell {
     constructor(x, y, el) {
@@ -44,7 +16,7 @@ class Cell {
 
         this.el = el;
         
-        this.val = this.el.innerText = BLANK_SYMBAL
+        this.reset()
     }
 
     set(text) {
@@ -61,7 +33,7 @@ class Cell {
     }
 
     reset() {
-        this.set(BLANK_SYMBAL);
+        this.set("");
         this.el.classList.remove("disabled", "highlighted");
     }
 
@@ -265,8 +237,6 @@ class Board {
         this.boardBody.style.setProperty("--cords-visibility", this.isDisplayingCords ? "defalt" : "hidden");
     }
 
-    getStringSize() { return "(" + this.width + "x" + this.height + ")"; }
-
     forEach(callback) {
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
@@ -278,12 +248,44 @@ class Board {
     getCell(x, y) { return this.boardArray[y][x]; }
 }
 
-const [wUpdate, width] = getUpdateValidSizeParam("width");
-const [hUpdate, height] = getUpdateValidSizeParam("height");
-if (wUpdate || hUpdate) {
-    location.search = params.toString();
+const params = new URLSearchParams(location.search);
+const new_params = new URLSearchParams()
+
+function getNumberParam(name) {
+    return parseInt(params.get(name));
 }
 
+function validNumber(num, min, max, fallback) {
+    return isNaN(num) ? fallback : Math.max(min, Math.min(max, num))
+}
+
+function getUpdateValidNumberParam(name, min, max, fallback) {
+    let num = getNumberParam(name)
+
+    if (num > max) {
+        let purposfulyLarge = confirm(`Board ${name} of ${num} is to larger than recomend max of ${max}. Are you sure you want this size?`)
+        if (purposfulyLarge) {
+            max = Infinity
+        }
+    }
+
+    let newNum = validNumber(num, min, max, fallback)
+    new_params.set(name, newNum)
+
+    return [newNum, num !== newNum]
+}
+
+const getUpdateValidSizeParam = (name) => getUpdateValidNumberParam(name, MIN_SIZE, MAX_SIZE, DEFAULT_SIZE);
+
+const [width, wNeedsUpdate] = getUpdateValidSizeParam("width");
+const [height, hNeedsUpdate] = getUpdateValidSizeParam("height");
+
+
+if (wNeedsUpdate || hNeedsUpdate) {
+    location.search = new_params.toString()
+}
+
+console.log(width, height)
 const board = new Board(width, height);
 
 board.newGame();
@@ -307,4 +309,4 @@ function fixOverflow() {
 fixOverflow();
 window.onresize = fixOverflow;
 
-document.querySelector("title").innerText += " " + board.getStringSize();
+document.querySelector("title").innerText += ` (${width}x${height})`
