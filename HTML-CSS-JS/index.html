@@ -18,7 +18,7 @@
 			<div class="nav-items">
 				<div class="nav-section">
 					<a href="index.html">Create Board</a>
-					<a href="game.html">Play 3x3 game</a>
+					<a href="game.html">Play Standard Game</a>
 				</div>
 			</div>
 		</div>
@@ -32,16 +32,19 @@
 				<div class="card">
 					<h3 class="step-title">Create Board Sizes</h3>
 					<div class="form-group">
-						<input placeholder="board width" class="size" type="number" name="width" required="true" />
+						<label for="width">Width</label>
+						<input class="size" type="number" name="width"  id="width" required="true" />
 
-						<input class="size" type="number" name="height" required="true" />
+						<label for="height">Height</label>
+						<input class="size" type="number" name="height" id="height" required="true" />
 					</div>
 				</div>
 
 				<div class="card">
 					<h3 class="step-title">Win Conditions</h3>
 					<div class="form-group">
-						<input class="win-condition" type="number" name="win-condition" />
+							<label for="win-condition">How many in a row to win</label>
+							<input class="win-condition" type="number" name="win-condition" id="win-condition"/>
 					</div>
 				</div>
 

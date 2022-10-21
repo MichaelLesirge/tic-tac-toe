@@ -13,19 +13,16 @@
 
 	display: flex;
 	flex-direction: column;
-	gap: .25rem;
 }
 
 .form-group {
 	display: flex;
 	flex-direction: column;
-	gap: .25rem;
-	margin-bottom: .5rem;
+	margin-bottom: .100rem;
 }
 
 .form-group > label {
 	font-weight: bold;
-	font-size: .8rem;
 	color: #333;
 }
 
@@ -44,6 +41,8 @@
 	color: hsl(252, 27%, 28%);
 
 	box-sizing: border-box;
+
+	margin-bottom: 1rem;
 }
 
 .step-title {
