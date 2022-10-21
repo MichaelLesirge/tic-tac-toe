@@ -23,10 +23,12 @@
     text-align: center;
     font-size: 1.2rem;
 }
+
 .submit-btn:hover {
     background-color: hsl(122, 50%, 56%);
     padding: 1rem 2.7rem;
 }
+
 .submit-btn:active {
     background-color: hsl(126, 100%, 50%);
 }

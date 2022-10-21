@@ -1,4 +1,4 @@
-import {MIN_SIZE, MAX_SIZE, DEFAULT_SIZE} from "./consts.js";
+import { MIN_SIZE, MAX_SIZE, DEFAULT_SIZE } from "./consts.js";
 
 const toggleCordsButton = document.querySelector("#toggle-cords");
 const resetBoardButton = document.querySelector("#reset-button");
@@ -15,7 +15,7 @@ class Cell {
         this.y = y;
 
         this.el = el;
-        
+
         this.reset()
     }
 
@@ -24,7 +24,7 @@ class Cell {
     }
 
     disable() {
-        this.el.onclick = () => {};
+        this.el.onclick = () => { };
         this.el.classList.add("disabled");
     }
 
@@ -44,7 +44,7 @@ class Cell {
     addCords() {
         const cords = document.createElement("span");
         cords.classList.add("cords");
-        cords.innerText = "(" + (this.x+1) + "," + (this.y+1) + ")";
+        cords.innerText = "(" + (this.x + 1) + "," + (this.y + 1) + ")";
         this.el.appendChild(cords)
     }
 }
@@ -61,26 +61,26 @@ class Board {
         this.isPlaying = true;
 
         this.isDisplayingCords = false;
-        
+
         this.winRowLength = Math.min(this.width, this.height);
         this.winCheckAfter = ((this.winRowLength - 1) * players.length);
-        
+
         this.boardArray = Array(this.height);
         this.boardBody = document.querySelector(".board-body");
-        
+
         // create board on page and in array
         for (let y = 0; y < this.height; y++) {
             this.boardArray[y] = Array(this.width);
             let tableRow = this.boardBody.insertRow();
             for (let x = 0; x < this.width; x++) {
                 let el = tableRow.insertCell();
-                
+
                 let cell = new Cell(x, y, el)
                 this.boardArray[y][x] = cell;
-                
+
             }
         }
-        
+
         this.updateCordsVisablity();
     }
 
@@ -199,14 +199,14 @@ class Board {
                 // top right to buttom left
                 isWin = true;
                 for (let i = 0; i < this.width; i++) {
-                    if (this.getCell(this.width-i-1, i).val !== player) {
+                    if (this.getCell(this.width - i - 1, i).val !== player) {
                         isWin = false;
                         break;
                     }
                 }
                 if (isWin) {
                     for (let i = 0; i < this.width; i++) {
-                        winningArrayWidth[i] = this.getCell(this.width-i-1, i);
+                        winningArrayWidth[i] = this.getCell(this.width - i - 1, i);
                     }
                     return [true, winningArrayWidth];
                 }
@@ -233,7 +233,7 @@ class Board {
     }
 
     updateCordsVisablity() {
-        toggleCordsButton.innerText = (this.isDisplayingCords ?  "Hide" : "Display") + " Cords";
+        toggleCordsButton.innerText = (this.isDisplayingCords ? "Hide" : "Display") + " Cords";
         this.boardBody.style.setProperty("--cords-visibility", this.isDisplayingCords ? "defalt" : "hidden");
     }
 
@@ -244,7 +244,7 @@ class Board {
             }
         }
     }
-    
+
     getCell(x, y) { return this.boardArray[y][x]; }
 }
 

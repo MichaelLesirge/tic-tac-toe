@@ -38,7 +38,7 @@
 .cords {
     font-size: medium;
     color: hsl(0, 0%, 20%);
-    
+
     visibility: var(--cords-visibility);
 }
 

@@ -1,77 +1,77 @@
 html {
-    line-height: 1;
+	line-height: 1;
 }
 
 body {
-    background: hsl(200, 70%, 40%);
-    background: linear-gradient(hsl(200, 70%, 46%), hsl(200, 70%, 34%));
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+	background: hsl(200, 70%, 40%);
+	background: linear-gradient(hsl(200, 70%, 46%), hsl(200, 70%, 34%));
+	background-repeat: no-repeat;
+	background-attachment: fixed;
 
-    margin: 0;
-    padding: 0;
+	margin: 0;
+	padding: 0;
 }
 
 .centered-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
 .fixed-container {
-    height: 5rem;
+	height: 5rem;
 }
 
 .fixed-content {
-    float: center;
-    position: fixed;
+	float: center;
+	position: fixed;
 }
 
 .navbar {
-    width: 100%;
-    min-height: 2.5rem; 
+	width: 100%;
+	min-height: 2.5rem;
 
-    display: flex;
-    justify-content: center;
+	display: flex;
+	justify-content: center;
 
-    padding: 0.4rem 0;
-    
-    background-color: hsl(200, 70%, 60%);
+	padding: 0.4rem 0;
+
+	background-color: hsl(200, 70%, 60%);
 }
 
 .nav-items {
-    max-width: 1600px;
-    width: 100%;
+	max-width: 1600px;
+	width: 100%;
 
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
 }
 
 .nav-section {
-    width: 20rem;
-    font-size: 1.2rem;
+	width: 20rem;
+	font-size: 1.2rem;
 }
 
 .nav-centered {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
 }
 
 .navbar button {
-    width: 7rem;
-    font-size: 0.8rem;
+	width: 7rem;
+	font-size: 0.8rem;
 }
 
-.navbar a{
-    margin: 0 0.2rem;
-    white-space: nowrap;
+.navbar a {
+	margin: 0 0.2rem;
+	white-space: nowrap;
 }
 
 @media (min-width:900px) {
-    .nav-items {
-        width: 70vw;
-    }
+	.nav-items {
+		width: 70vw;
+	}
 }
