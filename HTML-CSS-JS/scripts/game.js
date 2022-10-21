@@ -85,7 +85,7 @@ class Board {
 
 	playerTurn(cell) {
 		if (this.isPlaying) {
-			resetBoardButton.disabled = false
+			resetBoardButton.classList.remove("fade-button")
 
 			const currentPlayer = players[this.currentPlayerIndex]
 
@@ -118,7 +118,7 @@ class Board {
 		this.turnCount = 0
 
 		this.reset()
-		resetBoardButton.disabled = true
+		resetBoardButton.classList.add("fade-button")
 
 		this.gameCount++
 	}
