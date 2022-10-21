@@ -1,50 +1,48 @@
 :root {
-    --board-box-size: calc(15rem + 1vw);
-    --cords-visibility: default;
+	--board-box-size: calc(15rem + 1vw);
+	--cords-visibility: default;
 }
 
 .board-table {
-    border-collapse: separate;
-    border-spacing: max(0.3rem, 3px);
+	border-collapse: separate;
+	border-spacing: max(0.3rem, 3px);
 }
 
 .board-table td {
-    width: var(--board-box-size);
-    height: var(--board-box-size);
-    min-width: var(--board-box-size);
-    min-height: var(--board-box-size);
+	width: var(--board-box-size);
+	height: var(--board-box-size);
+	min-width: var(--board-box-size);
+	min-height: var(--board-box-size);
 
-    cursor: pointer;
-    background-color: hsl(0, 0%, 100%);
+	cursor: pointer;
+	background-color: hsl(0, 0%, 100%);
 
-    font-size: var(--board-box-size);
-    text-align: center;
-    font-family: monospace;
+	font-size: var(--board-box-size);
+	text-align: center;
+	font-family: monospace;
 }
 
 .board-table td:hover:not(.disabled) {
-    background-color: hsl(0, 0%, 85%);
+	background-color: hsl(0, 0%, 85%);
 }
 
-
 .disabled {
-    cursor: default !important;
+	cursor: default !important;
 }
 
 .highlighted {
-    color: green !important;
+	color: green !important;
 }
 
 .cords {
-    font-size: medium;
-    color: hsl(0, 0%, 20%);
+	font-size: medium;
+	color: hsl(0, 0%, 20%);
 
-    visibility: var(--cords-visibility);
+	visibility: var(--cords-visibility);
 }
 
-
-@media ((max-width:900px) or (max-height:950px)) {
-    :root {
-        --board-box-size: 20vmin;
-    }
+@media ((max-width: 900px) or (max-height:950px)) {
+	:root {
+		--board-box-size: 20vmin;
+	}
 }

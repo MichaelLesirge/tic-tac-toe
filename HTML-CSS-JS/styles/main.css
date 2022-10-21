@@ -70,7 +70,7 @@ body {
 	white-space: nowrap;
 }
 
-@media (min-width:900px) {
+@media (min-width: 900px) {
 	.nav-items {
 		width: 70vw;
 	}

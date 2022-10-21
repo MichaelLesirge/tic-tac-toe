@@ -1,45 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="styles/main.css" />
+		<link rel="stylesheet" href="styles/index.css" />
 
-    <link rel="stylesheet" href="styles/main.css">
-    <link rel="stylesheet" href="styles/index.css">
+		<title>Tic Tac Toe</title>
+	</head>
 
-    <title>Tic Tac Toe</title>
-</head>
+	<body>
+		<nav class="fixed-container">
+			<div class="navbar fixed-content">
+				<div class="nav-items">
+					<div class="nav-section">
+						<a href="index.html">Create Board</a>
+						<a href="game.html">Play 3x3 game</a>
+					</div>
+				</div>
+			</div>
+		</nav>
 
-<body>
-    <nav class="fixed-container">
-        <div class="navbar fixed-content">
-            <div class="nav-items">
-                <div class="nav-section">
-                    <a href="index.html">Create Board</a>
-                    <a href="game.html">Play 3x3 game</a>
-                </div>
-            </div>
-        </div>
-    </nav>
+		<main class="centered-container">
+			<div class="game-form">
+				<form
+					class="form-group centered-container"
+					action="game.html"
+					method="get"
+				>
+					<h3>Create Your Board</h3>
 
-    <main class="centered-container">
-        <div class="game-form">
-            <form class="form-group centered-container" action="game.html" method="get">
-                <h3>Create Your Board</h3>
+					<div class="form-field">
+						<label for="width">Width</label>
+						<input
+							class="size-input"
+							type="number"
+							name="width"
+							id="width"
+							required="true"
+						/>
+					</div>
 
-                <div class="form-field">
-                    <label for="width">Width</label>
-                    <input class="size-input" type="number" name="width" id="width" required="true">
-                </div>
+					<div class="form-field">
+						<label for="height">Height</label>
+						<input
+							class="size-input"
+							type="number"
+							name="height"
+							id="height"
+							required="true"
+						/>
+					</div>
 
-                <div class="form-field">
-                    <label for="height">Height</label>
-                    <input class="size-input" type="number" name="height" id="height" required="true">
-                </div>
-
-                <!-- <br>
+					<!-- <br>
 
                 <div>
                     <div class="form-field">
@@ -48,16 +63,23 @@
                     </div>
                 </div> -->
 
-                <div class="form-field">
-                    <input type="reset" value="Reset to defulats">
-                </div>
-                <input class="form-field submit-btn" type="submit" value="Play Game">
-            </form>
-        </div>
+					<div class="form-field">
+						<input type="reset" value="Reset to defulats" />
+					</div>
+					<input
+						class="form-field submit-btn"
+						type="submit"
+						value="Play Game"
+					/>
+				</form>
+			</div>
 
-        <a style="margin-top: 2rem;" href="https://github.com/michael-lesirge/tic-tac-toe">Back to GitHub</a>
-    </main>
-    <script src="scripts/index.js" type="module"></script>
-</body>
-
+			<a
+				style="margin-top: 2rem"
+				href="https://github.com/michael-lesirge/tic-tac-toe"
+				>Back to GitHub</a
+			>
+		</main>
+		<script src="scripts/index.js" type="module"></script>
+	</body>
 </html>
