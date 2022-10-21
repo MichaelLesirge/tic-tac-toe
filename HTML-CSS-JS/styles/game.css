@@ -45,6 +45,6 @@
 
 @media ((max-width:900px) or (max-height:950px)) {
     :root {
-        --board-box-size: calc(20vmin + 1rem);
+        --board-box-size: 20vmin;
     }
 }
