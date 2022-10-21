@@ -85,7 +85,7 @@ class Board {
 
 	playerTurn(cell) {
 		if (this.isPlaying) {
-			resetBoardButton.disabled = false
+			resetBoardButton.classList.remove("fade-button")
 
 			const currentPlayer = players[this.currentPlayerIndex]
 
@@ -118,7 +118,7 @@ class Board {
 		this.turnCount = 0
 
 		this.reset()
-		resetBoardButton.disabled = true
+		resetBoardButton.classList.add("fade-button")
 
 		this.gameCount++
 	}
@@ -259,7 +259,6 @@ class Board {
 }
 
 const params = new URLSearchParams(location.search)
-const new_params = new URLSearchParams()
 
 function getNumberParam(name) {
 	return parseInt(params.get(name))
@@ -270,7 +269,7 @@ function validNumber(num, min, max, fallback) {
 }
 
 function getUpdateValidNumberParam(name, min, max, fallback) {
-	let num = getNumberParam(name)
+	const num = getNumberParam(name)
 
 	if (
 		num > max &&
@@ -281,10 +280,12 @@ function getUpdateValidNumberParam(name, min, max, fallback) {
 		max = Infinity
 	}
 
-	let newNum = validNumber(num, min, max, fallback)
-	new_params.set(name, newNum)
+	const newNum = validNumber(num, min, max, fallback)
+	const needUpdate = num !== newNum
 
-	return [newNum, num !== newNum]
+	if (needUpdate) params.set(name, newNum)
+
+	return [newNum, needUpdate]
 }
 
 const getUpdateValidSizeParam = (name) =>
@@ -294,7 +295,7 @@ const [width, wNeedsUpdate] = getUpdateValidSizeParam("width")
 const [height, hNeedsUpdate] = getUpdateValidSizeParam("height")
 
 if (wNeedsUpdate || hNeedsUpdate) {
-	location.search = new_params.toString()
+	location.search = params.toString()
 }
 
 console.log(width, height)

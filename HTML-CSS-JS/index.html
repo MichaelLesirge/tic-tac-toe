@@ -18,7 +18,7 @@
 			<div class="nav-items">
 				<div class="nav-section">
 					<a href="index.html">Create Board</a>
-					<a href="game.html">Play 3x3 game</a>
+					<a href="game.html">Play Standard Game</a>
 				</div>
 			</div>
 		</div>
@@ -26,23 +26,39 @@
 
 	<main class="centered-container">
 		<div class="game-form">
-			<form class="form-group centered-container" action="game.html" method="get">
-				<h3>Create Your Board</h3>
+			<form class="centered-container" action="game.html" method="get">
+				<h2>Create Your Board</h2>
 
-				<div class="form-field">
-					<label for="width">Width</label>
-					<input class="size-input" type="number" name="width" id="width" required="true" />
+				<div class="card">
+					<h3 class="step-title">Create Board Sizes</h3>
+					<div class="form-group">
+						<label for="width">Width</label>
+						<input class="size" type="number" name="width"  id="width" required="true" />
+
+						<label for="height">Height</label>
+						<input class="size" type="number" name="height" id="height" required="true" />
+					</div>
 				</div>
 
-				<div class="form-field">
-					<label for="height">Height</label>
-					<input class="size-input" type="number" name="height" id="height" required="true" />
+				<div class="card">
+					<h3 class="step-title">Win Conditions</h3>
+					<div class="form-group">
+						<label for="win-condition">How many in a row to win</label>
+						<input class="win-condition" type="number" name="win-condition" id="win-condition"/>
+					</div>
 				</div>
 
-				<div class="form-field">
+				<div class="card">
+					<h3 class="step-title">Players</h3>
+					<div class="form-group">
+						
+					</div>
+				</div>
+
+				<div class="card">
 					<input type="reset" value="Reset to defulats" />
+					<input class="form-field submit-btn" type="submit" value="Play Game" />
 				</div>
-				<input class="form-field submit-btn" type="submit" value="Play Game" />
 			</form>
 		</div>
 
