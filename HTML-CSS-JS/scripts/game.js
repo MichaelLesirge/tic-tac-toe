@@ -41,10 +41,10 @@ class Cell {
 		this.el.onclick = onclickFunc
 	}
 
-	addCords() {
+	addCords(offset=1) {
 		const cords = document.createElement("span")
 		cords.classList.add("cords")
-		cords.innerText = "(" + (this.x + 1) + "," + (this.y + 1) + ")"
+		cords.innerText = "(" + (this.x + offset) + "," + (this.y + offset) + ")"
 		this.el.appendChild(cords)
 	}
 }
@@ -151,9 +151,9 @@ class Board {
 					break
 				}
 			}
-			return [isWin, cellArray]
+			if (isWin) return [isWin, cellArray]
 		}
-		return [false, cellArray]
+		return [false, null]
 	}
 
 
@@ -166,12 +166,13 @@ class Board {
 			[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, this.height, (x, y) => this.getCell(x, y))
 			if (isWin) { return [isWin, cellArray] }
 			
-			// // check vertical
-			// [isWin, cellArray] = this._isPlayerWinnerRow(player, this.height, this.width, (y, x) => this.getCell(x, y))
-			// if (isWin) { return [isWin, cellArray] }
+			// check vertical
+			[isWin, cellArray] = this._isPlayerWinnerRow(player, this.height, this.width, (y, x) => this.getCell(x, y))
+			console.log(isWin, cellArray)
+			if (isWin) { return [isWin, cellArray] }
 
 			// check diagonals if board is square
-			if (this.isPerfectSquare && false) {
+			if (this.isPerfectSquare) {
 				// top left to buttom right
 				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, 1, (i, _) => this.getCell(i, i))
 				if (isWin) { return [isWin, cellArray] }
@@ -179,7 +180,6 @@ class Board {
 
 				// top right to buttom left
 				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, 1, (i, _) => this.getCell(i, this.width - i - 1))
-				console.log(cellArray)
 				if (isWin) { return [isWin, cellArray] }
 			}
 		}
