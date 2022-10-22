@@ -1,5 +1,5 @@
 :root {
-	--board-box-size: calc(15rem + 1vw);
+	--board-box-size: 20vmin;;
 	--cords-visibility: default;
 }
 
@@ -44,9 +44,9 @@
 .fade-button {
 	opacity: 85%;
 }
-
+/* 
 @media ((max-width: 900px) or (max-height:950px)) {
 	:root {
 		--board-box-size: 20vmin;
 	}
-}
+} */
