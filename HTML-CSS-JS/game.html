@@ -9,23 +9,25 @@
 	<link rel="stylesheet" href="styles/main.css" />
 	<link rel="stylesheet" href="styles/game.css" />
 
+	<script src="scripts/game.js" type="module"></script>
+
 	<title>Tic Tac Toe</title>
 </head>
 
 <body>
 	<nav class="fixed-container">
 		<div class="navbar fixed-content">
-				<div class="nav-section">
-					<a href="index.html">Create Board</a>
-					<a href="game.html">Default Game</a>
-				</div>
-				<div class="nav-section nav-centered">
-					<button id="reset-button">Reset Board</button>
-					<button id="toggle-cords">Toggle Cords</button>
-				</div>
-				<div class="nav-section">
-					<span id="info">Generating Board...</span>
-				</div>
+			<div class="nav-section">
+				<a href="index.html">Create Board</a>
+				<a href="game.html">Default Game</a>
+			</div>
+			<div class="nav-section nav-centered">
+				<button id="reset-button">Reset Board</button>
+				<button id="toggle-cords">Toggle Cords</button>
+			</div>
+			<div class="nav-section">
+				<span id="info">Generating Board...</span>
+			</div>
 		</div>
 	</nav>
 
@@ -34,8 +36,6 @@
 			<tbody class="board-body"></tbody>
 		</table>
 	</main>
-
-	<script src="scripts/game.js" type="module"></script>
 </body>
 
 </html>
