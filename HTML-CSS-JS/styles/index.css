@@ -2,7 +2,9 @@
 	background-color: hsl(0, 0%, 100%);
 	border: 1px solid #333333;
 	border-radius: 0.5rem;
+
 	padding: 0.5rem;
+	padding-bottom: 1rem;
 	margin: 0.5rem;
 
 	color: hsl(240, 100%, 50%);
@@ -17,32 +19,50 @@
 
 .form-group {
 	display: flex;
+	justify-content: center;
+	flex-direction: row;
+
+	gap: 1rem;
+}
+
+.input-group {
+	display: flex;
 	flex-direction: column;
-	margin-bottom: .100rem;
+	align-items: center;
 }
 
-.form-group > label {
-	font-weight: bold;
+.input-group>label {
+	display: block;
+
 	color: #333;
+
+	font-weight: bold;
 }
 
-.form-group > input {
-	border: 1px solid #333;
-	border-radius: 1px;
+.input-group>input {
+	color: #272746;
 
-	padding: 6000rem;
-    display: block;
-
-	font-size: 1rem;
+	font-size: 2rem;
+	text-align: center;
 	line-height: 28px;
 
+
+	width: 3em;
 	padding: .25rem;
+	padding-left: 1eem;
+}
 
-	color: hsl(252, 27%, 28%);
+.input-group>input.sizes {
+	width: 2em;
+}
 
-	box-sizing: border-box;
-
-	margin-bottom: 1rem;
+.input-group>input[type=number]::-webkit-inner-spin-button,
+.input-group>input[type=number]::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	appearance: none;
+	
+	margin: 0;
+	padding: 0;
 }
 
 .step-title {
