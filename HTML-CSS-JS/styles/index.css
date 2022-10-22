@@ -4,13 +4,12 @@
 	border-radius: 0.5rem;
 
 	padding: 0.5rem;
-	padding-bottom: 1rem;
 	margin: 0.5rem;
 
 	color: hsl(240, 100%, 50%);
 
-	min-width: 30vw;
-	width: 20vw;
+	min-width: 20rem;
+	width: 30vw;
 	max-width: 300px;
 
 	display: flex;
@@ -39,7 +38,7 @@
 	font-weight: bold;
 }
 
-.input-group>input {
+.input-group>input[type=number] {
 	color: #272746;
 
 	font-size: 2rem;
@@ -47,13 +46,13 @@
 	line-height: 28px;
 
 
-	width: 3em;
+	width: 2em;
 	padding: .25rem;
 	padding-left: 1eem;
 }
 
-.input-group>input.sizes {
-	width: 2em;
+.input-group>button {
+	margin: 0 7rem;
 }
 
 .input-group>input[type=number]::-webkit-inner-spin-button,
@@ -63,6 +62,13 @@
 	
 	margin: 0;
 	padding: 0;
+}
+
+.form-options {
+	display: flex;
+	flex-direction: column;
+	align-self: center;
+	width: 75%;
 }
 
 .step-title {
@@ -77,6 +83,7 @@
 	font-size: 1.2rem;
 	background-color: hsl(180, 100%, 40%);
 	margin: 1rem 0;
+	cursor: pointer;
 }
 
 .submit-btn:hover {

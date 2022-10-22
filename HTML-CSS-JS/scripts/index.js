@@ -7,8 +7,8 @@ document.querySelectorAll("input.size").forEach((el) => {
 	el.min = MIN_SIZE
 	el.max = MAX_SIZE
 	el.oninput = () => {
+		el.value = el.value.replace("-", "")
 		if (el.value.length > max_input_len) el.value = el.value.slice(0, max_input_len)
-		el.value = el.replace("-", "")
 	}
 	
 })
