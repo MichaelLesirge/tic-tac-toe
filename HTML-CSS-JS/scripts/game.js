@@ -41,7 +41,7 @@ class Cell {
 		this.el.onclick = onclickFunc
 	}
 
-	addCords(offset=1) {
+	addCords(offset = 1) {
 		const cords = document.createElement("span")
 		cords.classList.add("cords")
 		cords.innerText = "(" + (this.x + offset) + "," + (this.y + offset) + ")"
@@ -240,12 +240,7 @@ function validNumber(num, min, max, fallback) {
 function getUpdateValidNumberParam(name, min, max, fallback) {
 	const num = getNumberParam(name)
 
-	if (
-		num > max &&
-		confirm(
-			`Board ${name} of ${num} is to larger than recomend max of ${max}. Are you sure you want this size?`
-		)
-	) {
+	if (num > max && confirm(`Board ${name} of ${num} is to larger than recomend max of ${max}. Are you sure you want this size?`)) {
 		max = Infinity
 	}
 
