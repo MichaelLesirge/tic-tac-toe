@@ -33,24 +33,16 @@ body {
 	min-height: 2.5rem;
 
 	display: flex;
-	justify-content: center;
+	justify-content: space-between;
+	align-items: center;
 
 	padding: 0.4rem 0;
 
 	background-color: hsl(200, 70%, 60%);
 }
 
-.nav-items {
-	max-width: 1600px;
-	width: 100%;
-
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-}
-
 .nav-section {
-	width: 20rem;
+	width: 15rem;
 	font-size: 1.2rem;
 }
 
