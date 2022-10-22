@@ -24,7 +24,7 @@ class Cell {
 	}
 
 	disable() {
-		this.el.onclick = () => {}
+		this.el.onclick = () => { }
 		this.el.classList.add("disabled")
 	}
 
@@ -54,6 +54,7 @@ class Board {
 		this.width = width
 		this.height = height
 		this.size = this.width * this.height
+		this.isPerfectSquare = this.width === this.height
 
 		this.turnCount = 0
 		this.gameCount = 0
@@ -138,80 +139,48 @@ class Board {
 		})
 	}
 
+	_isPlayerWinnerRow(player, to, getCell) {
+		const cellArray = new Array(to)
+		let isWin = true
+		for (let i = 0; i < to; i++) {
+			const cell = getCell(i)
+			cellArray[i] = cell
+			if (cell.val !== player) {
+				isWin = false
+				break
+			}
+		}
+		return [isWin, cellArray]
+	}
+
 	isPlayerWinner(player) {
 		if (this.turnCount > this.winCheckAfter) {
-			let isWin = false
-			let winningArrayHeight = new Array(this.height)
-			let winningArrayWidth = new Array(this.width)
+
+			let isWin, cellArray;
 
 			// check horizontal
 			for (let y = 0; y < this.height; y++) {
-				isWin = true
-				for (let x = 0; x < this.width; x++) {
-					if (this.getCell(x, y).val !== player) {
-						isWin = false
-						break
-					}
-				}
-				if (isWin) {
-					for (let x = 0; x < this.width; x++) {
-						winningArrayWidth[x] = this.getCell(x, y)
-					}
-					return [true, winningArrayWidth]
-				}
+				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, (x) => this.getCell(x, y))
+				if (isWin) { return [isWin, cellArray] }
 			}
 
 			// check vertical
 			for (let x = 0; x < this.width; x++) {
-				isWin = true
-				for (let y = 0; y < this.height; y++) {
-					if (this.getCell(x, y).val !== player) {
-						isWin = false
-						break
-					}
-				}
-				if (isWin) {
-					for (let y = 0; y < this.height; y++) {
-						winningArrayHeight[y] = this.getCell(x, y)
-					}
-					return [true, winningArrayHeight]
-				}
+				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.height, (y) => this.getCell(x, y))
+				if (isWin) { return [isWin, cellArray] }
 			}
 
 			// check diagonals if board is square
-			if (this.width === this.height) {
+			if (this.isPerfectSquare) {
 				// top left to buttom right
-				isWin = true
-				for (let i = 0; i < this.width; i++) {
-					if (this.getCell(i, i).val !== player) {
-						isWin = false
-						break
-					}
-				}
-				if (isWin) {
-					for (let i = 0; i < this.width; i++) {
-						winningArrayWidth[i] = this.getCell(i, i)
-					}
-					return [true, winningArrayWidth]
-				}
+				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, (i) => this.getCell(i, i))
+				if (isWin) { return [isWin, cellArray] }
+
 
 				// top right to buttom left
-				isWin = true
-				for (let i = 0; i < this.width; i++) {
-					if (this.getCell(this.width - i - 1, i).val !== player) {
-						isWin = false
-						break
-					}
-				}
-				if (isWin) {
-					for (let i = 0; i < this.width; i++) {
-						winningArrayWidth[i] = this.getCell(
-							this.width - i - 1,
-							i
-						)
-					}
-					return [true, winningArrayWidth]
-				}
+				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, (i) => this.getCell(i, this.width - i - 1))
+				console.log(cellArray)
+				if (isWin) { return [isWin, cellArray] }
 			}
 		}
 		return [false, null]
@@ -298,7 +267,6 @@ if (wNeedsUpdate || hNeedsUpdate) {
 	location.search = params.toString()
 }
 
-console.log(width, height)
 const board = new Board(width, height)
 
 board.newGame()
