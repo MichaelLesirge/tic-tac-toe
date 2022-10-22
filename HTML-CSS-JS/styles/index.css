@@ -21,7 +21,7 @@
 	justify-content: center;
 	flex-direction: row;
 
-	gap: .3rem;
+	gap: .75rem;
 }
 
 .input-group {
@@ -45,9 +45,8 @@
 	text-align: center;
 	line-height: 28px;
 
-
-	width: 2.2rem;
-	padding: .25rem;
+	width: 1.5em;
+	padding: .25em;
 	padding-left: 1eem;
 }
 
