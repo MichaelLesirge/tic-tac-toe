@@ -32,6 +32,7 @@
 
 .input-group>label {
 	display: block;
+	margin-bottom: 0.1rem;
 
 	color: #333;
 
