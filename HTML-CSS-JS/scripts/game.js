@@ -139,19 +139,23 @@ class Board {
 		})
 	}
 
-	_isPlayerWinnerRow(player, to, getCell) {
-		const cellArray = new Array(to)
-		let isWin = true
-		for (let i = 0; i < to; i++) {
-			const cell = getCell(i)
-			cellArray[i] = cell
-			if (cell.val !== player) {
-				isWin = false
-				break
+	_isPlayerWinnerRow(player, inner, outer, getCell) {
+		const cellArray = new Array(inner)
+		for (let i = 0; i < outer; i++) {
+			let isWin = true
+			for (let j = 0; j < inner; j++) {
+				const cell = getCell(j, i)
+				cellArray[j] = cell
+				if (cell.val !== player) {
+					isWin = false
+					break
+				}
 			}
+			return [isWin, cellArray]
 		}
-		return [isWin, cellArray]
+		return [false, cellArray]
 	}
+
 
 	isPlayerWinner(player) {
 		if (this.turnCount > this.winCheckAfter) {
@@ -159,26 +163,22 @@ class Board {
 			let isWin, cellArray;
 
 			// check horizontal
-			for (let y = 0; y < this.height; y++) {
-				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, (x) => this.getCell(x, y))
-				if (isWin) { return [isWin, cellArray] }
-			}
-
-			// check vertical
-			for (let x = 0; x < this.width; x++) {
-				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.height, (y) => this.getCell(x, y))
-				if (isWin) { return [isWin, cellArray] }
-			}
+			[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, this.height, (x, y) => this.getCell(x, y))
+			if (isWin) { return [isWin, cellArray] }
+			
+			// // check vertical
+			// [isWin, cellArray] = this._isPlayerWinnerRow(player, this.height, this.width, (y, x) => this.getCell(x, y))
+			// if (isWin) { return [isWin, cellArray] }
 
 			// check diagonals if board is square
-			if (this.isPerfectSquare) {
+			if (this.isPerfectSquare && false) {
 				// top left to buttom right
-				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, (i) => this.getCell(i, i))
+				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, 1, (i, _) => this.getCell(i, i))
 				if (isWin) { return [isWin, cellArray] }
 
 
 				// top right to buttom left
-				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, (i) => this.getCell(i, this.width - i - 1))
+				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, 1, (i, _) => this.getCell(i, this.width - i - 1))
 				console.log(cellArray)
 				if (isWin) { return [isWin, cellArray] }
 			}
