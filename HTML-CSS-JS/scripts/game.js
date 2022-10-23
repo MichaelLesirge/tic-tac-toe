@@ -52,10 +52,9 @@ class Cell {
 const PLACEHOLDER_CELL = new Cell(null, null, document.createElement("div"))
 
 class Board {
-	constructor(width = DEFAULT_SIZE, height = DEFAULT_SIZE, winRowLength = undefined) {
+	constructor(width = DEFAULT_SIZE, height = DEFAULT_SIZE) {
 		this.width = width
 		this.height = height
-		this.winRowLength = winRowLength
 
 		this.size = this.width * this.height
 		this.isPerfectSquare = this.width === this.height
@@ -67,12 +66,11 @@ class Board {
 
 		this.isDisplayingCords = false
 
-		this.minWinRowLength = this.winRowLength || Math.min(this.width, this.height)
+		this.minWinRowLength = Math.min(this.width, this.height)
 		this.winCheckAfter = (this.minWinRowLength - 1) * players.length
 
-		this.shouldCheckDiagnals = this.winRowLength !== undefined || this.isPerfectSquare
-
-		this.checkFuntion = this.winRowLength === undefined ? this._isPlayerWinnerAccros : this._isPlayerWinnerCount
+		this.shouldCheckHorizontal = this.shouldCheckVertical = true
+		this.shouldCheckDiagnals = this.isPerfectSquare
 
 		this.boardArray = Array(this.height)
 		this.boardBody = document.querySelector(".board-body")
@@ -146,7 +144,7 @@ class Board {
 		})
 	}
 
-	_isPlayerWinnerAccros(player, inner, outer, getCell, innerStart=0, outerStart=0) {
+	_isPlayerWinnerRow(player, inner, outer, getCell, innerStart=0, outerStart=0) {
 		const cellArray = new Array(inner)
 		for (let i = outerStart; i < outer; i++) {
 			let isWin = true
@@ -163,45 +161,28 @@ class Board {
 		return [false, null]
 	}
 
-	_isPlayerWinnerCount(player, inner, outer, getCell, innerStart=0, outerStart=0) {
-		const cellArray = new Array(this.winRowLength)
-		for (let i = outerStart; i < outer; i++) {
-			let count = 0
-			for (let j = innerStart; j < inner; j++) {
-				const cell = getCell(j, i)
-				if (cell.val === player) {
-					cellArray[count] = cell
-					count++
-					if (count >= this.winRowLength) return [true, cellArray]
-				}
-				else {
-					count = 0
-				}
-			}
-		}
-		return [false, null]
-	}
-
 	isPlayerWinner(player) {
 		if (this.turnCount > this.winCheckAfter) {
 			let isWin, cellArray
 
-			// horizontal
-			[isWin, cellArray] = this.checkFuntion(player, this.width, this.height, (x, y) => this.getCell(x, y))
-			if (isWin) { return [isWin, cellArray] }
+			if (this.shouldCheckHorizontal) {
+				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, this.height, (x, y) => this.getCell(x, y))
+				if (isWin) { return [isWin, cellArray] }
+			}
 			
 			// vertical
-			[isWin, cellArray] = this.checkFuntion(player, this.height, this.width, (y, x) => this.getCell(x, y))
-			if (isWin) { return [isWin, cellArray] }
+			if (this.shouldCheckVertical) {
+				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.height, this.width, (y, x) => this.getCell(x, y))
+				if (isWin) { return [isWin, cellArray] }
+			}
 			
-			if (this.shouldCheckDiagnals) {				
+			if (this.shouldCheckDiagnals) {			
 				// top left to buttom right
-				[isWin, cellArray] = this.checkFuntion(player, board.height, this.width-this.minWinRowLength+1, (j, i) => this.getCellSafe(j+i, j), 0, this.minWinRowLength-this.height)
+				[isWin, cellArray] = this._isPlayerWinnerRow(player, board.height, this.width-this.minWinRowLength+1, (j, i) => {console.log(j+i, j); return this.getCellSafe(j+i, j)}, 0, this.minWinRowLength-this.height)
 				if (isWin) { return [isWin, cellArray] }
 				
-				
 				// top right to buttom left
-				[isWin, cellArray] = this.checkFuntion(player, board.height, this.height+this.minWinRowLength, (j, i) => {console.log([j, i], [(this.minWinRowLength-j-1)+i, j]); return this.getCellSafe((this.minWinRowLength-j-1)+i, j); }, 0, 0)
+				[isWin, cellArray] = this._isPlayerWinnerRow(player, board.height, this.width+(this.width-this.minWinRowLength), (j, i) => this.getCellSafe(i-j, j), 0, this.minWinRowLength-1)
 				if (isWin) { return [isWin, cellArray] }
 			}
 		}
@@ -259,6 +240,39 @@ class Board {
 	}
 }
 
+ class CustomWinCondition extends Board {
+	constructor(width, height, winRowLength) {
+		super(width, height)
+
+		this.minWinRowLength = winRowLength
+		this.winCheckAfter = (this.minWinRowLength - 1) * players.length
+
+		this.shouldCheckHorizontal = this.minWinRowLength <= this.width
+		this.shouldCheckVertical = this.minWinRowLength <= this.height
+		this.shouldCheckDiagnals = this.shouldCheckHorizontal && this.shouldCheckVertical
+		console.log(this.shouldCheckHorizontal, this.shouldCheckVertical, this.shouldCheckDiagnals)
+	}
+
+	_isPlayerWinnerRow(player, inner, outer, getCell, innerStart=0, outerStart=0) {
+		const cellArray = new Array(this.minWinRowLength)
+		for (let i = outerStart; i < outer; i++) {
+			let count = 0
+			for (let j = innerStart; j < inner; j++) {
+				const cell = getCell(j, i)
+				if (cell.val === player) {
+					cellArray[count] = cell
+					count++
+					if (count >= this.minWinRowLength) return [true, cellArray]
+				}
+				else {
+					count = 0
+				}
+			}
+		}
+		return [false, null]
+	}
+ }
+
 const params = new URLSearchParams(location.search)
 const oldParems = params.toString()
 
@@ -306,7 +320,7 @@ if (oldParems !== newParms) {
 	location.search = newParms
 }
 
-const board = new Board(width, height, winRowLength)
+const board = new (winRowLength === undefined ? Board : CustomWinCondition) (width, height, winRowLength)
 
 board.newGame()
 resetBoardButton.onclick = () => board.newGame()
