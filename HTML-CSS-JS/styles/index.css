@@ -49,6 +49,10 @@
 	padding-left: 1eem;
 }
 
+.input-group>input:invalid {
+	box-shadow: 0 0 0.1rem 1px red;
+  }
+
 .input-group>button {
 	margin: 0 7rem;
 }
@@ -62,7 +66,7 @@
 }
 
 .input-group>input[placeholder]:not(:focus):placeholder-shown {
-	width: 3em;
+	width: 3.1em;
 }
 
 .input-group>input[placeholder]:focus::placeholder {
@@ -98,4 +102,9 @@
 	height: 3rem;
 	font-size: 1.5rem;
 	background-color: hsl(180, 100%, 60%);
+}
+
+#explanation {
+	color: #333;
+	font-size: 0.9rem;
 }
