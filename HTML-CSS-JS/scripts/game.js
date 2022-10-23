@@ -53,6 +53,8 @@ class Board {
 	constructor(width = DEFAULT_SIZE, height = DEFAULT_SIZE, winRowLength = undefined) {
 		this.width = width
 		this.height = height
+		this.winRowLength = winRowLength
+
 		this.size = this.width * this.height
 		this.isPerfectSquare = this.width === this.height
 
@@ -63,8 +65,12 @@ class Board {
 
 		this.isDisplayingCords = false
 
-		this.minWinRowLength = winRowLength || Math.min(this.width, this.height)
+		this.minWinRowLength = this.winRowLength || Math.min(this.width, this.height)
 		this.winCheckAfter = (this.minWinRowLength - 1) * players.length
+
+		this.checkDiagnals = this.winRowLength !== undefined || this.isPerfectSquare
+
+		this.checkFuntion = this.winRowLength === undefined ? this._isPlayerWinnerAccros : this._isPlayerWinnerCount
 
 		this.boardArray = Array(this.height)
 		this.boardBody = document.querySelector(".board-body")
@@ -93,8 +99,7 @@ class Board {
 			cell.set(currentPlayer)
 			cell.disable()
 
-			this.currentPlayerIndex =
-				(this.turnCount + this.gameCount) % players.length
+			this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length
 			this.turnCount++
 
 			let [isWinner, winningArray] = this.isPlayerWinner(currentPlayer)
@@ -139,7 +144,7 @@ class Board {
 		})
 	}
 
-	_isPlayerWinnerRow(player, inner, outer, getCell) {
+	_isPlayerWinnerAccros(player, inner, outer, getCell) {
 		const cellArray = new Array(inner)
 		for (let i = 0; i < outer; i++) {
 			let isWin = true
@@ -156,6 +161,22 @@ class Board {
 		return [false, null]
 	}
 
+	_isPlayerWinnerCount(player, inner, outer, getCell) {
+		const cellArray = new Array(this.winRowLength)
+		for (let i = 0; i < outer; i++) {
+			let count = 0
+			for (let j = 0; j < inner; j++) {
+				const cell = getCell(j, i)
+				cellArray[j] = cell
+				if (cell.val === player) {
+					count++
+					if (count >= this.winRowLength) return [true, cellArray]
+				}
+				else count = 0
+			}
+		}
+		return [false, null]
+	}
 
 	isPlayerWinner(player) {
 		if (this.turnCount > this.winCheckAfter) {
@@ -163,23 +184,23 @@ class Board {
 			let isWin, cellArray
 
 			// check horizontal
-			[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, this.height, (x, y) => this.getCell(x, y))
+			[isWin, cellArray] = this.checkFuntion(player, this.width, this.height, (x, y) => this.getCell(x, y))
 			if (isWin) { return [isWin, cellArray] }
-			
+
 			// check vertical
-			[isWin, cellArray] = this._isPlayerWinnerRow(player, this.height, this.width, (y, x) => this.getCell(x, y))
+			[isWin, cellArray] = this.checkFuntion(player, this.height, this.width, (y, x) => this.getCell(x, y))
 			console.log(isWin, cellArray)
 			if (isWin) { return [isWin, cellArray] }
 
 			// check diagonals if board is square
-			if (this.isPerfectSquare) {
+			if (this.checkDiagnals) {
 				// top left to buttom right
-				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, 1, (i, _) => this.getCell(i, i))
+				[isWin, cellArray] = this.checkFuntion(player, this.width, 1, (i, _) => this.getCell(i, i))
 				if (isWin) { return [isWin, cellArray] }
 
 
 				// top right to buttom left
-				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, 1, (i, _) => this.getCell(i, this.width - i - 1))
+				[isWin, cellArray] = this.checkFuntion(player, this.width, 1, (i, _) => this.getCell(i, this.width - i - 1))
 				if (isWin) { return [isWin, cellArray] }
 			}
 		}
@@ -238,7 +259,7 @@ function validNumber(num, min, max, fallback = undefined) {
 	return isNaN(num) ? fallback : Math.max(min, Math.min(max, num))
 }
 
-function getUpdateValidNumberParam(name, min, max, fallback = undefined, toLargeMessage= () => "") {
+function getUpdateValidNumberParam(name, min, max, fallback = undefined, toLargeMessage = () => "") {
 	const num = getNumberParam(name)
 
 	if (num > max && confirm(`${toLargeMessage(name, num, max)}. Do you want to use suggested max size of ${max}?`)) max = Infinity
