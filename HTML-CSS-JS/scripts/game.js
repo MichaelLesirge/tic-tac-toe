@@ -137,7 +137,7 @@ class Board {
 	reset() {
 		this.forEach((cell) => {
 			cell.reset()
-			cell.addCords(0)
+			cell.addCords(1)
 			cell.setOnClick(() => {
 				this.playerTurn(cell)
 			})
@@ -178,7 +178,7 @@ class Board {
 			
 			if (this.shouldCheckDiagnals) {			
 				// top left to buttom right
-				[isWin, cellArray] = this._isPlayerWinnerRow(player, board.height, this.width-this.minWinRowLength+1, (j, i) => {console.log(j+i, j); return this.getCellSafe(j+i, j)}, 0, this.minWinRowLength-this.height)
+				[isWin, cellArray] = this._isPlayerWinnerRow(player, board.height, this.width-this.minWinRowLength+1, (j, i) => this.getCellSafe(j+i, j), 0, this.minWinRowLength-this.height)
 				if (isWin) { return [isWin, cellArray] }
 				
 				// top right to buttom left
@@ -250,7 +250,6 @@ class Board {
 		this.shouldCheckHorizontal = this.minWinRowLength <= this.width
 		this.shouldCheckVertical = this.minWinRowLength <= this.height
 		this.shouldCheckDiagnals = this.shouldCheckHorizontal && this.shouldCheckVertical
-		console.log(this.shouldCheckHorizontal, this.shouldCheckVertical, this.shouldCheckDiagnals)
 	}
 
 	_isPlayerWinnerRow(player, inner, outer, getCell, innerStart=0, outerStart=0) {
