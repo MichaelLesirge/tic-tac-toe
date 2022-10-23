@@ -286,9 +286,13 @@ function validNumber(num, min, max, fallback = undefined) {
 function getUpdateValidNumberParam(name, min, max, fallback = undefined, toLargeMessage = () => "") {
 	const num = getNumberParam(name)
 
-	if (num > max && !confirm(`${toLargeMessage(name, num, max)}. Do you want to use suggested max size of ${max}?`)) {
-		console.warn(toLargeMessage(name, num, max) + ".")
-		max = Infinity
+	if (num > max) {
+		let warningMessage = toLargeMessage(name, num, max)
+		if (warningMessage !== "") warningMessage += ". "
+		if (!confirm(warningMessage + `Do you want to use suggested max size of ${max}?`)) {
+			console.warn(toLargeMessage(name, num, max) + ".")
+			max = Infinity
+		}
 	}
 
 	const newNum = validNumber(num, min, max, fallback)
