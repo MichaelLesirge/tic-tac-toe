@@ -49,6 +49,8 @@ class Cell {
 	}
 }
 
+const PLACEHOLDER_CELL = new Cell(null, null, document.createElement("div"))
+
 class Board {
 	constructor(width = DEFAULT_SIZE, height = DEFAULT_SIZE, winRowLength = undefined) {
 		this.width = width
@@ -102,6 +104,8 @@ class Board {
 			this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length
 			this.turnCount++
 
+			displayInfo(players[this.currentPlayerIndex] + "s turn.")
+
 			let [isWinner, winningArray] = this.isPlayerWinner(currentPlayer)
 
 			if (isWinner) {
@@ -111,8 +115,6 @@ class Board {
 			} else if (this.turnCount >= this.size) {
 				this.gameOver()
 				displayInfo("Tie!")
-			} else {
-				displayInfo(players[this.currentPlayerIndex] + "s turn.")
 			}
 		}
 	}
@@ -137,18 +139,18 @@ class Board {
 	reset() {
 		this.forEach((cell) => {
 			cell.reset()
-			cell.addCords()
+			cell.addCords(0)
 			cell.setOnClick(() => {
 				this.playerTurn(cell)
 			})
 		})
 	}
 
-	_isPlayerWinnerAccros(player, inner, outer, getCell) {
+	_isPlayerWinnerAccros(player, inner, outer, getCell, innerStart=0, outerStart=0) {
 		const cellArray = new Array(inner)
-		for (let i = 0; i < outer; i++) {
+		for (let i = outerStart; i < outer; i++) {
 			let isWin = true
-			for (let j = 0; j < inner; j++) {
+			for (let j = innerStart; j < inner; j++) {
 				const cell = getCell(j, i)
 				cellArray[j] = cell
 				if (cell.val !== player) {
@@ -161,18 +163,20 @@ class Board {
 		return [false, null]
 	}
 
-	_isPlayerWinnerCount(player, inner, outer, getCell) {
+	_isPlayerWinnerCount(player, inner, outer, getCell, innerStart=0, outerStart=0) {
 		const cellArray = new Array(this.winRowLength)
-		for (let i = 0; i < outer; i++) {
+		for (let i = outerStart; i < outer; i++) {
 			let count = 0
-			for (let j = 0; j < inner; j++) {
+			for (let j = innerStart; j < inner; j++) {
 				const cell = getCell(j, i)
-				cellArray[j] = cell
 				if (cell.val === player) {
+					cellArray[count] = cell
 					count++
 					if (count >= this.winRowLength) return [true, cellArray]
 				}
-				else count = 0
+				else {
+					count = 0
+				}
 			}
 		}
 		return [false, null]
@@ -180,26 +184,24 @@ class Board {
 
 	isPlayerWinner(player) {
 		if (this.turnCount > this.winCheckAfter) {
-
 			let isWin, cellArray
 
-			// check horizontal
+			// horizontal
 			[isWin, cellArray] = this.checkFuntion(player, this.width, this.height, (x, y) => this.getCell(x, y))
 			if (isWin) { return [isWin, cellArray] }
-
-			// check vertical
+			
+			// vertical
 			[isWin, cellArray] = this.checkFuntion(player, this.height, this.width, (y, x) => this.getCell(x, y))
-			console.log(isWin, cellArray)
 			if (isWin) { return [isWin, cellArray] }
-
-			if (this.shouldCheckDiagnals) {
+			
+			if (this.shouldCheckDiagnals) {				
 				// top left to buttom right
-				[isWin, cellArray] = this.checkFuntion(player, this.width, 1, (i, _) => this.getCell(i, i))
+				[isWin, cellArray] = this.checkFuntion(player, board.height, this.width-this.minWinRowLength+1, (j, i) => this.getCellSafe(j+i, j), 0, this.minWinRowLength-this.height)
 				if (isWin) { return [isWin, cellArray] }
-
-
+				
+				
 				// top right to buttom left
-				[isWin, cellArray] = this.checkFuntion(player, this.width, 1, (i, _) => this.getCell(i, this.width - i - 1))
+				[isWin, cellArray] = this.checkFuntion(player, board.height, this.height+this.minWinRowLength, (j, i) => {console.log([j, i], [(this.minWinRowLength-j-1)+i, j]); return this.getCellSafe((this.minWinRowLength-j-1)+i, j); }, 0, 0)
 				if (isWin) { return [isWin, cellArray] }
 			}
 		}
@@ -244,6 +246,16 @@ class Board {
 
 	getCell(x, y) {
 		return this.boardArray[y][x]
+	}
+
+	getCellSafe(x, y) {
+		let out;
+		try {
+			out = this.getCell(x, y)
+		} catch (error) {}
+
+		return out || PLACEHOLDER_CELL
+
 	}
 }
 
