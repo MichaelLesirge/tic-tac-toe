@@ -68,7 +68,7 @@ class Board {
 		this.minWinRowLength = this.winRowLength || Math.min(this.width, this.height)
 		this.winCheckAfter = (this.minWinRowLength - 1) * players.length
 
-		this.checkDiagnals = this.winRowLength !== undefined || this.isPerfectSquare
+		this.shouldCheckDiagnals = this.winRowLength !== undefined || this.isPerfectSquare
 
 		this.checkFuntion = this.winRowLength === undefined ? this._isPlayerWinnerAccros : this._isPlayerWinnerCount
 
@@ -192,8 +192,7 @@ class Board {
 			console.log(isWin, cellArray)
 			if (isWin) { return [isWin, cellArray] }
 
-			// check diagonals if board is square
-			if (this.checkDiagnals) {
+			if (this.shouldCheckDiagnals) {
 				// top left to buttom right
 				[isWin, cellArray] = this.checkFuntion(player, this.width, 1, (i, _) => this.getCell(i, i))
 				if (isWin) { return [isWin, cellArray] }
@@ -262,7 +261,7 @@ function validNumber(num, min, max, fallback = undefined) {
 function getUpdateValidNumberParam(name, min, max, fallback = undefined, toLargeMessage = () => "") {
 	const num = getNumberParam(name)
 
-	if (num > max && confirm(`${toLargeMessage(name, num, max)}. Do you want to use suggested max size of ${max}?`)) max = Infinity
+	if (num > max && !confirm(`${toLargeMessage(name, num, max)}. Do you want to use suggested max size of ${max}?`)) max = Infinity
 
 	const newNum = validNumber(num, min, max, fallback)
 
