@@ -50,7 +50,7 @@ class Cell {
 }
 
 class Board {
-	constructor(width = DEFAULT_SIZE, height = DEFAULT_SIZE) {
+	constructor(width = DEFAULT_SIZE, height = DEFAULT_SIZE, winRowLength = undefined) {
 		this.width = width
 		this.height = height
 		this.size = this.width * this.height
@@ -63,8 +63,8 @@ class Board {
 
 		this.isDisplayingCords = false
 
-		this.winRowLength = Math.min(this.width, this.height)
-		this.winCheckAfter = (this.winRowLength - 1) * players.length
+		this.minWinRowLength = winRowLength || Math.min(this.width, this.height)
+		this.winCheckAfter = (this.minWinRowLength - 1) * players.length
 
 		this.boardArray = Array(this.height)
 		this.boardBody = document.querySelector(".board-body")
@@ -160,7 +160,7 @@ class Board {
 	isPlayerWinner(player) {
 		if (this.turnCount > this.winCheckAfter) {
 
-			let isWin, cellArray;
+			let isWin, cellArray
 
 			// check horizontal
 			[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, this.height, (x, y) => this.getCell(x, y))
@@ -228,41 +228,53 @@ class Board {
 }
 
 const params = new URLSearchParams(location.search)
+const oldParems = params.toString()
 
 function getNumberParam(name) {
 	return parseInt(params.get(name))
 }
 
-function validNumber(num, min, max, fallback) {
+function validNumber(num, min, max, fallback = undefined) {
 	return isNaN(num) ? fallback : Math.max(min, Math.min(max, num))
 }
 
-function getUpdateValidNumberParam(name, min, max, fallback) {
+function getUpdateValidNumberParam(name, min, max, fallback = undefined, toLargeMessage= () => "") {
 	const num = getNumberParam(name)
 
-	if (num > max && confirm(`Board ${name} of ${num} is to larger than recomend max of ${max}. Are you sure you want this size?`)) {
-		max = Infinity
-	}
+	if (num > max && confirm(`${toLargeMessage(name, num, max)}. Do you want to use suggested max size of ${max}?`)) max = Infinity
 
 	const newNum = validNumber(num, min, max, fallback)
-	const needUpdate = num !== newNum
 
-	if (needUpdate) params.set(name, newNum)
+	params.set(name, newNum)
 
-	return [newNum, needUpdate]
+	return newNum
 }
 
-const getUpdateValidSizeParam = (name) =>
-	getUpdateValidNumberParam(name, MIN_SIZE, MAX_SIZE, DEFAULT_SIZE)
-
-const [width, wNeedsUpdate] = getUpdateValidSizeParam("width")
-const [height, hNeedsUpdate] = getUpdateValidSizeParam("height")
-
-if (wNeedsUpdate || hNeedsUpdate) {
-	location.search = params.toString()
+function getUpdateValidNumberParamIfExists(name, min, max, toLargeMessage) {
+	if (params.has(name)) {
+		if (!isNaN(getNumberParam(name))) {
+			return getUpdateValidNumberParam(name, min, max, undefined, toLargeMessage)
+		}
+		params.delete(name)
+	}
+	return undefined
 }
 
-const board = new Board(width, height)
+const getUpdateValidSizeParam = (name) => getUpdateValidNumberParam(name, MIN_SIZE, MAX_SIZE, DEFAULT_SIZE, (name, num, max) => `Board ${name} of ${num} is to larger than recomend max of ${max}`)
+
+const width = getUpdateValidSizeParam("width")
+const height = getUpdateValidSizeParam("height")
+
+const boardSizes = `${width}x${height}`
+
+const winRowLength = getUpdateValidNumberParamIfExists("win-condition", MIN_SIZE, Math.max(width, height), (name, num, max) => `Impossible to get ${num} in a row with current board sizes of ${boardSizes}`)
+
+const newParms = params.toString()
+if (oldParems !== newParms) {
+	location.search = newParms
+}
+
+const board = new Board(width, height, winRowLength)
 
 board.newGame()
 resetBoardButton.onclick = () => board.newGame()
@@ -284,4 +296,4 @@ function fixOverflow() {
 fixOverflow()
 window.onresize = fixOverflow
 
-document.querySelector("title").innerText += ` (${width}x${height})`
+document.querySelector("title").innerText += ` (${boardSizes})`
