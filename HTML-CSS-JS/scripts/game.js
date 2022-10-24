@@ -145,7 +145,7 @@ class Board {
 	newGame() {
 		this.isPlaying = true
 		this.currentPlayerIndex = this.gameCount % players.length
-		displayInfo("Starting with " + players[this.currentPlayerIndex] + "s.")
+		displayInfo(`Starting with ${players[this.currentPlayerIndex]}s.`)
 		this.turnCount = 0
 
 		this.reset()
@@ -305,7 +305,7 @@ function getUpdateValidNumberParam(name, min, max, fallback = undefined, toLarge
 		let warningMessage = toLargeMessage(name, num, max)
 		if (warningMessage !== "") warningMessage += ". "
 		if (!confirm(warningMessage + `Do you want to use suggested max size of ${max}?`)) {
-			console.warn(toLargeMessage(name, num, max) + ".")
+			console.warn(warningMessage)
 			max = Infinity
 		}
 	}
