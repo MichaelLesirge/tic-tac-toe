@@ -113,21 +113,21 @@ class Board {
 
 			displayInfo(players[this.currentPlayerIndex] + "s turn.")
 
-			console.time("Async-win-check")
-			let isWinner, winningArray
-
-			try {
-				[isWinner, winningArray] = await this.isPlayerWinner(currentPlayer)
-			} catch (error) {
-				if (error instanceof AggregateError) {
-					[isWinner, winningArray] = [false, undefined]
-				} else {
-					throw error 
-				}
+			let isWinner = false
+			let winningArray
+			
+			if (this.isPossibleToWin()) {
+				try {
+					[isWinner, winningArray] = await this.isPlayerWinner(currentPlayer)
+				} catch (error) {
+					if (error instanceof AggregateError) {
+						[isWinner, winningArray] = [false, undefined]
+					} else {
+						throw error 
+					}
+				}		
 			}
-			console.timeEnd("Async-win-check")
-		
-
+			
 			if (isWinner) {
 				winningArray.forEach(cell => cell.highlight())
 				this.gameOver()
@@ -193,8 +193,11 @@ class Board {
 		}
 	}
 
+	isPossibleToWin() {
+		return this.turnCount > this.winCheckAfter
+	}
+
 	isPlayerWinner(player) {
-		if (this.turnCount <= this.winCheckAfter) return Promise.resolve([false, null])
 		return Promise.any(this.allRowChecker.map((func) => func(player)))
 	}
 
@@ -214,12 +217,8 @@ class Board {
 	}
 
 	updateCordsVisablity() {
-		toggleCordsButton.innerText =
-			(this.isDisplayingCords ? "Hide" : "Display") + " Cords"
-		this.boardBody.style.setProperty(
-			"--cords-visibility",
-			this.isDisplayingCords ? "defalt" : "hidden"
-		)
+		toggleCordsButton.innerText = (this.isDisplayingCords ? "Hide" : "Display") + " Cords"
+		this.boardBody.style.setProperty("--cords-visibility", this.isDisplayingCords ? "defalt" : "hidden")
 	}
 
 	forEach(callback) {
