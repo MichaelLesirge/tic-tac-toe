@@ -113,7 +113,7 @@ class Board {
 
 			displayInfo(players[this.currentPlayerIndex] + "s turn.")
 
-			console.time("Async win check")
+			console.time("Async-win-check")
 			let isWinner, winningArray
 
 			try {
@@ -125,7 +125,7 @@ class Board {
 					throw error 
 				}
 			}
-			console.timeEnd("Async win check")
+			console.timeEnd("Async-win-check")
 		
 
 			if (isWinner) {
