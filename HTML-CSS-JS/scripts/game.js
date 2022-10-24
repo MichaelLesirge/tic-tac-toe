@@ -57,7 +57,9 @@ class Board {
 		this.height = height
 
 		this.size = this.width * this.height
-		this.isPerfectSquare = this.width === this.height
+		
+		this.minWinPicesesToWin = Math.min(this.width, this.height)
+		this.winCheckForWinAfter = (this.minWinPicesesToWin - 1) * players.length
 
 		this.turnCount = 0
 		this.gameCount = 0
@@ -65,21 +67,22 @@ class Board {
 		this.isPlaying = true
 
 		this.isDisplayingCords = false
-
-		this.minWinRowLength = Math.min(this.width, this.height)
-		this.winCheckAfter = (this.minWinRowLength - 1) * players.length
-
-		this.allRowChecker = [
-			this._isPlayerWinnerRowPromise(this.width, this.height, (x, y) => this.getCell(x, y)), // horizontal
-			this._isPlayerWinnerRowPromise(this.height, this.width, (y, x) => this.getCell(x, y)), // vertical
-		]
-		if (this.isPerfectSquare) {
-			this.allRowChecker = [
-				...this.allRowChecker,
-				this._isPlayerWinnerRowPromise(this.height, this.width-this.minWinRowLength+1, (j, i) => this.getCellSafe(j+i, j), 0, this.minWinRowLength-this.height), // top left to buttom right
-				this._isPlayerWinnerRowPromise(this.height, this.width+(this.width-this.minWinRowLength), (j, i) => this.getCellSafe(i-j, j), 0, this.minWinRowLength-1), // top right to buttom left
-			]	
+		
+		this.winCheckers = {
+			horizontal: this._isPlayerWinnerRowPromise(this.width, this.height, (x, y) => this.getCell(x, y)),
+			vertical: this._isPlayerWinnerRowPromise(this.height, this.width, (y, x) => this.getCell(x, y)),
+			topLeftToButtomRight: this._isPlayerWinnerRowPromise(this.height, this.width-this.minWinPicesesToWin+1, (j, i) => this.getCellWithFallback(j+i, j), 0, this.minWinPicesesToWin-this.height),
+			topRightToButtomLeft: this._isPlayerWinnerRowPromise(this.height, this.width+(this.width-this.minWinPicesesToWin), (j, i) => this.getCellWithFallback(i-j, j), 0, this.minWinPicesesToWin-1),
 		}
+		this.winCheckers.diagonals = [this.winCheckers.topLeftToButtomRight, this.winCheckers.topRightToButtomLeft]
+
+		let isPerfectSquare = this.width === this.height
+
+		this.usedWinChecker = [
+			this.winCheckers.horizontal, 
+			this.winCheckers.vertical, 
+			...((isPerfectSquare) ? this.winCheckers.diagonals : [])
+		]
 
 		this.boardArray = Array(this.height)
 		this.boardBody = document.querySelector(".board-body")
@@ -112,7 +115,7 @@ class Board {
 			this.turnCount++
 
 			displayInfo(players[this.currentPlayerIndex] + "s turn.")
-
+						
 			let isWinner = false
 			let winningArray
 			
@@ -129,7 +132,7 @@ class Board {
 			}
 			
 			if (isWinner) {
-				winningArray.forEach(cell => cell.highlight())
+				winningArray.forEach((cell) => cell.highlight())
 				this.gameOver()
 				displayInfo(currentPlayer + " Wins!")
 			} else if (this.turnCount >= this.size) {
@@ -194,18 +197,17 @@ class Board {
 	}
 
 	isPossibleToWin() {
-		return this.turnCount > this.winCheckAfter
+		return this.turnCount > this.winCheckForWinAfter
 	}
 
 	isPlayerWinner(player) {
-		return Promise.any(this.allRowChecker.map((func) => func(player)))
+		return Promise.any(this.usedWinChecker.map((func) => func(player)))
 	}
 
 	isOverflowing() {
 		for (let y = 0; y < this.height; y++) {
 			for (let x = 0; x < this.width; x++) {
-				if (this.getCell(x, y).el.getBoundingClientRect().left < 0)
-					return true
+				if (this.getCell(x, y).el.getBoundingClientRect().left < 0) return true
 			}
 		}
 		return false
@@ -233,7 +235,7 @@ class Board {
 		return this.boardArray[y][x]
 	}
 
-	getCellSafe(x, y) {
+	getCellWithFallback(x, y) {
 		let out;
 		try {
 			out = this.getCell(x, y)
@@ -248,16 +250,25 @@ class Board {
 	constructor(width, height, winRowLength) {
 		super(width, height)
 
-		this.minWinRowLength = winRowLength
-		this.winCheckAfter = (this.minWinRowLength - 1) * players.length
+		this.minWinPicesesToWin = winRowLength
+		this.winCheckForWinAfter = (this.minWinPicesesToWin - 1) * players.length
 
-		this.shouldCheckHorizontal = this.minWinRowLength <= this.width
-		this.shouldCheckVertical = this.minWinRowLength <= this.height
-		this.shouldCheckDiagnals = this.shouldCheckHorizontal && this.shouldCheckVertical
+		this.usedWinChecker = []
+
+		let checkVertical = this.minWinPicesesToWin <= this.height
+		let checkHorizontal = this.minWinPicesesToWin <= this.width
+
+		if (checkVertical) this.usedWinChecker.push(this.winCheckers.vertical)
+		if (checkHorizontal) this.usedWinChecker.push(this.winCheckers.horizontal)
+
+		let checkDiagnal = checkVertical && checkHorizontal
+		if (checkDiagnal) {
+			this.usedWinChecker.push(...this.winCheckers.diagonals)
+		}
 	}
 
 	_isPlayerWinnerRow(player, inner, outer, getCell, innerStart=0, outerStart=0) {
-		const cellArray = new Array(this.minWinRowLength)
+		const cellArray = new Array(this.minWinPicesesToWin)
 		for (let i = outerStart; i < outer; i++) {
 			let count = 0
 			for (let j = innerStart; j < inner; j++) {
@@ -265,7 +276,7 @@ class Board {
 				if (cell.val === player) {
 					cellArray[count] = cell
 					count++
-					if (count >= this.minWinRowLength) return [true, cellArray]
+					if (count >= this.minWinPicesesToWin) return [true, cellArray]
 				}
 				else {
 					count = 0
