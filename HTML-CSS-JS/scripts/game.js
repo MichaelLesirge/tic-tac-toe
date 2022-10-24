@@ -69,8 +69,17 @@ class Board {
 		this.minWinRowLength = Math.min(this.width, this.height)
 		this.winCheckAfter = (this.minWinRowLength - 1) * players.length
 
-		this.shouldCheckHorizontal = this.shouldCheckVertical = true
-		this.shouldCheckDiagnals = this.isPerfectSquare
+		this.allRowChecker = [
+			this._isPlayerWinnerRowPromise(this.width, this.height, (x, y) => this.getCell(x, y)), // horizontal
+			this._isPlayerWinnerRowPromise(this.height, this.width, (y, x) => this.getCell(x, y)), // vertical
+		]
+		if (this.isPerfectSquare) {
+			this.allRowChecker = [
+				...this.allRowChecker,
+				this._isPlayerWinnerRowPromise(this.height, this.width-this.minWinRowLength+1, (j, i) => this.getCellSafe(j+i, j), 0, this.minWinRowLength-this.height), // top left to buttom right
+				this._isPlayerWinnerRowPromise(this.height, this.width+(this.width-this.minWinRowLength), (j, i) => this.getCellSafe(i-j, j), 0, this.minWinRowLength-1), // top right to buttom left
+			]	
+		}
 
 		this.boardArray = Array(this.height)
 		this.boardBody = document.querySelector(".board-body")
@@ -90,7 +99,7 @@ class Board {
 		this.updateCordsVisablity()
 	}
 
-	playerTurn(cell) {
+	async playerTurn(cell) {
 		if (this.isPlaying) {
 			resetBoardButton.classList.remove("fade-button")
 
@@ -104,10 +113,21 @@ class Board {
 
 			displayInfo(players[this.currentPlayerIndex] + "s turn.")
 
-			let [isWinner, winningArray] = this.isPlayerWinner(currentPlayer)
+			let isWinner, winningArray
+
+			try {
+				[isWinner, winningArray] = await this.isPlayerWinner(currentPlayer)
+			} catch (error) {
+				if (error instanceof AggregateError) {
+					[isWinner, winningArray] = [false, undefined]
+				} else {
+					throw error 
+				}
+			}
+		
 
 			if (isWinner) {
-				this.highlightArray(winningArray)
+				winningArray.forEach(cell => cell.highlight())
 				this.gameOver()
 				displayInfo(currentPlayer + " Wins!")
 			} else if (this.turnCount >= this.size) {
@@ -158,39 +178,22 @@ class Board {
 			}
 			if (isWin) return [isWin, cellArray]
 		}
-		return [false, null]
+		return [false, undefined]
+	}
+
+	_isPlayerWinnerRowPromise(inner, outer, getCell, innerStart=0, outerStart=0) {
+		return (player) => {
+			return new Promise((resolve, reject) => {
+				const [isWin, cellArray] = this._isPlayerWinnerRow(player, inner, outer, getCell, innerStart, outerStart)
+				if (isWin) resolve([isWin, cellArray])
+				reject([isWin, cellArray])
+			})
+		}
 	}
 
 	isPlayerWinner(player) {
-		if (this.turnCount > this.winCheckAfter) {
-			let isWin, cellArray
-
-			if (this.shouldCheckHorizontal) {
-				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.width, this.height, (x, y) => this.getCell(x, y))
-				if (isWin) { return [isWin, cellArray] }
-			}
-			
-			// vertical
-			if (this.shouldCheckVertical) {
-				[isWin, cellArray] = this._isPlayerWinnerRow(player, this.height, this.width, (y, x) => this.getCell(x, y))
-				if (isWin) { return [isWin, cellArray] }
-			}
-			
-			if (this.shouldCheckDiagnals) {			
-				// top left to buttom right
-				[isWin, cellArray] = this._isPlayerWinnerRow(player, board.height, this.width-this.minWinRowLength+1, (j, i) => this.getCellSafe(j+i, j), 0, this.minWinRowLength-this.height)
-				if (isWin) { return [isWin, cellArray] }
-				
-				// top right to buttom left
-				[isWin, cellArray] = this._isPlayerWinnerRow(player, board.height, this.width+(this.width-this.minWinRowLength), (j, i) => this.getCellSafe(i-j, j), 0, this.minWinRowLength-1)
-				if (isWin) { return [isWin, cellArray] }
-			}
-		}
-		return [false, null]
-	}
-
-	highlightArray(array) {
-		array.forEach((cell) => cell.highlight())
+		if (this.turnCount <= this.winCheckAfter) return Promise.resolve([false, null])
+		return Promise.any(this.allRowChecker.map((func) => func(player)))
 	}
 
 	isOverflowing() {
