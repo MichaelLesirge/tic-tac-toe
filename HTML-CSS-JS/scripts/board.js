@@ -59,7 +59,7 @@ export class Board {
 
 		this.isDisplayingCords = false
 
-        this.displayInfoTo = console.log
+        this.displayInfoTo = console.info
 		
 		this.winCheckers = {
 			horizontal: this._isPlayerWinnerRowPromise(this.width, this.height, (x, y) => this.getCell(x, y)),
