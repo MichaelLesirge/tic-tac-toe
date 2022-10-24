@@ -104,9 +104,9 @@ class Board {
 
 			displayInfo(players[this.currentPlayerIndex] + "s turn.")
 
-			console.time("Normal win check")
+			console.time("Normal-win-check")
 			let [isWinner, winningArray] = this.isPlayerWinner(currentPlayer)
-			console.timeEnd("Noraml win check")
+			console.timeEnd("Normal-win-check")
 
 			if (isWinner) {
 				this.highlightArray(winningArray)
