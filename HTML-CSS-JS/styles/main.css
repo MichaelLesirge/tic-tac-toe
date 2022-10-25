@@ -42,7 +42,7 @@ body {
 }
 
 .nav-section {
-	width: 15rem;
+	width: 18rem;
 	font-size: 1.2rem;
 }
 
@@ -57,13 +57,27 @@ body {
 	font-size: 0.8rem;
 }
 
-.navbar a {
-	margin: 0 0.2rem;
+.nav-section:first-of-type {
+	margin-left: 0.3rem;
+}
+
+.nav-section.links a {
+	box-sizing: border-box;
+	max-height: 2.5rem;
+	padding: 0.3em;
+	width: 6em;
+	color: hsl(200, 70%, 20%);
+	text-decoration: none;
 	white-space: nowrap;
 }
 
-@media (min-width: 900px) {
-	.nav-items {
-		width: 70vw;
+.nav-section.links a:hover {
+	background-color: hsl(200, 70%, 64%, 50%);
+	border-radius: 1em;
+}
+
+@media (max-width: 600px) {
+	.nav-section {
+		font-size: 1rem;
 	}
 }

@@ -1,5 +1,5 @@
 :root {
-	--board-box-size: 20vmin;;
+	--board-box-size: 25vmin;;
 	--cords-visibility: default;
 }
 
@@ -45,6 +45,12 @@
 	opacity: 85%;
 }
 
+#info {
+	margin: 0;
+	padding: 0;
+	font-weight: 5;
+}
+
 @media (max-width: 410px) {
 	.nav-section:last-of-type {
 		display: flex;
@@ -52,4 +58,3 @@
 		align-items: center;
 	}
 }
-

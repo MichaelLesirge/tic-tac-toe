@@ -8,6 +8,7 @@
 
 	<link rel="stylesheet" href="styles/main.css" />
 	<link rel="stylesheet" href="styles/game.css" />
+	<link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
 
 	<title>Tic Tac Toe</title>
 </head>
@@ -15,12 +16,12 @@
 <body>
 	<nav class="fixed-container">
 		<div class="navbar fixed-content">
-			<div class="nav-section">
+			<div class="nav-section links">
 				<a href="index.html">Create Board</a>
 				<a href="game.html">Default Game</a>
 			</div>
-			<div class="nav-section nav-centered">
-				<button id="reset-button">Reset Board</button>
+			<div class="nav-section nav-centered" id="board-buttons">
+				<button id="reset-button">New Game <i class="fa fa-refresh" aria-hidden="true"></i></button>
 				<button id="toggle-cords">Toggle Cords</button>
 			</div>
 			<div class="nav-section">
