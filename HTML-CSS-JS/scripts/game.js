@@ -1,4 +1,4 @@
-import { MIN_SIZE, MAX_SIZE, DEFAULT_SIZE } from "./consts.js"
+import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./consts.js"
 
 const toggleCordsButton = document.querySelector("#toggle-cords")
 const resetBoardButton = document.querySelector("#reset-button")
@@ -329,7 +329,7 @@ function getUpdateValidNumberParamIfExists(name, min, max, toLargeMessage) {
 	return undefined
 }
 
-const getUpdateValidSizeParam = (name) => getUpdateValidNumberParam(name, MIN_SIZE, MAX_SIZE, DEFAULT_SIZE, (name, num, max) => `Board ${name} of ${num} is to larger than recomend max of ${max}`)
+const getUpdateValidSizeParam = (name) => getUpdateValidNumberParam(name, MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE, (name, num, max) => `Board ${name} of ${num} is to larger than recomend max of ${max}`)
 
 const width = getUpdateValidSizeParam("width")
 const height = getUpdateValidSizeParam("height")

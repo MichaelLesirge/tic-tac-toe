@@ -1,6 +1,6 @@
-import { MIN_SIZE, MAX_SIZE, DEFAULT_SIZE } from "./consts.js"
+import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./consts.js"
 
-const maxInputLen = MAX_SIZE.toString().length
+const maxInputLen = SUGGESTED_MAX_SIZE.toString().length
 
 const sizeInputs = document.querySelectorAll("input.size")
 const boardSizeInputs = document.querySelectorAll("input.board-size")
@@ -22,7 +22,7 @@ function validInput(input) {
 
 sizeInputs.forEach((el) => {
 	el.min = MIN_SIZE
-	el.max = MAX_SIZE
+	el.max = SUGGESTED_MAX_SIZE
 
 })
 
