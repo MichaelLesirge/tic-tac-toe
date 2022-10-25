@@ -6,6 +6,7 @@
 .board-table {
 	border-collapse: separate;
 	border-spacing: max(0.3rem, 3px);
+	box-shadow: 0 2vmax 3vmax 0 #00000030;
 }
 
 .board-table td {
