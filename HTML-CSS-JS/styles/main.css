@@ -72,7 +72,7 @@ body {
 }
 
 .nav-section.links a:hover {
-	background-color: hsl(200, 70%, 64%, 50%);
+	background-color: hsl(200, 70%, 85%, 50%);
 	border-radius: 1em;
 }
 
