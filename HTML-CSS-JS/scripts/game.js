@@ -66,6 +66,13 @@ class Board {
 		this.currentPlayerIndex = 0
 		this.isPlaying = true
 
+		this.allCheckers = {
+			verticle: this._isPlayerWinnerRowPromise(this.width, this.height, (x, y) => this.getCell(x, y)),
+			horizontal: this._isPlayerWinnerRowPromise(this.height, this.width, (y, x) => this.getCell(x, y)),
+			topLeftToButtomRight: this._isPlayerWinnerRowPromise(this.height, this.width-this.minWinPicesesToWin+1, (j, i) => this.getCellWithFallback(j+i, j), 0, this.minWinPicesesToWin-this.height),
+			topRightToButtomLeft: this._isPlayerWinnerRowPromise(this.height, this.width+(this.width-this.minWinPicesesToWin), (j, i) => this.getCellWithFallback(i-j, j), 0, this.minWinPicesesToWin-1),
+		}
+
 		this.isDisplayingCords = false
 		
 		this.usedWinChecker = []
@@ -224,17 +231,16 @@ class StandardBoard extends Board {
 		this.winCheckForWinAfter = (this.minWinPicesesToWin - 1) * players.length
 
 		this.usedWinChecker = [
-			this._isPlayerWinnerRowPromise(this.width, this.height, (x, y) => this.getCell(x, y)),
-			this._isPlayerWinnerRowPromise(this.height, this.width, (y, x) => this.getCell(x, y)),
+			this.allCheckers.horizontal,
+			this.allCheckers.verticle,
 		]
-	
-		if (this.width === this.height) {
-			this.usedWinChecker = [
-				...this.usedWinChecker,
-				this._isPlayerWinnerRowPromise(this.height, this.width-this.minWinPicesesToWin+1, (j, i) => this.getCellWithFallback(j+i, j), 0, this.minWinPicesesToWin-this.height),
-				this._isPlayerWinnerRowPromise(this.height, this.width+(this.width-this.minWinPicesesToWin), (j, i) => this.getCellWithFallback(i-j, j), 0, this.minWinPicesesToWin-1),
-			]
-		}
+		
+		const isPerfectSquare = this.width === this.height
+		if (isPerfectSquare) this.usedWinChecker.push(
+			this.allCheckers.topLeftToButtomRight,
+			this.allCheckers.topRightToButtomLeft,
+		)
+
 	}
 
 	_isPlayerWinnerRow(player, inner, outer, getCell, innerStart=0, outerStart=0) {
@@ -262,20 +268,18 @@ class CustomWinCondition extends Board {
 		this.minWinPicesesToWin = winRowLength
 		this.winCheckForWinAfter = (this.minWinPicesesToWin - 1) * players.length
 
-		let checkVertical = this.minWinPicesesToWin <= this.height
-		let checkHorizontal = this.minWinPicesesToWin <= this.width
+		const checkVertical = this.minWinPicesesToWin <= this.height
+		const checkHorizontal = this.minWinPicesesToWin <= this.width
 		
-		if (checkVertical) this.usedWinChecker.push(this._isPlayerWinnerRowPromise(this.width, this.height, (x, y) => this.getCell(x, y)),)
-		if (checkHorizontal) this.usedWinChecker.push(this._isPlayerWinnerRowPromise(this.height, this.width, (y, x) => this.getCell(x, y)))
+		if (checkHorizontal) this.usedWinChecker.push(this.allCheckers.horizontal)
+		if (checkVertical) this.usedWinChecker.push(this.allCheckers.verticle)
 
 		let checkDiagnal = checkVertical && checkHorizontal
-		if (checkDiagnal) {
-			this.usedWinChecker = [
-				...this.usedWinChecker,
-				this._isPlayerWinnerRowPromise(this.height, this.width-this.minWinPicesesToWin+1, (j, i) => this.getCellWithFallback(j+i, j), 0, this.minWinPicesesToWin-this.height),
-				this._isPlayerWinnerRowPromise(this.height, this.width+(this.width-this.minWinPicesesToWin), (j, i) => this.getCellWithFallback(i-j, j), 0, this.minWinPicesesToWin-1),
-			]
-		}
+
+		if (checkDiagnal) this.usedWinChecker.push(
+			this.allCheckers.topLeftToButtomRight,
+			this.allCheckers.topRightToButtomLeft,
+		)
 	}
 
 	_isPlayerWinnerRow(player, inner, outer, getCell, innerStart=0, outerStart=0) {
