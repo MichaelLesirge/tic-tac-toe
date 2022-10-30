@@ -57,7 +57,7 @@ class Board {
 		this.height = height
 
 		this.size = this.width * this.height
-		
+
 		this.minPicesesToWin = null
 		this.winCheckForWinAfter = null
 
@@ -69,12 +69,12 @@ class Board {
 		this.allCheckers = {
 			verticle: () => this._isPlayerWinnerRowPromise(this.width, this.height, (x, y) => this.getCell(x, y)),
 			horizontal: () => this._isPlayerWinnerRowPromise(this.height, this.width, (x, y) => this.getCell(y, x)),
-			topLeftToButtomRight: () => this._isPlayerWinnerRowPromise(this.height, this.width-this.minPicesesToWin+1, (j, i) => this.getCellWithFallback(j+i, j), 0, this.minPicesesToWin-this.height),
-			topRightToButtomLeft: () => this._isPlayerWinnerRowPromise(this.height, this.width+(this.width-this.minPicesesToWin), (j, i) => this.getCellWithFallback(i-j, j), 0, this.minPicesesToWin-1),
+			topLeftToButtomRight: () => this._isPlayerWinnerRowPromise(this.height, this.width - this.minPicesesToWin + 1, (j, i) => this.getCellWithFallback(j + i, j), 0, this.minPicesesToWin - this.height),
+			topRightToButtomLeft: () => this._isPlayerWinnerRowPromise(this.height, this.height+(this.width-this.minPicesesToWin), (j, i) => this.getCellWithFallback(i - j, j), 0, this.minPicesesToWin - 1),
 		}
 
 		this.isDisplayingCords = false
-		
+
 		this.usedWinChecker = []
 
 		this.boardArray = Array(this.height)
@@ -109,10 +109,10 @@ class Board {
 			this.turnCount++
 
 			displayInfo(players[this.currentPlayerIndex] + "s turn.")
-						
+
 			let isWinner = false
 			let winningArray
-			
+
 			if (this.isPossibleToWin()) {
 				try {
 					[isWinner, winningArray] = await this.isPlayerWinner(currentPlayer)
@@ -120,11 +120,11 @@ class Board {
 					if (error instanceof AggregateError) {
 						[isWinner, winningArray] = [false, undefined]
 					} else {
-						throw error 
+						throw error
 					}
-				}		
+				}
 			}
-			
+
 			if (isWinner) {
 				winningArray.forEach((cell) => cell.highlight())
 				this.gameOver()
@@ -163,7 +163,7 @@ class Board {
 		})
 	}
 
-	_isPlayerWinnerRowPromise(inner, outer, getCell, innerStart=0, outerStart=0) {
+	_isPlayerWinnerRowPromise(inner, outer, getCell, innerStart = 0, outerStart = 0) {
 		return (player) => {
 			return new Promise((resolve, reject) => {
 				const [isWin, cellArray] = this._isPlayerWinnerRow(player, inner, outer, getCell, innerStart, outerStart)
@@ -173,7 +173,7 @@ class Board {
 		}
 	}
 
-	_isPlayerWinnerRow(player, inner, outer, getCell, innerStart=0, outerStart=0) {
+	_isPlayerWinnerRow(player, inner, outer, getCell, innerStart = 0, outerStart = 0) {
 		return [false, null]
 	}
 
@@ -220,7 +220,9 @@ class Board {
 		let out;
 		try {
 			out = this.getCell(x, y)
-		} catch (error) {}
+		} catch (error) { 
+			return PLACEHOLDER_CELL
+		}
 
 		return out || PLACEHOLDER_CELL
 
@@ -238,7 +240,7 @@ class StandardBoard extends Board {
 			this.allCheckers.horizontal(),
 			this.allCheckers.verticle(),
 		]
-		
+
 		const isPerfectSquare = this.width === this.height
 		if (isPerfectSquare) this.usedWinChecker.push(
 			this.allCheckers.topLeftToButtomRight(),
@@ -247,7 +249,7 @@ class StandardBoard extends Board {
 
 	}
 
-	_isPlayerWinnerRow(player, inner, outer, getCell, innerStart=0, outerStart=0) {
+	_isPlayerWinnerRow(player, inner, outer, getCell, innerStart = 0, outerStart = 0) {
 		const cellArray = new Array(inner)
 		for (let i = outerStart; i < outer; i++) {
 			let isWin = true
@@ -274,7 +276,7 @@ class CustomWinCondition extends Board {
 
 		const checkVertical = this.minPicesesToWin <= this.height
 		const checkHorizontal = this.minPicesesToWin <= this.width
-		
+
 		if (checkHorizontal) this.usedWinChecker.push(this.allCheckers.horizontal())
 		if (checkVertical) this.usedWinChecker.push(this.allCheckers.verticle())
 
@@ -286,7 +288,7 @@ class CustomWinCondition extends Board {
 		)
 	}
 
-	_isPlayerWinnerRow(player, inner, outer, getCell, innerStart=0, outerStart=0) {
+	_isPlayerWinnerRow(player, inner, outer, getCell, innerStart = 0, outerStart = 0) {
 		const cellArray = new Array(this.minPicesesToWin)
 		for (let i = outerStart; i < outer; i++) {
 			let count = 0
@@ -360,7 +362,7 @@ if (oldParems !== newParms) {
 	location.search = newParms
 }
 
-const board = new (winRowLength === undefined ? StandardBoard : CustomWinCondition) (width, height, winRowLength)
+const board = new (winRowLength === undefined ? StandardBoard : CustomWinCondition)(width, height, winRowLength)
 
 board.newGame()
 resetBoardButton.onclick = () => board.newGame()
