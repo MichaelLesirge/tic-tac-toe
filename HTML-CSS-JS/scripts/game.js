@@ -9,7 +9,7 @@ const displayInfo = (msg) => (infoSpan.innerText = msg)
 // TODO allow users to specify num of players and there letters in home page (index.html)
 const players = ["x", "o"].map((element) => element.charAt(0).toUpperCase())
 
-OFFSET = 1
+const OFFSET = 1
 
 class Cell {
 	constructor(el, name) {
@@ -91,7 +91,7 @@ class Board {
 			let tableRow = this.boardBody.insertRow()
 			for (let x = 0; x < this.width; x++) {
 				const el = tableRow.insertCell()
-				const cordName = (this.x + offset) + "," + (this.y + offset)
+				const cordName = (x + OFFSET) + "," + (y + OFFSET)
 
 				let cell = new Cell(el, cordName)
 				this.boardArray[y][x] = cell
