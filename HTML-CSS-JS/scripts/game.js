@@ -9,12 +9,12 @@ const displayInfo = (msg) => (infoSpan.innerText = msg)
 // TODO allow users to specify num of players and there letters in home page (index.html)
 const players = ["x", "o"].map((element) => element.charAt(0).toUpperCase())
 
-class Cell {
-	constructor(x, y, el) {
-		this.x = x
-		this.y = y
+OFFSET = 1
 
+class Cell {
+	constructor(el, name) {
 		this.el = el
+		this.name = name
 
 		this.reset()
 	}
@@ -41,15 +41,15 @@ class Cell {
 		this.el.onclick = onclickFunc
 	}
 
-	addCords(offset = 1) {
+	addCords() {
 		const cords = document.createElement("span")
 		cords.classList.add("cords")
-		cords.innerText = "(" + (this.x + offset) + "," + (this.y + offset) + ")"
+		cords.innerText = "(" + this.name + ")"
 		this.el.appendChild(cords)
 	}
 }
 
-const PLACEHOLDER_CELL = new Cell(null, null, document.createElement("div"))
+const PLACEHOLDER_CELL = new Cell(document.createElement("div"), null)
 
 class Board {
 	constructor(width = DEFAULT_SIZE, height = DEFAULT_SIZE) {
@@ -90,9 +90,10 @@ class Board {
 			this.boardArray[y] = Array(this.width)
 			let tableRow = this.boardBody.insertRow()
 			for (let x = 0; x < this.width; x++) {
-				let el = tableRow.insertCell()
+				const el = tableRow.insertCell()
+				const cordName = (this.x + offset) + "," + (this.y + offset)
 
-				let cell = new Cell(x, y, el)
+				let cell = new Cell(el, cordName)
 				this.boardArray[y][x] = cell
 			}
 		}
