@@ -72,8 +72,8 @@ class WinChecker {
 
 			this.minPicesesToWin = piecesToWin
 
-			checkVertical = this.minPicesesToWin <= this.height
-			checkHorizontal = this.minPicesesToWin <= this.width
+			checkVertical = this.minPicesesToWin <= this.board.height
+			checkHorizontal = this.minPicesesToWin <= this.board.width
 
 			checkDiagnal = checkVertical && checkHorizontal
 		}
