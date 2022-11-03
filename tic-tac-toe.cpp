@@ -34,28 +34,45 @@ public:
         }
     }
 
-    bool isWinner(char potentialWinner)
-    {
+    // bool isWinner(char potentialWinner) const
+    // {
         
-    }
+    // }
 
     inline void place(int x, int y, char val)
     {
         board[SIZE-y][x+1] = val;
     };
+
+    const String& toString() {
+        return ""
+    }
 };
+
+std::ostream &operator<<(std::ostream &streem, Board const &board) { 
+    streem << board.toString();
+}
 
 void splitInput(const String& s, int& val1, int& val2)
 {
-    int mid = s.find_first_of(',');
+    int mid = s.find_first_of(' ');
     val1 = std::stoi(s.substr(0, mid));
     val2 = std::stoi(s.substr(mid+1, s.length()));
 }
 
+enum class VerticlePos {
+    top, middle, buttom
+};
+
+enum class HorizontalPos {
+    left, middle, right
+};
+
 int main()
 {   
     bool isPlaying = true;
-    int choiceX, choiceY;
+    VerticlePos choiceX;
+    HorizontalPos choiceY;
 
     Board board;
 
