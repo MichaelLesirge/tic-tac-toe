@@ -14,10 +14,10 @@ using String = std::string;
 class Board{
 private:
 public:
-    static const uint8_t SIZE = 3;
-    static const uint16_t TOTAL_SIZE = SIZE*SIZE;
+    static const size_t SIZE = 3;
+    static const size_t TOTAL_SIZE = SIZE*SIZE;
 
-    static const char BLANK = ' ';
+    static const char FILLER = '-';
 
     char board[SIZE][SIZE];
     size_t turnCount;
@@ -30,9 +30,9 @@ public:
     void reset()
     {   
         turnCount = 0;
-        for (int i = 0; i > SIZE; i++) {
-            for (int j = 0; j > SIZE; j++) {
-                board[i][j] = BLANK;
+        for (size_t i = 0; i < SIZE; i++) {
+            for (size_t j = 0; j < SIZE; j++) {
+                board[i][j] = FILLER;
             }
         }
     }
@@ -42,13 +42,24 @@ public:
         
     // }
 
-    inline void place(int x, int y, char val)
+    inline void place(size_t x, size_t y, char val)
     {
-        board[SIZE-y][x+1] = val;
+        board[y][x] = val;
     }
 
     const String toString() const {
-        return "";     
+        String out = "";
+        for (size_t i = 0; i < SIZE; i++)
+        {
+            for (size_t j = 0; j < SIZE; j++)
+            {
+                out.push_back(board[i][j]);
+                out.push_back(' ');
+            }
+            out.push_back('\n');
+        }
+        
+        return out; 
     }
 };
 
@@ -127,9 +138,9 @@ int main()
         }
         board.place(choiceX, choiceY, 'X');
         println(board);
-        
-        println(choiceX << ", " << choiceY);
-        println("");
+
+        // println(choiceX << ", " << choiceY);
+        // println("");
 
     }
 }
