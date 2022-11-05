@@ -3,8 +3,8 @@ html {
 }
 
 body {
-	background: hsl(200, 70%, 40%);
-	background: linear-gradient(hsl(200, 70%, 46%), hsl(200, 70%, 34%));
+	background: rgb(27, 27, 71);
+	background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 0%, rgba(37,125,9,1) 48%, rgb(0, 113, 136) 100%);
 	background-repeat: no-repeat;
 	background-attachment: fixed;
 
@@ -38,7 +38,8 @@ body {
 
 	padding: 0.4rem 0;
 
-	background-color: hsl(200, 70%, 60%);
+	color: whitesmoke;
+	background-color: rgb(2,0,36);
 }
 
 .nav-section {
@@ -66,14 +67,14 @@ body {
 	max-height: 2.5rem;
 	padding: 0.3em;
 	width: 6em;
-	color: black;
+	color: whitesmoke;
 	font-weight: 500;
 	text-decoration: none;
 	white-space: nowrap;
 }
 
 .nav-section.links a:hover {
-	background-color: hsl(200, 70%, 85%, 50%);
+	background-color: rgba(13, 165, 241, 0.277);
 	border-radius: 1em;
 }
 
