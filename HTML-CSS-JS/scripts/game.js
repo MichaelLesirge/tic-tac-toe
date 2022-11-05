@@ -1,7 +1,7 @@
 import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./consts.js"
 
-const toggleCordsButton = document.querySelector("#toggle-cords")
-const resetBoardButton = document.querySelector("#reset-button")
+const toggleCordsButton = document.getElementById("toggle-cords")
+const resetBoardButton = document.getElementById("reset-button")
 
 const infoSpan = document.querySelector("#info")
 const displayInfo = (msg) => (infoSpan.innerText = msg)
@@ -260,22 +260,21 @@ class Board {
 	}
 
 	isOverflowing() {
-		for (let y = 0; y < this.height; y++) {
-			for (let x = 0; x < this.width; x++) {
-				if (this.getCell(x, y).el.getBoundingClientRect().left < 0) return true
-			}
-		}
-		return false
+		return this.getCell(0, 0).el.getBoundingClientRect().left < 0
 	}
 
 	toggleCords() {
 		this.isDisplayingCords = !this.isDisplayingCords
-		this.updateCordsVisablity(this.isDisplayingCords)
+		this.updateCordsVisablity()
 	}
 
 	updateCordsVisablity() {
 		toggleCordsButton.innerText = (this.isDisplayingCords ? "Hide" : "Display") + " Cords"
-		this.boardBody.style.setProperty("--cords-visibility", this.isDisplayingCords ? "visible" : "hidden")
+		this.setCssVar("cords-visibility", this.isDisplayingCords ? "block" : "none")
+	}
+
+	setCssVar(name, value) {
+		this.boardBody.style.setProperty("--" + name, value)
 	}
 
 	forEach(callback) {
@@ -303,8 +302,7 @@ class Board {
 	}
 }
 
-const params = new URLSearchParams(location.search)
-const oldParems = params.toString()
+// get board varibles
 
 function getNumberParam(name) {
 	return parseInt(params.get(name))
@@ -343,6 +341,9 @@ function getUpdateValidNumberParamIfExists(name, min, max, toLargeMessage) {
 	return undefined
 }
 
+const params = new URLSearchParams(location.search)
+const oldParems = params.toString()
+
 const getUpdateValidSizeParam = (name) => getUpdateValidNumberParam(name, MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE, (name, num, max) => `Board ${name} of ${num} is to larger than recomend max of ${max}`)
 
 const width = getUpdateValidSizeParam("width")
@@ -357,12 +358,13 @@ if (oldParems !== newParms) {
 	location.search = newParms
 }
 
+// start game
+document.querySelector("title").innerText += ` (${boardSizes})`
+
 const board = new Board(width, height, winRowLength)
-
 board.newGame()
-resetBoardButton.onclick = () => board.newGame()
 
-toggleCordsButton.onclick = () => board.toggleCords()
+// fix overflow
 
 const boardClassList = document.querySelector(".board-container").classList
 const bodyStyle = document.body.style
@@ -379,4 +381,30 @@ function fixOverflow() {
 fixOverflow()
 window.onresize = fixOverflow
 
-document.querySelector("title").innerText += ` (${boardSizes})`
+// nav buttons
+
+resetBoardButton.onclick = () => board.newGame()
+toggleCordsButton.onclick = () => board.toggleCords()
+
+// zoom in / out
+
+const zoomScaleDisplay = document.getElementById("zoom-scale-display")
+
+let zoomScale = 0
+function changeZoomScaleBy(by) {
+	zoomScale += by
+	fixOverflow()
+	board.setCssVar("zoom-scale", zoomScale + "vmin")
+	zoomScaleDisplay.innerText = 100 + zoomScale
+	fixOverflow()
+}
+
+const zoomInBtn = document.getElementById("zoom-in")
+const zoomOutBtn = document.getElementById("zoom-out")
+
+const zoomScaleChangeBy = 1;
+const zoomInFunc = () => changeZoomScaleBy(zoomScaleChangeBy)
+const zoomOutFunc = () => changeZoomScaleBy(-zoomScaleChangeBy)
+
+zoomInBtn.onmousedown = zoomInFunc
+zoomOutBtn.onmousedown = zoomOutFunc

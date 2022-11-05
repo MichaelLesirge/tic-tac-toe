@@ -1,24 +1,23 @@
 :root {
-	--board-box-size: 20vmin;;
-	--cords-visibility: default;
+	--zoom-scale: 0vmin;
+	--cords-visibility: none;
+	/* tried using css varible for entire width but it did'nt update */
 }
 
 .board-table {
 	border-collapse: separate;
-	border-spacing: max(0.3rem, 3px);
+	border-spacing: calc(0.5vmin + var(--zoom-scale));
 	box-shadow: 0 2vmax 3vmax 0 #00000030;
 }
 
 .board-table td {
-	width: var(--board-box-size);
-	height: var(--board-box-size);
-	min-width: var(--board-box-size);
-	min-height: var(--board-box-size);
+	width: calc(20vmin + var(--zoom-scale));
+	height: calc(20vmin + var(--zoom-scale));
 
 	cursor: pointer;
 	background-color: hsl(0, 0%, 100%);
 
-	font-size: var(--board-box-size);
+	font-size: calc(20vmin + var(--zoom-scale));
 	text-align: center;
 	font-family: monospace;
 }
@@ -36,10 +35,10 @@
 }
 
 .cords {
-	font-size: medium;
+	font-size: 8%;
 	color: hsl(0, 0%, 20%);
 
-	visibility: var(--cords-visibility);
+	display: var(--cords-visibility);
 }
 
 .fade-button {
@@ -83,6 +82,29 @@
 		box-shadow: 0 0 0 20px rgba(0, 128, 0, 0);
 	}
 }
+
+.zoom-control {
+	font-size: 0.8rem;
+	
+}
+
+.zoom-control > button {
+	width: 1.7em;
+	margin: 0 0.2em;
+	color: white;
+	background-color: #ffffff1d;
+}
+
+.zoom-control > button:hover, .zoom-control > button:focus  {
+	background-color: #ffffff30;
+}
+
+.zoom-control > button:active  {
+	background-color: #ffffff6c;
+}
+
+#zoom-in { cursor: zoom-in;}
+#zoom-out{ cursor: zoom-out;}
 
 @media (max-width: 410px) {
 	.nav-section:last-of-type {
