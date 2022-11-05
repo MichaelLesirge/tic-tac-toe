@@ -49,7 +49,37 @@
 #info {
 	margin: 0;
 	padding: 0;
-	color: #1a1137;
+	color: white;
+
+	border-radius: 50%;
+}
+
+#info.win {
+	animation: pulse-animation-win 2s ease-out;
+}
+
+#info.tie {
+	animation: pulse-animation-tie 2s ease-out;
+}
+  
+@keyframes pulse-animation-tie {
+	
+	0% {
+		box-shadow: 0 0 0 0px rgba(200, 200, 200, 0.2);
+	}
+	100% {
+		box-shadow: 0 0 0 20px rgba(200, 200, 200, 0);
+	}
+
+}
+@keyframes pulse-animation-win {
+	
+	0% {
+		box-shadow: 0 0 0 0px rgba(0, 128, 0, 0.7);
+	}
+	100% {
+		box-shadow: 0 0 0 20px rgba(0, 128, 0, 0);
+	}
 }
 
 @media (max-width: 410px) {

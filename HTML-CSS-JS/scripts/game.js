@@ -6,6 +6,9 @@ const resetBoardButton = document.querySelector("#reset-button")
 const infoSpan = document.querySelector("#info")
 const displayInfo = (msg) => (infoSpan.innerText = msg)
 
+const displayInfoPulse = () => { infoSpan.classList.add("tie"); setTimeout(() => infoSpan.classList.remove("tie"), 1000)} 
+const displayInfoPulseGreen = () => { infoSpan.classList.add("win"); setTimeout(() => infoSpan.classList.remove("win"), 1000)} 
+
 // TODO allow users to specify num of players and there letters in home page (index.html)
 const players = ["x", "o"].map((element) => element.charAt(0).toUpperCase())
 
@@ -220,9 +223,11 @@ class Board {
 				winningArray.forEach((cell) => cell.highlight())
 				this.gameOver()
 				displayInfo(currentPlayer + " Wins!")
+				displayInfoPulseGreen()
 			} else if (this.turnCount >= this.size) {
 				this.gameOver()
 				displayInfo("Tie!")
+				displayInfoPulse()
 			}
 		}
 	}
