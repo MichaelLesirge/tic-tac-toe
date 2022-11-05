@@ -270,7 +270,7 @@ class Board {
 
 	updateCordsVisablity() {
 		toggleCordsButton.innerText = (this.isDisplayingCords ? "Hide" : "Display") + " Cords"
-		this.boardBody.style.setProperty("--cords-visibility", this.isDisplayingCords ? "defalt" : "hidden")
+		this.boardBody.style.setProperty("--cords-visibility", this.isDisplayingCords ? "visible" : "hidden")
 	}
 
 	forEach(callback) {
