@@ -277,6 +277,10 @@ class Board {
 		this.boardBody.style.setProperty("--" + name, value)
 	}
 
+	getCssVar(name) {
+		return getComputedStyle(this.boardBody).getPropertyValue("--" + name)
+	}
+
 	forEach(callback) {
 		for (let y = 0; y < this.height; y++) {
 			for (let x = 0; x < this.width; x++) {
@@ -390,17 +394,23 @@ toggleCordsButton.onclick = () => board.toggleCords()
 
 const zoomScaleDisplay = document.getElementById("zoom-scale-display")
 
-let zoomScale = 0
-function changeZoomScaleBy(by) {
-	zoomScale += by
-	fixOverflow()
-	board.setCssVar("zoom-scale", zoomScale + "vmin")
-	zoomScaleDisplay.innerText = 100 + zoomScale
-	fixOverflow()
-}
+const startingScale = parseInt(board.getCssVar("starting-zoom-scale"))
+
+let zoomScale = parseInt(board.getCssVar("zoom-scale"))
 
 const zoomInBtn = document.getElementById("zoom-in")
 const zoomOutBtn = document.getElementById("zoom-out")
+
+function changeZoomScaleBy(by) {
+	zoomScale = Math.max(zoomScale + by, 1)
+
+	zoomOutBtn.disabled = zoomScale === 1
+
+	fixOverflow()
+	board.setCssVar("zoom-scale", zoomScale + "vmin")
+	zoomScaleDisplay.innerText = (100 - startingScale) + zoomScale 
+	fixOverflow()
+}
 
 const zoomScaleChangeBy = 1;
 const zoomInFunc = () => changeZoomScaleBy(zoomScaleChangeBy)

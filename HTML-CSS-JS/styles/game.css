@@ -1,25 +1,26 @@
 :root {
-	--zoom-scale: 0vmin;
+	--starting-zoom-scale: 21vmin;
+	--zoom-scale: var(--starting-zoom-scale);
 	--cords-visibility: none;
 	/* tried using css varible for entire width but it did'nt update */
 }
 
 .board-table {
 	border-collapse: separate;
-	border-spacing: calc(0.5vmin + var(--zoom-scale));
+	border-spacing: calc(var(--starting-zoom-scale) - var(--zoom-scale) + .5vmin);
 	box-shadow: 0 2vmax 3vmax 0 #00000030;
 }
 
 .board-table td {
-	width: calc(20vmin + var(--zoom-scale));
-	height: calc(20vmin + var(--zoom-scale));
-	min-width: calc(20vmin + var(--zoom-scale));
-	min-height: calc(20vmin + var(--zoom-scale));
+	width: var(--zoom-scale);
+	height: var(--zoom-scale);
+	min-width: var(--zoom-scale);
+	min-height: var(--zoom-scale);
 
 	cursor: pointer;
 	background-color: hsl(0, 0%, 100%);
 
-	font-size: calc(20vmin + var(--zoom-scale));
+	font-size: var(--zoom-scale);
 	text-align: center;
 	font-family: monospace;
 }
@@ -38,7 +39,7 @@
 
 .cords {
 	font-size: 8%;
-	color: hsl(0, 0%, 20%);
+	color: hsl(0, 0%, 27%);
 
 	display: var(--cords-visibility);
 }
@@ -90,18 +91,24 @@
 	
 }
 
-.zoom-control > button {
-	width: 1.7em;
+.zoom-btn {
+	width: 1.7em !important;
 	margin: 0 0.2em;
 	color: white;
 	background-color: #ffffff1d;
 }
 
-.zoom-control > button:hover, .zoom-control > button:focus  {
+.zoom-btn[disabled] {
+	color: gray;
+	opacity: 75%;
+	cursor: default !important;
+}
+
+.zoom-btn:hover:not(.zoom-btn:hover[disabled]), .zoom-btn:focus:not(.zoom-btn:focus[disabled])  {
 	background-color: #ffffff30;
 }
 
-.zoom-control > button:active  {
+.zoom-btn:active:not(.zoom-btn:active[disabled])  {
 	background-color: #ffffff6c;
 }
 
