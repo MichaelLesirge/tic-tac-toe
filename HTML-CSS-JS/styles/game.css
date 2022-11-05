@@ -13,6 +13,8 @@
 .board-table td {
 	width: calc(20vmin + var(--zoom-scale));
 	height: calc(20vmin + var(--zoom-scale));
+	min-width: calc(20vmin + var(--zoom-scale));
+	min-height: calc(20vmin + var(--zoom-scale));
 
 	cursor: pointer;
 	background-color: hsl(0, 0%, 100%);

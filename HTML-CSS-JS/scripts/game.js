@@ -374,7 +374,7 @@ function fixOverflow() {
 		bodyStyle.overflowX = "scroll"
 	} else {
 		boardClassList.add("centered-container")
-		bodyStyle.overflowX = "default"
+		bodyStyle.overflowX = "hidden"
 	}
 }
 
