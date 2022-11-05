@@ -3,8 +3,9 @@ html {
 }
 
 body {
-	background: rgb(27, 27, 71);
-	background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 0%, rgba(37,125,9,1) 48%, rgb(0, 113, 136) 100%);
+	background: rgb(33, 97, 97);
+	background: linear-gradient(146deg, rgba(33,97,97,1) 27%, rgba(19,29,78,1) 100%);
+	
 	background-repeat: no-repeat;
 	background-attachment: fixed;
 
