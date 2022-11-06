@@ -404,37 +404,41 @@ const zoomOutBtn = document.getElementById("zoom-out")
 function changeZoomScaleBy(by) {
 	zoomScale = Math.max(zoomScale + by, 1)
 
-	zoomOutBtn.disabled = zoomScale === 1
+	zoomScaleDisplay.innerText = (100 - startingScale) + zoomScale
 
-	setTimeout(() => {
-		fixOverflow()
-		board.setCssVar("zoom-scale", zoomScale + "vmin")
-		zoomScaleDisplay.innerText = (100 - startingScale) + zoomScale
-		fixOverflow()
-	}, 0)
+	fixOverflow()
+	board.setCssVar("zoom-scale", zoomScale + "vmin")
+	fixOverflow()
+
+	zoomOutBtn.disabled = (zoomScale === 1)
 }
 
 const zoomScaleChangeBy = 1;
 
-const RepeatDelayMs = 200
-const repeatRateMs = 33;
+const RepeatDelayMs = 500
+const repeatRateMs = 33
 
-let id;
-function zoomByFunc(btn, by) {
-	btn.onmousedown = btn.ontouchstart = () => {
-		changeZoomScaleBy(by)
-		setTimeout(
-			() => id = setInterval(
-				() => changeZoomScaleBy(by),
-				repeatRateMs
-			),
-			RepeatDelayMs
-		)
-	}
-	btn.onmouseup = btn.ontouchend = btn.onmouseleave = () => {
-		clearInterval(id)
-	}
+let zoomLock;
+function addZoomEventListener(btn, by) {
+	let id;
+	["mousedown", "touchstart"].forEach(event => {
+		btn.addEventListener(event, () => {
+			changeZoomScaleBy(by)
+			zoomLock = btn
+			const startTime = new Date().getTime();
+			id = setInterval(() => {
+				if (zoomLock !== btn) {
+					clearInterval(id)
+				}
+				if (startTime + RepeatDelayMs < new Date().getTime()) changeZoomScaleBy(by)
+			}, repeatRateMs)
+		})
+	});
+	
+	["mouseup", "touchend", "mouseleave"].forEach(event => {
+		btn.addEventListener(event, () => clearInterval(id))
+	});
 }
 
-zoomByFunc(zoomInBtn, zoomScaleChangeBy)
-zoomByFunc(zoomOutBtn, -zoomScaleChangeBy)
+addZoomEventListener(zoomInBtn, zoomScaleChangeBy)
+addZoomEventListener(zoomOutBtn, -zoomScaleChangeBy)
