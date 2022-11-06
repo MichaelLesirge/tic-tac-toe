@@ -423,19 +423,19 @@ const zoomScaleChangeBy = 1;
 const RepeatDelayMs = 500
 const repeatRateMs = 33
 
-let zoomLock;
 function addZoomEventListener(btn, by) {
 	let id;
 	["mousedown", "touchstart"].forEach(event => {
 		btn.addEventListener(event, () => {
 			changeZoomScaleBy(by)
-			zoomLock = btn
-			const startTime = new Date().getTime();
+			const startTime = new Date().getTime()
+			let last = false
 			id = setInterval(() => {
-				if (zoomLock !== btn) {
-					clearInterval(id)
+				if (btn.disabled) clearInterval(id)
+				if (last || startTime + RepeatDelayMs < new Date().getTime()) {
+					last = true
+					changeZoomScaleBy(by)
 				}
-				if (startTime + RepeatDelayMs < new Date().getTime()) changeZoomScaleBy(by)
 			}, repeatRateMs)
 		})
 	});
