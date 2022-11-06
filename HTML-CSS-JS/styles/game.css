@@ -92,7 +92,8 @@
 }
 
 .zoom-btn {
-	width: 1.7em !important;
+	width: min-content !important;
+	max-width: 1.4rem !important;
 	margin: 0 0.2em;
 	color: white;
 	background-color: #ffffff1d;
