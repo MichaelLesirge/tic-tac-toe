@@ -6,8 +6,8 @@ const resetBoardButton = document.getElementById("reset-button")
 const infoSpan = document.querySelector("#info")
 const displayInfo = (msg) => (infoSpan.innerText = msg)
 
-const displayInfoPulse = () => { infoSpan.classList.add("tie"); setTimeout(() => infoSpan.classList.remove("tie"), 1000)} 
-const displayInfoPulseGreen = () => { infoSpan.classList.add("win"); setTimeout(() => infoSpan.classList.remove("win"), 1000)} 
+const displayInfoPulse = () => { infoSpan.classList.add("tie"); setTimeout(() => infoSpan.classList.remove("tie"), 1000) }
+const displayInfoPulseGreen = () => { infoSpan.classList.add("win"); setTimeout(() => infoSpan.classList.remove("win"), 1000) }
 
 // TODO allow users to specify num of players and there letters in home page (index.html)
 const players = ["x", "o"].map((element) => element.charAt(0).toUpperCase())
@@ -409,14 +409,32 @@ function changeZoomScaleBy(by) {
 	setTimeout(() => {
 		fixOverflow()
 		board.setCssVar("zoom-scale", zoomScale + "vmin")
-		zoomScaleDisplay.innerText = (100 - startingScale) + zoomScale 
+		zoomScaleDisplay.innerText = (100 - startingScale) + zoomScale
 		fixOverflow()
 	}, 0)
 }
 
 const zoomScaleChangeBy = 1;
-const zoomInFunc = () => changeZoomScaleBy(zoomScaleChangeBy)
-const zoomOutFunc = () => changeZoomScaleBy(-zoomScaleChangeBy)
 
-zoomInBtn.onmousedown = zoomInFunc
-zoomOutBtn.onmousedown = zoomOutFunc
+const RepeatDelayMs = 200
+const repeatRateMs = 33;
+
+let id;
+function zoomByFunc(btn, by) {
+	btn.onmousedown = btn.ontouchstart = () => {
+		changeZoomScaleBy(by)
+		setTimeout(
+			() => id = setInterval(
+				() => changeZoomScaleBy(by),
+				repeatRateMs
+			),
+			RepeatDelayMs
+		)
+	}
+	btn.onmouseup = btn.ontouchend = btn.onmouseleave = () => {
+		clearInterval(id)
+	}
+}
+
+zoomByFunc(zoomInBtn, zoomScaleChangeBy)
+zoomByFunc(zoomOutBtn, -zoomScaleChangeBy)
