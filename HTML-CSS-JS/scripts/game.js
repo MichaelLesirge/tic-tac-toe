@@ -398,11 +398,15 @@ const startingScale = parseInt(board.getCssVar("starting-zoom-scale"))
 
 let zoomScale = parseInt(board.getCssVar("zoom-scale"))
 
+const maxScaleVal = 500
+
+const maxScale = maxScaleVal + startingScale - 100
+
 const zoomInBtn = document.getElementById("zoom-in")
 const zoomOutBtn = document.getElementById("zoom-out")
 
 function changeZoomScaleBy(by) {
-	zoomScale = Math.max(zoomScale + by, 1)
+	zoomScale = Math.min(Math.max(zoomScale + by, 1), maxScale)
 
 	zoomScaleDisplay.innerText = (100 - startingScale) + zoomScale
 
@@ -411,6 +415,7 @@ function changeZoomScaleBy(by) {
 	fixOverflow()
 
 	zoomOutBtn.disabled = (zoomScale === 1)
+	zoomInBtn.disabled = (zoomScale === maxScale)
 }
 
 const zoomScaleChangeBy = 1;
