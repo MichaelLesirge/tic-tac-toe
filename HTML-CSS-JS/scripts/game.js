@@ -406,10 +406,12 @@ function changeZoomScaleBy(by) {
 
 	zoomOutBtn.disabled = zoomScale === 1
 
-	fixOverflow()
-	board.setCssVar("zoom-scale", zoomScale + "vmin")
-	zoomScaleDisplay.innerText = (100 - startingScale) + zoomScale 
-	fixOverflow()
+	setTimeout(() => {
+		fixOverflow()
+		board.setCssVar("zoom-scale", zoomScale + "vmin")
+		zoomScaleDisplay.innerText = (100 - startingScale) + zoomScale 
+		fixOverflow()
+	}, 0)
 }
 
 const zoomScaleChangeBy = 1;
