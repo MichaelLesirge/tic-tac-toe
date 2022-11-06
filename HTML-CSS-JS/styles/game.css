@@ -7,7 +7,7 @@
 
 .board-table {
 	border-collapse: separate;
-	border-spacing: calc(var(--starting-zoom-scale) - var(--zoom-scale) + .5vmin);
+	border-spacing: calc(var(--starting-zoom-scale) - var(--zoom-scale) + .45vmin);
 	box-shadow: 0 2vmax 3vmax 0 #00000030;
 }
 
@@ -38,7 +38,7 @@
 }
 
 .cords {
-	font-size: 8%;
+	font-size: 10%;
 	color: hsl(0, 0%, 27%);
 
 	display: var(--cords-visibility);
@@ -88,7 +88,7 @@
 
 .zoom-control {
 	font-size: 0.8rem;
-	
+	margin-top: 0.2rem;
 }
 
 .zoom-btn {

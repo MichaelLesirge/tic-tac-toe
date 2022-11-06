@@ -12,7 +12,7 @@ const displayInfoPulseGreen = () => { infoSpan.classList.add("win"); setTimeout(
 // TODO allow users to specify num of players and there letters in home page (index.html)
 const players = ["x", "o"].map((element) => element.charAt(0).toUpperCase())
 
-const OFFSET = 0
+const OFFSET = 1
 
 class Cell {
 	constructor(el, name) {
