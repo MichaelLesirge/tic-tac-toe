@@ -68,10 +68,7 @@ class WinChecker {
 		if (piecesToWin === undefined) {
 			this.winCheckFunc = this.isPlayerWinnerAcross;
 
-			this.minPicesesToWin = Math.min(
-				this.board.width,
-				this.board.height
-			);
+			this.minPicesesToWin = Math.min(this.board.width, this.board.height);
 
 			checkVertical = true;
 			checkHorizontal = true;
@@ -167,14 +164,7 @@ class WinChecker {
 		return this.board.turnCount > this.winCheckForWinAfter;
 	}
 
-	isPlayerWinnerAcross(
-		player,
-		innerStart,
-		outerStart,
-		inner,
-		outer,
-		getCell
-	) {
+	isPlayerWinnerAcross(player, innerStart, outerStart, inner, outer, getCell) {
 		const cellArray = new Array(inner);
 		for (let i = outerStart; i < outer; i++) {
 			let isWin = true;
@@ -255,8 +245,7 @@ class Board {
 			cell.set(currentPlayer);
 			cell.disable();
 
-			this.currentPlayerIndex =
-				(this.turnCount + this.gameCount) % players.length;
+			this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length;
 			this.turnCount++;
 
 			displayInfo(players[this.currentPlayerIndex] + "s turn.");
@@ -264,9 +253,7 @@ class Board {
 			let isWinner = false;
 			let winningArray;
 
-			[isWinner, winningArray] = await this.winChecker.isPlayerWinner(
-				currentPlayer
-			);
+			[isWinner, winningArray] = await this.winChecker.isPlayerWinner(currentPlayer);
 
 			if (isWinner) {
 				winningArray.forEach((cell) => cell.highlight());
@@ -318,12 +305,8 @@ class Board {
 	}
 
 	updateCordsVisablity() {
-		toggleCordsButton.innerText =
-			(this.isDisplayingCords ? "Hide" : "Display") + " Cords";
-		this.setCssVar(
-			"cords-visibility",
-			this.isDisplayingCords ? "block" : "none"
-		);
+		toggleCordsButton.innerText = (this.isDisplayingCords ? "Hide" : "Display") + " Cords";
+		this.setCssVar("cords-visibility", this.isDisplayingCords ? "block" : "none");
 	}
 
 	setCssVar(name, value) {
@@ -369,7 +352,6 @@ function validNumber(num, min, max, fallback = undefined) {
 }
 
 function makeBoard() {
-
 	function getUpdateValidNumberParam(
 		name,
 		min,
@@ -382,11 +364,7 @@ function makeBoard() {
 		if (num > max) {
 			let warningMessage = toLargeMessage(name, num, max);
 			if (warningMessage !== "") warningMessage += ". ";
-			if (
-				!confirm(
-					warningMessage + `Do you want to use suggested max size of ${max}?`
-				)
-			) {
+			if (!confirm(warningMessage + `Do you want to use suggested max size of ${max}?`)) {
 				console.warn(warningMessage);
 				max = Infinity;
 			}
@@ -402,13 +380,7 @@ function makeBoard() {
 	function getUpdateValidNumberParamIfExists(name, min, max, toLargeMessage) {
 		if (params.has(name)) {
 			if (!isNaN(getNumberParam(name))) {
-				return getUpdateValidNumberParam(
-					name,
-					min,
-					max,
-					undefined,
-					toLargeMessage
-				);
+				return getUpdateValidNumberParam(name, min, max, undefined, toLargeMessage);
 			}
 			params.delete(name);
 		}
@@ -423,8 +395,7 @@ function makeBoard() {
 			MIN_SIZE,
 			SUGGESTED_MAX_SIZE,
 			DEFAULT_SIZE,
-			(name, num, max) =>
-				`Board ${name} of ${num} is to larger than recomend max of ${max}`
+			(name, num, max) => `Board ${name} of ${num} is to larger than recomend max of ${max}`
 		);
 
 	const width = getUpdateValidSizeParam("width");
