@@ -1,5 +1,7 @@
 import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./consts.js";
 
+// sorry for this ugly javascript
+
 const toggleCordsButton = document.getElementById("toggle-cords");
 const resetBoardButton = document.getElementById("reset-button");
 
