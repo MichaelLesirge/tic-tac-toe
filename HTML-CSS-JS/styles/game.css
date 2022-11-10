@@ -7,7 +7,9 @@
 
 .board-table {
 	border-collapse: separate;
-	border-spacing: calc(var(--starting-zoom-scale) - var(--zoom-scale) + .45vmin);
+	border-spacing: calc(
+		var(--starting-zoom-scale) - var(--zoom-scale) + 0.45vmin
+	);
 	box-shadow: 0 2vmax 3vmax 0 #00000030;
 }
 
@@ -63,9 +65,8 @@
 #info.tie {
 	animation: pulse-animation-tie 1.5s ease-out;
 }
-  
+
 @keyframes pulse-animation-tie {
-	
 	0% {
 		box-shadow: 0 0 0 0px rgba(200, 200, 200, 0.2);
 		background: rgba(200, 200, 200, 0.2);
@@ -73,10 +74,8 @@
 	100% {
 		box-shadow: 0 0 0 20px rgba(200, 200, 200, 0);
 	}
-
 }
 @keyframes pulse-animation-win {
-	
 	0% {
 		box-shadow: 0 0 0 0px rgba(0, 128, 0, 0.7);
 		background: rgba(0, 128, 0, 0.7);
@@ -105,16 +104,21 @@
 	cursor: default !important;
 }
 
-.zoom-btn:hover:not(.zoom-btn:hover[disabled]), .zoom-btn:focus:not(.zoom-btn:focus[disabled])  {
+.zoom-btn:hover:not(.zoom-btn:hover[disabled]),
+.zoom-btn:focus:not(.zoom-btn:focus[disabled]) {
 	background-color: #ffffff30;
 }
 
-.zoom-btn:active:not(.zoom-btn:active[disabled])  {
+.zoom-btn:active:not(.zoom-btn:active[disabled]) {
 	background-color: #ffffff6c;
 }
 
-#zoom-in { cursor: zoom-in;}
-#zoom-out{ cursor: zoom-out;}
+#zoom-in {
+	cursor: zoom-in;
+}
+#zoom-out {
+	cursor: zoom-out;
+}
 
 @media (max-width: 410px) {
 	.nav-section:last-of-type {

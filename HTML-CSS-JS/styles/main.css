@@ -4,11 +4,15 @@ html {
 
 body {
 	background: rgb(33, 97, 97);
-	background: linear-gradient(146deg, rgba(33,97,97,1) 27%, rgba(19,29,78,1) 100%);
-	
+	background: linear-gradient(
+		146deg,
+		rgba(33, 97, 97, 1) 27%,
+		rgba(19, 29, 78, 1) 100%
+	);
+
 	background-repeat: no-repeat;
 	background-attachment: fixed;
-	
+
 	margin: 0;
 	padding: 0;
 }
@@ -40,7 +44,7 @@ body {
 	padding: 0.4rem 0;
 
 	color: whitesmoke;
-	background-color: rgb(2,0,36);
+	background-color: rgb(2, 0, 36);
 }
 
 .nav-section {
