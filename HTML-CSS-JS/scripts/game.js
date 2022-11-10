@@ -358,7 +358,7 @@ class Board {
 	}
 }
 
-// get board varibles
+const params = new URLSearchParams(location.search);
 
 function getNumberParam(name) {
 	return parseInt(params.get(name));
@@ -368,91 +368,96 @@ function validNumber(num, min, max, fallback = undefined) {
 	return isNaN(num) ? fallback : Math.max(min, Math.min(max, num));
 }
 
-function getUpdateValidNumberParam(
-	name,
-	min,
-	max,
-	fallback = undefined,
-	toLargeMessage = () => ""
-) {
-	const num = getNumberParam(name);
+function makeBoard() {
 
-	if (num > max) {
-		let warningMessage = toLargeMessage(name, num, max);
-		if (warningMessage !== "") warningMessage += ". ";
-		if (
-			!confirm(
-				warningMessage +
-					`Do you want to use suggested max size of ${max}?`
-			)
-		) {
-			console.warn(warningMessage);
-			max = Infinity;
-		}
-	}
-
-	const newNum = validNumber(num, min, max, fallback);
-
-	params.set(name, newNum);
-
-	return newNum;
-}
-
-function getUpdateValidNumberParamIfExists(name, min, max, toLargeMessage) {
-	if (params.has(name)) {
-		if (!isNaN(getNumberParam(name))) {
-			return getUpdateValidNumberParam(
-				name,
-				min,
-				max,
-				undefined,
-				toLargeMessage
-			);
-		}
-		params.delete(name);
-	}
-	return undefined;
-}
-
-const params = new URLSearchParams(location.search);
-const oldParems = params.toString();
-
-const getUpdateValidSizeParam = (name) =>
-	getUpdateValidNumberParam(
+	function getUpdateValidNumberParam(
 		name,
+		min,
+		max,
+		fallback = undefined,
+		toLargeMessage = () => ""
+	) {
+		const num = getNumberParam(name);
+
+		if (num > max) {
+			let warningMessage = toLargeMessage(name, num, max);
+			if (warningMessage !== "") warningMessage += ". ";
+			if (
+				!confirm(
+					warningMessage + `Do you want to use suggested max size of ${max}?`
+				)
+			) {
+				console.warn(warningMessage);
+				max = Infinity;
+			}
+		}
+
+		const newNum = validNumber(num, min, max, fallback);
+
+		params.set(name, newNum);
+
+		return newNum;
+	}
+
+	function getUpdateValidNumberParamIfExists(name, min, max, toLargeMessage) {
+		if (params.has(name)) {
+			if (!isNaN(getNumberParam(name))) {
+				return getUpdateValidNumberParam(
+					name,
+					min,
+					max,
+					undefined,
+					toLargeMessage
+				);
+			}
+			params.delete(name);
+		}
+		return undefined;
+	}
+
+	const oldParems = params.toString();
+
+	const getUpdateValidSizeParam = (name) =>
+		getUpdateValidNumberParam(
+			name,
+			MIN_SIZE,
+			SUGGESTED_MAX_SIZE,
+			DEFAULT_SIZE,
+			(name, num, max) =>
+				`Board ${name} of ${num} is to larger than recomend max of ${max}`
+		);
+
+	const width = getUpdateValidSizeParam("width");
+	const height = getUpdateValidSizeParam("height");
+
+	const boardSizes = `${width}x${height}`;
+
+	const winRowLength = getUpdateValidNumberParamIfExists(
+		"win-condition",
 		MIN_SIZE,
-		SUGGESTED_MAX_SIZE,
-		DEFAULT_SIZE,
+		Math.max(width, height),
 		(name, num, max) =>
-			`Board ${name} of ${num} is to larger than recomend max of ${max}`
+			`Impossible to get ${num} in a row with current board sizes of ${boardSizes}`
 	);
 
-const width = getUpdateValidSizeParam("width");
-const height = getUpdateValidSizeParam("height");
+	const newParms = params.toString();
+	if (oldParems !== newParms) {
+		location.search = newParms;
+	}
 
-const boardSizes = `${width}x${height}`;
+	document.querySelector("title").innerText += ` (${boardSizes})`;
 
-const winRowLength = getUpdateValidNumberParamIfExists(
-	"win-condition",
-	MIN_SIZE,
-	Math.max(width, height),
-	(name, num, max) =>
-		`Impossible to get ${num} in a row with current board sizes of ${boardSizes}`
-);
-
-const newParms = params.toString();
-if (oldParems !== newParms) {
-	location.search = newParms;
+	return new Board(width, height, winRowLength);
 }
 
-// start game
-document.querySelector("title").innerText += ` (${boardSizes})`;
-
-const board = new Board(width, height, winRowLength);
+const board = makeBoard();
 board.newGame();
 
-// fix overflow
+// nav buttons
+resetBoardButton.onclick = () => board.newGame();
+toggleCordsButton.onclick = () => board.toggleCords();
 
+// fix overflow
 const boardClassList = document.querySelector(".board-container").classList;
 const bodyStyle = document.body.style;
 function fixOverflow() {
@@ -468,65 +473,62 @@ function fixOverflow() {
 fixOverflow();
 window.onresize = fixOverflow;
 
-// nav buttons
-
-resetBoardButton.onclick = () => board.newGame();
-toggleCordsButton.onclick = () => board.toggleCords();
-
 // zoom in / out
 
-const zoomScaleDisplay = document.getElementById("zoom-scale-display");
+function makeZoomButtons() {
+	const zoomScaleChangeBy = 1;
 
-const startingScale = parseInt(board.getCssVar("starting-zoom-scale"));
+	const RepeatDelayMs = 500;
+	const repeatRateMs = 33;
 
-let zoomScale = parseInt(board.getCssVar("zoom-scale"));
+	const maxScaleVal = 500;
 
-const maxScaleVal = 500;
+	const zoomScaleDisplay = document.getElementById("zoom-scale-display");
 
-const maxScale = maxScaleVal + startingScale - 100;
+	const startingScale = parseInt(board.getCssVar("starting-zoom-scale"));
 
-const zoomInBtn = document.getElementById("zoom-in");
-const zoomOutBtn = document.getElementById("zoom-out");
+	let zoomScale = parseInt(board.getCssVar("zoom-scale"));
 
-function changeZoomScaleBy(by) {
-	zoomScale = Math.min(Math.max(zoomScale + by, 1), maxScale);
+	const maxScale = maxScaleVal + startingScale - 100;
 
-	zoomScaleDisplay.innerText = 100 - startingScale + zoomScale;
+	const zoomInBtn = document.getElementById("zoom-in");
+	const zoomOutBtn = document.getElementById("zoom-out");
 
-	fixOverflow();
-	board.setCssVar("zoom-scale", zoomScale + "vmin");
-	fixOverflow();
+	function changeZoomScaleBy(by) {
+		zoomScale = Math.min(Math.max(zoomScale + by, 1), maxScale);
 
-	zoomOutBtn.disabled = zoomScale === 1;
-	zoomInBtn.disabled = zoomScale === maxScale;
-}
+		zoomScaleDisplay.innerText = 100 - startingScale + zoomScale;
 
-const zoomScaleChangeBy = 1;
+		// fixOverflow();
+		board.setCssVar("zoom-scale", zoomScale + "vmin");
+		fixOverflow();
 
-const RepeatDelayMs = 500;
-const repeatRateMs = 33;
+		zoomOutBtn.disabled = zoomScale === 1;
+		zoomInBtn.disabled = zoomScale === maxScale;
+	}
 
-function addZoomEventListener(btn, by) {
-	let id;
-	["mousedown", "touchstart"].forEach((event) => {
-		btn.addEventListener(event, () => {
-			changeZoomScaleBy(by);
-			const startTime = new Date().getTime();
-			let last = false;
-			id = setInterval(() => {
-				if (btn.disabled) clearInterval(id);
-				if (last || startTime + RepeatDelayMs < new Date().getTime()) {
-					last = true;
-					changeZoomScaleBy(by);
-				}
-			}, repeatRateMs);
+	function addZoomEventListener(btn, by) {
+		let id;
+		["mousedown", "touchstart"].forEach((event) => {
+			btn.addEventListener(event, () => {
+				changeZoomScaleBy(by);
+				const startTime = new Date().getTime();
+				let last = false;
+				id = setInterval(() => {
+					if (btn.disabled) clearInterval(id);
+					if (last || startTime + RepeatDelayMs < new Date().getTime()) {
+						last = true;
+						changeZoomScaleBy(by);
+					}
+				}, repeatRateMs);
+			});
 		});
-	});
 
-	["mouseup", "touchend", "mouseleave"].forEach((event) => {
-		btn.addEventListener(event, () => clearInterval(id));
-	});
+		["mouseup", "touchend", "mouseleave"].forEach((event) => {
+			btn.addEventListener(event, () => clearInterval(id));
+		});
+	}
+
+	addZoomEventListener(zoomInBtn, zoomScaleChangeBy);
+	addZoomEventListener(zoomOutBtn, -zoomScaleChangeBy);
 }
-
-addZoomEventListener(zoomInBtn, zoomScaleChangeBy);
-addZoomEventListener(zoomOutBtn, -zoomScaleChangeBy);
