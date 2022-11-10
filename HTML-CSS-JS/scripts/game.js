@@ -1,449 +1,532 @@
-import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./consts.js"
+import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./consts.js";
 
-const toggleCordsButton = document.getElementById("toggle-cords")
-const resetBoardButton = document.getElementById("reset-button")
+const toggleCordsButton = document.getElementById("toggle-cords");
+const resetBoardButton = document.getElementById("reset-button");
 
-const infoSpan = document.querySelector("#info")
-const displayInfo = (msg) => (infoSpan.innerText = msg)
+const infoSpan = document.querySelector("#info");
+const displayInfo = (msg) => (infoSpan.innerText = msg);
 
-const displayInfoPulse = () => { infoSpan.classList.add("tie"); setTimeout(() => infoSpan.classList.remove("tie"), 1000) }
-const displayInfoPulseGreen = () => { infoSpan.classList.add("win"); setTimeout(() => infoSpan.classList.remove("win"), 1000) }
+const displayInfoPulse = () => {
+	infoSpan.classList.add("tie");
+	setTimeout(() => infoSpan.classList.remove("tie"), 1000);
+};
+const displayInfoPulseGreen = () => {
+	infoSpan.classList.add("win");
+	setTimeout(() => infoSpan.classList.remove("win"), 1000);
+};
 
 // TODO allow users to specify num of players and there letters in home page (index.html)
-const players = ["x", "o"].map((element) => element.charAt(0).toUpperCase())
+const players = ["x", "o"].map((element) => element.charAt(0).toUpperCase());
 
-const OFFSET = 1
+const OFFSET = 1;
 
 class Cell {
 	constructor(el, name) {
-		this.el = el
-		this.name = name
+		this.el = el;
+		this.name = name;
 
-		this.reset()
+		this.reset();
 	}
 
 	set(text) {
-		this.val = this.el.innerText = text
+		this.val = this.el.innerText = text;
 	}
 
 	disable() {
-		this.el.onclick = () => { }
-		this.el.classList.add("disabled")
+		this.el.onclick = () => {};
+		this.el.classList.add("disabled");
 	}
 
 	highlight() {
-		this.el.classList.add("highlighted")
+		this.el.classList.add("highlighted");
 	}
 
 	reset() {
-		this.set("")
-		this.el.classList.remove("disabled", "highlighted")
+		this.set("");
+		this.el.classList.remove("disabled", "highlighted");
 	}
 
 	setOnClick(onclickFunc) {
-		this.el.onclick = onclickFunc
+		this.el.onclick = onclickFunc;
 	}
 
 	addCords() {
-		const cords = document.createElement("span")
-		cords.classList.add("cords")
-		cords.innerText = "(" + this.name + ")"
-		this.el.appendChild(cords)
+		const cords = document.createElement("span");
+		cords.classList.add("cords");
+		cords.innerText = "(" + this.name + ")";
+		this.el.appendChild(cords);
 	}
 }
 
-const PLACEHOLDER_CELL = new Cell(document.createElement("div"), null)
+const PLACEHOLDER_CELL = new Cell(document.createElement("div"), null);
 
 class WinChecker {
 	constructor(board, piecesToWin) {
-		this.board = board
+		this.board = board;
 
-		let checkVertical, checkHorizontal, checkDiagnal
+		let checkVertical, checkHorizontal, checkDiagnal;
 		if (piecesToWin === undefined) {
-			this.winCheckFunc = this.isPlayerWinnerAcross
+			this.winCheckFunc = this.isPlayerWinnerAcross;
 
-			this.minPicesesToWin = Math.min(this.board.width, this.board.height)
+			this.minPicesesToWin = Math.min(
+				this.board.width,
+				this.board.height
+			);
 
-			checkVertical = true
-			checkHorizontal = true
+			checkVertical = true;
+			checkHorizontal = true;
 
-			checkDiagnal = this.board.width === this.board.height
+			checkDiagnal = this.board.width === this.board.height;
+		} else {
+			this.winCheckFunc = this.isPlayerWinnerCount;
 
-		}
-		else {
-			this.winCheckFunc = this.isPlayerWinnerCount
+			this.minPicesesToWin = piecesToWin;
 
-			this.minPicesesToWin = piecesToWin
+			checkVertical = this.minPicesesToWin <= this.board.height;
+			checkHorizontal = this.minPicesesToWin <= this.board.width;
 
-			checkVertical = this.minPicesesToWin <= this.board.height
-			checkHorizontal = this.minPicesesToWin <= this.board.width
-
-			checkDiagnal = checkVertical && checkHorizontal
+			checkDiagnal = checkVertical && checkHorizontal;
 		}
 		const allCheckers = {
-			verticle: this._isPlayerWinnerRowPromise(0, 0, this.board.width, this.board.height, (x, y) => this.board.getCell(x, y)),
-			horizontal: this._isPlayerWinnerRowPromise(0, 0, this.board.height, this.board.width, (x, y) => this.board.getCell(y, x)),
-			topLeftToButtomRight: this._isPlayerWinnerRowPromise(0, this.minPicesesToWin - this.board.height, this.board.height, this.board.width - this.minPicesesToWin + 1, (j, i) => this.board.getCellWithFallback(j + i, j)),
-			topRightToButtomLeft: this._isPlayerWinnerRowPromise(0, this.minPicesesToWin - 1, this.board.height, this.board.height + (this.board.width - this.minPicesesToWin), (j, i) => this.board.getCellWithFallback(i - j, j)),
-		}
+			verticle: this._isPlayerWinnerRowPromise(
+				0,
+				0,
+				this.board.width,
+				this.board.height,
+				(x, y) => this.board.getCell(x, y)
+			),
+			horizontal: this._isPlayerWinnerRowPromise(
+				0,
+				0,
+				this.board.height,
+				this.board.width,
+				(x, y) => this.board.getCell(y, x)
+			),
+			topLeftToButtomRight: this._isPlayerWinnerRowPromise(
+				0,
+				this.minPicesesToWin - this.board.height,
+				this.board.height,
+				this.board.width - this.minPicesesToWin + 1,
+				(j, i) => this.board.getCellWithFallback(j + i, j)
+			),
+			topRightToButtomLeft: this._isPlayerWinnerRowPromise(
+				0,
+				this.minPicesesToWin - 1,
+				this.board.height,
+				this.board.height + (this.board.width - this.minPicesesToWin),
+				(j, i) => this.board.getCellWithFallback(i - j, j)
+			),
+		};
 
-		this.usedWinChecker = []
+		this.usedWinChecker = [];
 
-		this.winCheckForWinAfter = (this.minPicesesToWin - 1) * players.length
+		this.winCheckForWinAfter = (this.minPicesesToWin - 1) * players.length;
 
-		if (checkVertical) this.usedWinChecker.push(allCheckers.verticle)
-		if (checkHorizontal) this.usedWinChecker.push(allCheckers.horizontal)
+		if (checkVertical) this.usedWinChecker.push(allCheckers.verticle);
+		if (checkHorizontal) this.usedWinChecker.push(allCheckers.horizontal);
 
-		if (checkDiagnal) this.usedWinChecker.push(
-			allCheckers.topLeftToButtomRight,
-			allCheckers.topRightToButtomLeft,
-		)
+		if (checkDiagnal)
+			this.usedWinChecker.push(
+				allCheckers.topLeftToButtomRight,
+				allCheckers.topRightToButtomLeft
+			);
 	}
 
 	async isPlayerWinner(player) {
-		let [isWinner, winningArray] = [false, undefined]
+		let [isWinner, winningArray] = [false, undefined];
 		if (this.isPossibleToWin()) {
 			try {
-				[isWinner, winningArray] = await Promise.any(this.usedWinChecker.map((func) => func(player)))
+				[isWinner, winningArray] = await Promise.any(
+					this.usedWinChecker.map((func) => func(player))
+				);
 			} catch (error) {
-				if (!(error instanceof AggregateError)) throw error
+				if (!(error instanceof AggregateError)) throw error;
 			}
 		}
-		return [isWinner, winningArray]
+		return [isWinner, winningArray];
 	}
 
 	_isPlayerWinnerRowPromise(innerStart, outerStart, inner, outer, getCell) {
 		return (player) => {
 			return new Promise((resolve, reject) => {
-				const [isWin, cellArray] = this.winCheckFunc(player, innerStart, outerStart, inner, outer, getCell)
-				if (isWin) resolve([isWin, cellArray])
-				reject([isWin, cellArray])
-			})
-		}
+				const [isWin, cellArray] = this.winCheckFunc(
+					player,
+					innerStart,
+					outerStart,
+					inner,
+					outer,
+					getCell
+				);
+				if (isWin) resolve([isWin, cellArray]);
+				reject([isWin, cellArray]);
+			});
+		};
 	}
 
 	isPossibleToWin() {
-		return this.board.turnCount > this.winCheckForWinAfter
+		return this.board.turnCount > this.winCheckForWinAfter;
 	}
 
-	isPlayerWinnerAcross(player, innerStart, outerStart, inner, outer, getCell) {
-		const cellArray = new Array(inner)
+	isPlayerWinnerAcross(
+		player,
+		innerStart,
+		outerStart,
+		inner,
+		outer,
+		getCell
+	) {
+		const cellArray = new Array(inner);
 		for (let i = outerStart; i < outer; i++) {
-			let isWin = true
+			let isWin = true;
 			for (let j = innerStart; j < inner; j++) {
-				const cell = getCell(j, i)
-				cellArray[j] = cell
+				const cell = getCell(j, i);
+				cellArray[j] = cell;
 				if (cell.val !== player) {
-					isWin = false
-					break
+					isWin = false;
+					break;
 				}
 			}
-			if (isWin) return [isWin, cellArray]
+			if (isWin) return [isWin, cellArray];
 		}
-		return [false, undefined]
+		return [false, undefined];
 	}
 
 	isPlayerWinnerCount(player, innerStart, outerStart, inner, outer, getCell) {
-		const cellArray = new Array(this.minPicesesToWin)
+		const cellArray = new Array(this.minPicesesToWin);
 		for (let i = outerStart; i < outer; i++) {
-			let count = 0
+			let count = 0;
 			for (let j = innerStart; j < inner; j++) {
-				const cell = getCell(j, i)
+				const cell = getCell(j, i);
 				if (cell.val === player) {
-					cellArray[count] = cell
-					count++
-					if (count >= this.minPicesesToWin) return [true, cellArray]
-				}
-				else {
-					count = 0
+					cellArray[count] = cell;
+					count++;
+					if (count >= this.minPicesesToWin) return [true, cellArray];
+				} else {
+					count = 0;
 				}
 			}
 		}
-		return [false, null]
+		return [false, null];
 	}
 }
 
 class Board {
 	constructor(width, height, piecesToWin) {
-		this.width = width
-		this.height = height
+		this.width = width;
+		this.height = height;
 
-		this.size = this.width * this.height
+		this.size = this.width * this.height;
 
-		this.turnCount = 0
-		this.gameCount = 0
-		this.currentPlayerIndex = 0
-		this.isPlaying = true
+		this.turnCount = 0;
+		this.gameCount = 0;
+		this.currentPlayerIndex = 0;
+		this.isPlaying = true;
 
-		this.isDisplayingCords = false
+		this.isDisplayingCords = false;
 
-		this.usedWinChecker = []
+		this.usedWinChecker = [];
 
-		this.boardArray = Array(this.height)
-		this.boardBody = document.querySelector(".board-body")
+		this.boardArray = Array(this.height);
+		this.boardBody = document.querySelector(".board-body");
 
 		// create board on page and in array
 		for (let y = 0; y < this.height; y++) {
-			this.boardArray[y] = Array(this.width)
-			let tableRow = this.boardBody.insertRow()
+			this.boardArray[y] = Array(this.width);
+			let tableRow = this.boardBody.insertRow();
 			for (let x = 0; x < this.width; x++) {
-				const el = tableRow.insertCell()
-				const cordName = (x + OFFSET) + "," + (y + OFFSET)
+				const el = tableRow.insertCell();
+				const cordName = x + OFFSET + "," + (y + OFFSET);
 
-				let cell = new Cell(el, cordName)
-				this.boardArray[y][x] = cell
+				let cell = new Cell(el, cordName);
+				this.boardArray[y][x] = cell;
 			}
 		}
 
-		this.winChecker = new WinChecker(this, piecesToWin)
-		this.updateCordsVisablity()
+		this.winChecker = new WinChecker(this, piecesToWin);
+		this.updateCordsVisablity();
 	}
 
 	async playerTurn(cell) {
 		if (this.isPlaying) {
-			resetBoardButton.classList.remove("fade-button")
+			resetBoardButton.classList.remove("fade-button");
 
-			const currentPlayer = players[this.currentPlayerIndex]
+			const currentPlayer = players[this.currentPlayerIndex];
 
-			cell.set(currentPlayer)
-			cell.disable()
+			cell.set(currentPlayer);
+			cell.disable();
 
-			this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length
-			this.turnCount++
+			this.currentPlayerIndex =
+				(this.turnCount + this.gameCount) % players.length;
+			this.turnCount++;
 
-			displayInfo(players[this.currentPlayerIndex] + "s turn.")
+			displayInfo(players[this.currentPlayerIndex] + "s turn.");
 
-			let isWinner = false
-			let winningArray
+			let isWinner = false;
+			let winningArray;
 
-			[isWinner, winningArray] = await this.winChecker.isPlayerWinner(currentPlayer)
-
+			[isWinner, winningArray] = await this.winChecker.isPlayerWinner(
+				currentPlayer
+			);
 
 			if (isWinner) {
-				winningArray.forEach((cell) => cell.highlight())
-				this.gameOver()
-				displayInfo(currentPlayer + " Wins!")
-				displayInfoPulseGreen()
+				winningArray.forEach((cell) => cell.highlight());
+				this.gameOver();
+				displayInfo(currentPlayer + " Wins!");
+				displayInfoPulseGreen();
 			} else if (this.turnCount >= this.size) {
-				this.gameOver()
-				displayInfo("Tie!")
-				displayInfoPulse()
+				this.gameOver();
+				displayInfo("Tie!");
+				displayInfoPulse();
 			}
 		}
 	}
 
 	newGame() {
-		this.isPlaying = true
-		this.currentPlayerIndex = this.gameCount % players.length
-		displayInfo(`Starting with ${players[this.currentPlayerIndex]}s.`)
-		this.turnCount = 0
+		this.isPlaying = true;
+		this.currentPlayerIndex = this.gameCount % players.length;
+		displayInfo(`Starting with ${players[this.currentPlayerIndex]}s.`);
+		this.turnCount = 0;
 
-		this.reset()
-		resetBoardButton.classList.add("fade-button")
+		this.reset();
+		resetBoardButton.classList.add("fade-button");
 
-		this.gameCount++
+		this.gameCount++;
 	}
 
 	gameOver() {
-		this.isPlaying = false
-		this.forEach((cell) => cell.disable())
+		this.isPlaying = false;
+		this.forEach((cell) => cell.disable());
 	}
 
 	reset() {
 		this.forEach((cell) => {
-			cell.reset()
-			cell.addCords(1)
+			cell.reset();
+			cell.addCords(1);
 			cell.setOnClick(() => {
-				this.playerTurn(cell)
-			})
-		})
+				this.playerTurn(cell);
+			});
+		});
 	}
 
 	isOverflowing() {
-		return this.getCell(0, 0).el.getBoundingClientRect().left < 0
+		return this.getCell(0, 0).el.getBoundingClientRect().left < 0;
 	}
 
 	toggleCords() {
-		this.isDisplayingCords = !this.isDisplayingCords
-		this.updateCordsVisablity()
+		this.isDisplayingCords = !this.isDisplayingCords;
+		this.updateCordsVisablity();
 	}
 
 	updateCordsVisablity() {
-		toggleCordsButton.innerText = (this.isDisplayingCords ? "Hide" : "Display") + " Cords"
-		this.setCssVar("cords-visibility", this.isDisplayingCords ? "block" : "none")
+		toggleCordsButton.innerText =
+			(this.isDisplayingCords ? "Hide" : "Display") + " Cords";
+		this.setCssVar(
+			"cords-visibility",
+			this.isDisplayingCords ? "block" : "none"
+		);
 	}
 
 	setCssVar(name, value) {
-		this.boardBody.style.setProperty("--" + name, value)
+		this.boardBody.style.setProperty("--" + name, value);
 	}
 
 	getCssVar(name) {
-		return getComputedStyle(this.boardBody).getPropertyValue("--" + name)
+		return getComputedStyle(this.boardBody).getPropertyValue("--" + name);
 	}
 
 	forEach(callback) {
 		for (let y = 0; y < this.height; y++) {
 			for (let x = 0; x < this.width; x++) {
-				callback(this.getCell(x, y))
+				callback(this.getCell(x, y));
 			}
 		}
 	}
 
 	getCell(x, y) {
-		return this.boardArray[y][x]
+		return this.boardArray[y][x];
 	}
 
 	getCellWithFallback(x, y) {
 		let out;
 		try {
-			out = this.getCell(x, y)
+			out = this.getCell(x, y);
 		} catch (error) {
-			return PLACEHOLDER_CELL
+			return PLACEHOLDER_CELL;
 		}
 
-		return out || PLACEHOLDER_CELL
-
+		return out || PLACEHOLDER_CELL;
 	}
 }
 
 // get board varibles
 
 function getNumberParam(name) {
-	return parseInt(params.get(name))
+	return parseInt(params.get(name));
 }
 
 function validNumber(num, min, max, fallback = undefined) {
-	return isNaN(num) ? fallback : Math.max(min, Math.min(max, num))
+	return isNaN(num) ? fallback : Math.max(min, Math.min(max, num));
 }
 
-function getUpdateValidNumberParam(name, min, max, fallback = undefined, toLargeMessage = () => "") {
-	const num = getNumberParam(name)
+function getUpdateValidNumberParam(
+	name,
+	min,
+	max,
+	fallback = undefined,
+	toLargeMessage = () => ""
+) {
+	const num = getNumberParam(name);
 
 	if (num > max) {
-		let warningMessage = toLargeMessage(name, num, max)
-		if (warningMessage !== "") warningMessage += ". "
-		if (!confirm(warningMessage + `Do you want to use suggested max size of ${max}?`)) {
-			console.warn(warningMessage)
-			max = Infinity
+		let warningMessage = toLargeMessage(name, num, max);
+		if (warningMessage !== "") warningMessage += ". ";
+		if (
+			!confirm(
+				warningMessage +
+					`Do you want to use suggested max size of ${max}?`
+			)
+		) {
+			console.warn(warningMessage);
+			max = Infinity;
 		}
 	}
 
-	const newNum = validNumber(num, min, max, fallback)
+	const newNum = validNumber(num, min, max, fallback);
 
-	params.set(name, newNum)
+	params.set(name, newNum);
 
-	return newNum
+	return newNum;
 }
 
 function getUpdateValidNumberParamIfExists(name, min, max, toLargeMessage) {
 	if (params.has(name)) {
 		if (!isNaN(getNumberParam(name))) {
-			return getUpdateValidNumberParam(name, min, max, undefined, toLargeMessage)
+			return getUpdateValidNumberParam(
+				name,
+				min,
+				max,
+				undefined,
+				toLargeMessage
+			);
 		}
-		params.delete(name)
+		params.delete(name);
 	}
-	return undefined
+	return undefined;
 }
 
-const params = new URLSearchParams(location.search)
-const oldParems = params.toString()
+const params = new URLSearchParams(location.search);
+const oldParems = params.toString();
 
-const getUpdateValidSizeParam = (name) => getUpdateValidNumberParam(name, MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE, (name, num, max) => `Board ${name} of ${num} is to larger than recomend max of ${max}`)
+const getUpdateValidSizeParam = (name) =>
+	getUpdateValidNumberParam(
+		name,
+		MIN_SIZE,
+		SUGGESTED_MAX_SIZE,
+		DEFAULT_SIZE,
+		(name, num, max) =>
+			`Board ${name} of ${num} is to larger than recomend max of ${max}`
+	);
 
-const width = getUpdateValidSizeParam("width")
-const height = getUpdateValidSizeParam("height")
+const width = getUpdateValidSizeParam("width");
+const height = getUpdateValidSizeParam("height");
 
-const boardSizes = `${width}x${height}`
+const boardSizes = `${width}x${height}`;
 
-const winRowLength = getUpdateValidNumberParamIfExists("win-condition", MIN_SIZE, Math.max(width, height), (name, num, max) => `Impossible to get ${num} in a row with current board sizes of ${boardSizes}`)
+const winRowLength = getUpdateValidNumberParamIfExists(
+	"win-condition",
+	MIN_SIZE,
+	Math.max(width, height),
+	(name, num, max) =>
+		`Impossible to get ${num} in a row with current board sizes of ${boardSizes}`
+);
 
-const newParms = params.toString()
+const newParms = params.toString();
 if (oldParems !== newParms) {
-	location.search = newParms
+	location.search = newParms;
 }
 
 // start game
-document.querySelector("title").innerText += ` (${boardSizes})`
+document.querySelector("title").innerText += ` (${boardSizes})`;
 
-const board = new Board(width, height, winRowLength)
-board.newGame()
+const board = new Board(width, height, winRowLength);
+board.newGame();
 
 // fix overflow
 
-const boardClassList = document.querySelector(".board-container").classList
-const bodyStyle = document.body.style
+const boardClassList = document.querySelector(".board-container").classList;
+const bodyStyle = document.body.style;
 function fixOverflow() {
 	if (board.isOverflowing()) {
-		boardClassList.remove("centered-container")
-		bodyStyle.overflowX = "scroll"
+		boardClassList.remove("centered-container");
+		bodyStyle.overflowX = "scroll";
 	} else {
-		boardClassList.add("centered-container")
-		bodyStyle.overflowX = "hidden"
+		boardClassList.add("centered-container");
+		bodyStyle.overflowX = "hidden";
 	}
 }
 
-fixOverflow()
-window.onresize = fixOverflow
+fixOverflow();
+window.onresize = fixOverflow;
 
 // nav buttons
 
-resetBoardButton.onclick = () => board.newGame()
-toggleCordsButton.onclick = () => board.toggleCords()
+resetBoardButton.onclick = () => board.newGame();
+toggleCordsButton.onclick = () => board.toggleCords();
 
 // zoom in / out
 
-const zoomScaleDisplay = document.getElementById("zoom-scale-display")
+const zoomScaleDisplay = document.getElementById("zoom-scale-display");
 
-const startingScale = parseInt(board.getCssVar("starting-zoom-scale"))
+const startingScale = parseInt(board.getCssVar("starting-zoom-scale"));
 
-let zoomScale = parseInt(board.getCssVar("zoom-scale"))
+let zoomScale = parseInt(board.getCssVar("zoom-scale"));
 
-const maxScaleVal = 500
+const maxScaleVal = 500;
 
-const maxScale = maxScaleVal + startingScale - 100
+const maxScale = maxScaleVal + startingScale - 100;
 
-const zoomInBtn = document.getElementById("zoom-in")
-const zoomOutBtn = document.getElementById("zoom-out")
+const zoomInBtn = document.getElementById("zoom-in");
+const zoomOutBtn = document.getElementById("zoom-out");
 
 function changeZoomScaleBy(by) {
-	zoomScale = Math.min(Math.max(zoomScale + by, 1), maxScale)
+	zoomScale = Math.min(Math.max(zoomScale + by, 1), maxScale);
 
-	zoomScaleDisplay.innerText = (100 - startingScale) + zoomScale
+	zoomScaleDisplay.innerText = 100 - startingScale + zoomScale;
 
-	fixOverflow()
-	board.setCssVar("zoom-scale", zoomScale + "vmin")
-	fixOverflow()
+	fixOverflow();
+	board.setCssVar("zoom-scale", zoomScale + "vmin");
+	fixOverflow();
 
-	zoomOutBtn.disabled = (zoomScale === 1)
-	zoomInBtn.disabled = (zoomScale === maxScale)
+	zoomOutBtn.disabled = zoomScale === 1;
+	zoomInBtn.disabled = zoomScale === maxScale;
 }
 
 const zoomScaleChangeBy = 1;
 
-const RepeatDelayMs = 500
-const repeatRateMs = 33
+const RepeatDelayMs = 500;
+const repeatRateMs = 33;
 
 function addZoomEventListener(btn, by) {
 	let id;
-	["mousedown", "touchstart"].forEach(event => {
+	["mousedown", "touchstart"].forEach((event) => {
 		btn.addEventListener(event, () => {
-			changeZoomScaleBy(by)
-			const startTime = new Date().getTime()
-			let last = false
+			changeZoomScaleBy(by);
+			const startTime = new Date().getTime();
+			let last = false;
 			id = setInterval(() => {
-				if (btn.disabled) clearInterval(id)
+				if (btn.disabled) clearInterval(id);
 				if (last || startTime + RepeatDelayMs < new Date().getTime()) {
-					last = true
-					changeZoomScaleBy(by)
+					last = true;
+					changeZoomScaleBy(by);
 				}
-			}, repeatRateMs)
-		})
+			}, repeatRateMs);
+		});
 	});
-	
-	["mouseup", "touchend", "mouseleave"].forEach(event => {
-		btn.addEventListener(event, () => clearInterval(id))
+
+	["mouseup", "touchend", "mouseleave"].forEach((event) => {
+		btn.addEventListener(event, () => clearInterval(id));
 	});
 }
 
-addZoomEventListener(zoomInBtn, zoomScaleChangeBy)
-addZoomEventListener(zoomOutBtn, -zoomScaleChangeBy)
+addZoomEventListener(zoomInBtn, zoomScaleChangeBy);
+addZoomEventListener(zoomOutBtn, -zoomScaleChangeBy);
