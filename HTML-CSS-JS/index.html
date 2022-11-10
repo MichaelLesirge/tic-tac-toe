@@ -1,81 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<head>
-	<meta charset="UTF-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="styles/main.css" />
+		<link rel="stylesheet" href="styles/index.css" />
 
-	<link rel="stylesheet" href="styles/main.css" />
-	<link rel="stylesheet" href="styles/index.css" />
+		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
 
-	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+		<title>Tic Tac Toe</title>
+	</head>
 
-	<title>Tic Tac Toe</title>
-</head>
-
-<body>
-	<nav class="fixed-container">
-		<div class="navbar fixed-content">
-			<div class="nav-section links">
-				<a href="index.html">Create Board</a>
-				<a href="game.html">Default Game</a>
+	<body>
+		<nav class="fixed-container">
+			<div class="navbar fixed-content">
+				<div class="nav-section links">
+					<a href="index.html">Create Board</a>
+					<a href="game.html">Default Game</a>
+				</div>
 			</div>
-		</div>
-	</nav>
+		</nav>
 
-	<main class="centered-container">
-		<div class="game-form">
-			<form id="create-game-form" class="centered-container" action="game.html" method="get">
-				<h1>Create Your Board</h1>
+		<main class="centered-container">
+			<div class="game-form">
+				<form
+					id="create-game-form"
+					class="centered-container"
+					action="game.html"
+					method="get"
+				>
+					<h1>Create Your Board</h1>
 
-				<div class="card">
-					<h3 class="step-title">Create Board Sizes</h3>
-					<div class="form-group">
-						<div class="input-group">
-							<label for="width">Width</label>
-							<input class="size board-size" type="number" name="width" id="width" required="true" />
-						</div>
-						<div class="input-group">
-							<label for="height">Height</label>
-							<input class="size board-size" type="number" name="height" id="height" required="true" />
-						</div>
-					</div>
-				</div>
-
-				<div class="card">
-					<h3 class="step-title">Win Conditions</h3>
-					<div class="form-group">
-						<div>
+					<div class="card">
+						<h3 class="step-title">Create Board Sizes</h3>
+						<div class="form-group">
 							<div class="input-group">
-								<label for="win-condition">Win By Getting</label>
-								<input class="size" type="number" name="win-condition" id="win-condition" placeholder="Across" />
+								<label for="width">Width</label>
+								<input
+									class="size board-size"
+									type="number"
+									name="width"
+									id="width"
+									required="true"
+								/>
 							</div>
-							<legend id="explanation"></legend>
+							<div class="input-group">
+								<label for="height">Height</label>
+								<input
+									class="size board-size"
+									type="number"
+									name="height"
+									id="height"
+									required="true"
+								/>
+							</div>
 						</div>
 					</div>
-				</div>
 
-				<!-- <div class="card">
+					<div class="card">
+						<h3 class="step-title">Win Conditions</h3>
+						<div class="form-group">
+							<div>
+								<div class="input-group">
+									<label for="win-condition"
+										>Win By Getting</label
+									>
+									<input
+										class="size"
+										type="number"
+										name="win-condition"
+										id="win-condition"
+										placeholder="Across"
+									/>
+								</div>
+								<legend id="explanation"></legend>
+							</div>
+						</div>
+					</div>
+
+					<!-- 
+					<div class="card">
 					<h3 class="step-title">Players</h3>
-					<div class="form-group">
-						
+						<div class="form-group">
+							
+						</div>
 					</div>
-				</div> -->
+					 -->
 
-				<div class="card">
-					<div class="form-options">
-						<input type="reset" value="Reset to defulats" />
-						<input class="submit-btn" type="submit" value="Play Game" />
+					<div class="card">
+						<div class="form-options">
+							<input type="reset" value="Reset to defulats" />
+							<input
+								class="submit-btn"
+								type="submit"
+								value="Play Game"
+							/>
+						</div>
 					</div>
-				</div>
-			</form>
-		</div>
+				</form>
+			</div>
 
-		<a style="margin-top: 2rem; color: white;" href="https://github.com/michael-lesirge/tic-tac-toe">Back to GitHub</a>
-	</main>
+			<a
+				style="margin-top: 2rem; color: white"
+				href="https://github.com/michael-lesirge/tic-tac-toe"
+				>Back to GitHub</a
+			>
+		</main>
 
-	<script src="scripts/index.js" type="module"></script>
-</body>
-
+		<script src="scripts/index.js" type="module"></script>
+	</body>
 </html>
