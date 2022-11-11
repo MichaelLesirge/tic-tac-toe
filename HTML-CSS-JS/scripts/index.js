@@ -1,11 +1,19 @@
 import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./consts.js";
 
+const navContainer = document.querySelector(".fixed-container")
+const navBar = document.querySelector(".fixed-content")
+
+const navHeight = navBar.offsetHeight
+
+navContainer.style.height = `${navHeight}px`
+
 const maxInputLen = SUGGESTED_MAX_SIZE.toString().length;
 
 const sizeInputs = document.querySelectorAll("input.size");
 const boardSizeInputs = document.querySelectorAll("input.board-size");
 const winConstionInput = document.querySelector("input#win-condition");
 const form = document.getElementById("create-game-form");
+
 
 let max = -1;
 function updateMax() {
