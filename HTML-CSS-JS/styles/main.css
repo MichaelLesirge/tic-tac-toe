@@ -83,8 +83,15 @@ body {
 	border-radius: 1em;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 750px) {
 	.nav-section {
 		font-size: 1rem;
+	}
+	.nav-section.links {
+		width: min-content;
+	}
+
+	.nav-section.links a {
+		padding: 0 0.3em;
 	}
 }
