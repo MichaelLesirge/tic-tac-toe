@@ -516,7 +516,8 @@ function makeZoomButtons() {
 	function addZoomEventListener(btn, by) {
 		let id;
 		["mousedown", "touchstart"].forEach((event) => {
-			btn.addEventListener(event, () => {
+			btn.addEventListener(event, (e) => {
+				e.stopPropagation();
 				changeZoomScaleBy(by);
 				const startTime = new Date().getTime();
 				let last = false;
@@ -534,7 +535,7 @@ function makeZoomButtons() {
 		});
 
 		["mouseup", "touchend", "mouseleave"].forEach((event) => {
-			btn.addEventListener(event, () => clearInterval(id));
+			btn.addEventListener(event, (e) => clearInterval(id));
 		});
 	}
 
