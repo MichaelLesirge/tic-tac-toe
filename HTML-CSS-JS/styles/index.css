@@ -82,6 +82,7 @@
 
 .step-title {
 	color: hsl(240, 100%, 50%);
+	font-size: 1.3rem;
 	margin: 0;
 	margin-bottom: 1rem;
 	text-align: center;
