@@ -311,7 +311,7 @@ class Board {
 	}
 
 	isMidGame() {
-		return board.isPlaying && board.turnCount != 0
+		return board.isPlaying && board.turnCount != 0;
 	}
 
 	isOverflowing() {
@@ -505,7 +505,7 @@ function makeZoomButtons() {
 
 		zoomScaleDisplay.innerText = 100 - startingScale + zoomScale;
 
-		// fixOverflow();
+		fixOverflow();
 		board.setCssVar("zoom-scale", zoomScale + "vmin");
 		fixOverflow();
 
@@ -543,7 +543,7 @@ function makeZoomButtons() {
 	addZoomEventListener(zoomOutBtn, -zoomScaleChangeBy);
 }
 
-makeZoomButtons()
+makeZoomButtons();
 
 // you have unsaved proggres alert
 window.onbeforeunload = () => {
