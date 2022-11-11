@@ -5,6 +5,13 @@
 	/* tried using css varible for entire width but it did'nt update */
 }
 
+.board-container {
+	margin: 1rem;
+
+	margin-right: 0;
+	padding-right: 1rem;
+}
+
 .board-table {
 	border-collapse: separate;
 	border-spacing: calc(

@@ -2,6 +2,13 @@ import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./consts.js";
 
 // sorry for this ugly javascript
 
+const navContainer = document.querySelector(".fixed-container")
+const navBar = document.querySelector(".fixed-content")
+
+const navHeight = navBar.offsetHeight
+
+navContainer.style.height = `${navHeight}px`
+
 const toggleCordsButton = document.getElementById("toggle-cords");
 const resetBoardButton = document.getElementById("reset-button");
 
@@ -464,14 +471,16 @@ resetBoardButton.onclick = () => board.newGame();
 toggleCordsButton.onclick = () => board.toggleCords();
 
 // fix overflow
-const boardClassList = document.querySelector(".board-container").classList;
+const boardContainer = document.querySelector(".board-container");
 const bodyStyle = document.body.style;
 function fixOverflow() {
 	if (board.isOverflowing()) {
-		boardClassList.remove("centered-container");
+		boardContainer.classList.remove("centered-container");
+		boardContainer.style.width = "max-content";
 		bodyStyle.overflowX = "scroll";
 	} else {
-		boardClassList.add("centered-container");
+		boardContainer.classList.add("centered-container");
+		boardContainer.style.width = "default";
 		bodyStyle.overflowX = "hidden";
 	}
 }
