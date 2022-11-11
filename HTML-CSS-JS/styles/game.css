@@ -92,7 +92,6 @@
 
 .zoom-btn {
 	width: min-content !important;
-	max-width: 1.4rem !important;
 	margin: 0 0.2em;
 	color: white;
 	background-color: #ffffff1d;
@@ -120,7 +119,7 @@
 	cursor: zoom-out;
 }
 
-@media (max-width: 410px) {
+@media (max-width: 900px) {
 	.nav-section:last-of-type {
 		display: flex;
 		justify-content: center;
