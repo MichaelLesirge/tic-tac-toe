@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <string>
+#include <map>
 
 #define print(x) std::cout << x
 #define println(x) std::cout << x << '\n'
@@ -89,6 +90,20 @@ std::ostream &operator<<(std::ostream &streem, const Board &board)
     return streem;
 }
 
+const std::map<String, size_t> verticalInputMapper = {
+    { "top", 0 },
+    { "center", 1 },
+    { "middle", 1 },
+    { "buttom", 2 }
+};
+
+const std::map<String, size_t> horizontalInputMapper = {
+    { "left", 0 },
+    { "center", 1 },
+    { "middle", 1 },
+    { "right", 2 }
+};
+
 void getPosInput(const String &s, size_t &choiceX, size_t &choiceY)
 {
     const int mid = s.find_first_of(" ");
@@ -96,35 +111,18 @@ void getPosInput(const String &s, size_t &choiceX, size_t &choiceY)
     const String verticlePos = s.substr(0, mid);
     const String horizontalPos = s.substr(mid + 1, s.length());
 
-    // I know this is not great code but it is the simplest and it works. I tried doing stuff with enums, switch case
-    if (verticlePos == "top")
+    if (verticalInputMapper.count(verticlePos))
     {
-        choiceY = 0;
-    }
-    else if (verticlePos == "center" || verticlePos == "middle")
-    {
-        choiceY = 1;
-    }
-    else if (verticlePos == "buttom")
-    {
-        choiceY = 2;
+        choiceY = verticalInputMapper.find(verticlePos)->second;
     }
     else
     {
         throw std::invalid_argument("Verticle postion (first value) must be \"top\", \"center\", or \"buttom\".");
     }
 
-    if (horizontalPos == "left")
+    if (horizontalInputMapper.count(horizontalPos))
     {
-        choiceX = 0;
-    }
-    else if (horizontalPos == "center" || horizontalPos == "middle")
-    {
-        choiceX = 1;
-    }
-    else if (horizontalPos == "right")
-    {
-        choiceX = 2;
+        choiceX = horizontalInputMapper.find(horizontalPos)->second;
     }
     else
     {
@@ -172,10 +170,17 @@ int main()
 
     while (isPlaying)
     {
+        
+
         println(board);
 
         getValidInput(choiceX, choiceY); // store valid location from user in choice X,Y
 
         board.placePlayer(choiceX, choiceY, 'X'); // place current player at choice X, Y
     }
+
+    println(board);
+
+
+
 }
