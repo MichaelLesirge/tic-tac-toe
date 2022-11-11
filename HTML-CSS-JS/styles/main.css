@@ -87,7 +87,7 @@ body {
 	.nav-section {
 		font-size: 1rem;
 	}
-	.nav-section.links {
+	.nav-section.links .holder {
 		width: min-content;
 	}
 
