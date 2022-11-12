@@ -143,7 +143,7 @@ int main()
         while (true)
         {
             printf("");
-            printf(board.toString());
+            printf(board.toString().c_str());
 
             bool hasGotValidInput = false;
 
@@ -184,7 +184,7 @@ int main()
             }
         }
 
-        printf(board.toString());
+        printf(board.toString().c_str());
 
         std::cout << "Do you want to play agien: [Y/n] ";
         std::cin >> playAgain;
