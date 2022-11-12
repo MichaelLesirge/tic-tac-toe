@@ -7,23 +7,35 @@
 #include <string>
 #include <map>
 
-#define print(x) std::cout << x
-#define println(x) std::cout << x << '\n'
+#define PRINT(x) std::cout << x
+#define PRINTLN(x) std::cout << x << '\n'
 
 using String = std::string;
 
 class Board
 {
 private:
-public:
     static const size_t SIZE = 3;
     static const size_t TOTAL_SIZE = SIZE * SIZE;
 
+    char board[SIZE][SIZE];
+
     static const char FILLER = '-';
 
-    char board[SIZE][SIZE];
-    size_t turnCount;
+    size_t placed;
 
+    void set(size_t i, size_t j, char val)
+    {
+        board[i][j] = val;
+    }
+
+protected:
+    char get(size_t i, size_t j) const
+    {
+        return board[i][j];
+    }
+
+public:
     Board()
     {
         reset();
@@ -31,40 +43,29 @@ public:
 
     void reset()
     {
-        turnCount = 0;
+        placed = 0;
         for (size_t i = 0; i < SIZE; i++)
         {
             for (size_t j = 0; j < SIZE; j++)
             {
-                board[i][j] = FILLER;
+                set(i, j, '\0');
             }
         }
     }
 
-    // bool isWinner(char potentialWinner) const
-    // {
-
-    // }
-
-    void placePlayer(size_t x, size_t y, char player)
+    bool isBoardFull() const
     {
-        turnCount++;
-        place(y, x, player);
+        return placed >= TOTAL_SIZE;
     }
 
-    inline bool isBoardFull() const
+    void place(size_t x, size_t y, char val)
     {
-        return turnCount >= TOTAL_SIZE;
-    }
-
-    inline char get(size_t i, size_t j) const
-    {
-        return board[i][j];
-    }
-
-    inline void place(size_t i, size_t j, char val)
-    {
-        board[i][j] = val;
+        if (get(y, x) != '\0')
+        {
+            throw std::invalid_argument("location is already occuiped");
+        }
+        set(y, x, val);
+        placed++;
     }
 
     const String toString() const
@@ -74,7 +75,7 @@ public:
         {
             for (size_t j = 0; j < SIZE; j++)
             {
-                out.push_back(board[i][j]);
+                out.push_back(get(i, j) == '\0' ? FILLER : get(i, j));
                 out.push_back(' ');
             }
             out.push_back('\n');
@@ -91,18 +92,16 @@ std::ostream &operator<<(std::ostream &streem, const Board &board)
 }
 
 const std::map<String, size_t> verticalInputMapper = {
-    { "top", 0 },
-    { "center", 1 },
-    { "middle", 1 },
-    { "buttom", 2 }
-};
+    {"top", 0},
+    {"center", 1},
+    {"middle", 1},
+    {"buttom", 2}};
 
 const std::map<String, size_t> horizontalInputMapper = {
-    { "left", 0 },
-    { "center", 1 },
-    { "middle", 1 },
-    { "right", 2 }
-};
+    {"left", 0},
+    {"center", 1},
+    {"middle", 1},
+    {"right", 2}};
 
 void getPosInput(const String &s, size_t &choiceX, size_t &choiceY)
 {
@@ -130,34 +129,6 @@ void getPosInput(const String &s, size_t &choiceX, size_t &choiceY)
     }
 }
 
-void getValidInput(size_t &choiceX, size_t &choiceY)
-{
-    bool hasGotValidInput = false;
-
-    String choice;
-    while (!hasGotValidInput)
-    {
-        print("Where do you want to go: ");
-        std::getline(std::cin, choice);
-
-        if (choice == "QUIT")
-        {
-            println("Good Bye");
-            exit(0);
-        }
-
-        try
-        {
-            getPosInput(choice, choiceX, choiceY);
-            hasGotValidInput = true;
-        }
-        catch (const std::invalid_argument &ex)
-        {
-            println(ex.what());
-        }
-    }
-}
-
 int main()
 {
     bool isPlaying = true;
@@ -166,21 +137,40 @@ int main()
 
     Board board;
 
-    println("This project is incomplete.\n");
+    PRINTLN("This project is incomplete.");
 
     while (isPlaying)
     {
-        
 
-        println(board);
+        PRINTLN("");
+        PRINTLN(board);
 
-        getValidInput(choiceX, choiceY); // store valid location from user in choice X,Y
+        bool hasGotValidInput = false;
+        String choice;
+        while (!hasGotValidInput)
+        {
+            PRINT("Where do you want to go: ");
+            std::getline(std::cin, choice);
 
-        board.placePlayer(choiceX, choiceY, 'X'); // place current player at choice X, Y
+            if (choice == "QUIT")
+            {
+                PRINTLN("Good Bye");
+                exit(0);
+            }
+
+            try
+            {
+                getPosInput(choice, choiceX, choiceY);
+                board.place(choiceX, choiceY, 'X'); // place current player at choice X, Y
+
+                hasGotValidInput = true;
+            }
+            catch (const std::invalid_argument &ex)
+            {
+                PRINTLN(ex.what());
+            }
+        }
     }
 
-    println(board);
-
-
-
+    PRINTLN(board);
 }
