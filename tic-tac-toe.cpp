@@ -7,9 +7,6 @@
 #include <string>
 #include <map>
 
-#define PRINT(x) std::cout << x
-#define PRINTLN(x) std::cout << x << '\n'
-
 using String = std::string;
 
 class Board
@@ -29,7 +26,6 @@ private:
         board[i][j] = val;
     }
 
-protected:
     char get(size_t i, size_t j) const
     {
         return board[i][j];
@@ -58,7 +54,7 @@ public:
         return placed >= TOTAL_SIZE;
     }
 
-    void place(size_t x, size_t y, char val)
+    void placeCell(size_t x, size_t y, char val)
     {
         if (get(y, x) != '\0')
         {
@@ -66,6 +62,11 @@ public:
         }
         set(y, x, val);
         placed++;
+    }
+
+    char getCell(size_t x, size_t y)
+    {
+        return get(y, x);
     }
 
     const String toString() const
@@ -84,12 +85,6 @@ public:
         return out;
     }
 };
-
-std::ostream &operator<<(std::ostream &streem, const Board &board)
-{
-    streem << board.toString();
-    return streem;
-}
 
 const std::map<String, size_t> verticalInputMapper = {
     {"top", 0},
@@ -116,7 +111,7 @@ void getPosInput(const String &s, size_t &choiceX, size_t &choiceY)
     }
     else
     {
-        throw std::invalid_argument("Verticle postion (first value) must be \"top\", \"center\", or \"buttom\".");
+        throw std::invalid_argument("Verticle postion (first value) must be \"top\", \"center\", or \"buttom\"");
     }
 
     if (horizontalInputMapper.count(horizontalPos))
@@ -125,52 +120,74 @@ void getPosInput(const String &s, size_t &choiceX, size_t &choiceY)
     }
     else
     {
-        throw std::invalid_argument("Horizontal postion (second value) must be \"left\", \"center\", or \"right\".");
+        throw std::invalid_argument("Horizontal postion (second value) must be \"left\", \"center\", or \"right\"");
     }
 }
 
 int main()
 {
-    bool isPlaying = true;
-    size_t choiceX;
-    size_t choiceY;
-
     Board board;
 
-    PRINTLN("This project is incomplete.");
+    const size_t playerCount = 2;
+    const char players[playerCount] = {'X', 'O'};
 
-    while (isPlaying)
+    printf("This project is incomplete.");
+
+    String playAgain;
+    do
     {
+        board.reset();
 
-        PRINTLN("");
-        PRINTLN(board);
+        size_t turnCount = 0;
 
-        bool hasGotValidInput = false;
-        String choice;
-        while (!hasGotValidInput)
+        while (true)
         {
-            PRINT("Where do you want to go: ");
-            std::getline(std::cin, choice);
+            printf("");
+            printf(board.toString());
 
-            if (choice == "QUIT")
-            {
-                PRINTLN("Good Bye");
-                exit(0);
+            bool hasGotValidInput = false;
+
+            char currentPlayer = players[turnCount % playerCount];
+
+            while (!hasGotValidInput)
+            {   
+                String choice;
+                printf("Turn %s. Where do you want to go: ", turnCount);
+                std::getline(std::cin, choice);
+
+                if (choice == "QUIT")
+                {
+                    printf("Good Bye");
+                    exit(0);
+                }
+
+                try
+                {
+                    size_t choiceX;
+                    size_t choiceY;
+                    getPosInput(choice, choiceX, choiceY);
+                    board.placeCell(choiceX, choiceY, currentPlayer); // placeCell current player at choice X, Y
+
+                    hasGotValidInput = true;
+                }
+                catch (const std::invalid_argument &ex)
+                {
+                    printf(ex.what());
+                }
             }
 
-            try
-            {
-                getPosInput(choice, choiceX, choiceY);
-                board.place(choiceX, choiceY, 'X'); // place current player at choice X, Y
+            turnCount++;
 
-                hasGotValidInput = true;
-            }
-            catch (const std::invalid_argument &ex)
+            if (board.getCell(1, 1) == currentPlayer)
             {
-                PRINTLN(ex.what());
+                printf("Player %s.", currentPlayer);
             }
         }
-    }
 
-    PRINTLN(board);
+        printf(board.toString());
+
+        std::cout << "Do you want to play agien: [Y/n] ";
+        std::cin >> playAgain;
+
+    } while (playAgain == "y" || playAgain == "Y");
 }
