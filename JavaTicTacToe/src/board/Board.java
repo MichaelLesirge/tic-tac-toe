@@ -40,7 +40,7 @@ public class Board<T> {
     }
 
     protected void reset() {
-        // this.board.forEach((el) -> Collections.fill(el, null));
+        // todo this.board.forEach((el) -> Collections.fill(el, null));
         this.placed = 0;
     }
 
@@ -49,10 +49,13 @@ public class Board<T> {
     }
 
     protected int[] toPos(int loc) {
+        // todo FIX THIS IT BROCKEN AF
         loc -= 1;
-        int row = loc / this.height;
-        int col = loc / (row + 1);
+        int col = loc == 0 ? 0 : (this.height / loc);
+        System.out.println(loc == 0 ? 0 : ((double) this.height / (double) loc));
+        int row = (loc - col);  
         int arr[] = {row, col};
+        System.out.println(row + ", " + col);
         return arr;
     }
 
@@ -68,7 +71,7 @@ public class Board<T> {
         return this.board.get(i).get(j);
     }
 
-    protected void setTile(int i, int j, T val) {
+    protected void setTile(int i, int j, final T val) {
         this.board.get(i).set(j, val);
     }
 
@@ -77,14 +80,15 @@ public class Board<T> {
     }
 
     public void setTile(int loc, final T val) throws IllegalArgumentException {
-        loc -= 1;
-        int row = loc / this.height;
-        int col = loc / (row + 1);
+        int[] pos = toPos(loc);
+        int row = pos[0];
+        int col = pos[1];
+
         if (!isInBoard(row, col)) {
-            throw new IllegalArgumentException(String.format("Location %s is not in board", val));
+            throw new IllegalArgumentException(String.format("Location %s is not in board", loc));
         }
         if (!isEmpty(row, col)) {
-            throw new IllegalArgumentException(String.format("Location %s is already taken", val));
+            throw new IllegalArgumentException(String.format("Location %s is already taken", loc));
         }
 
         this.setTile(row, col, val);
@@ -93,6 +97,8 @@ public class Board<T> {
 
     @Override
     public String toString() {
+        // TODO make to string method work for all values even when values (not just numbers) are long. 
+        // Store value of longest table cell and use that instead of maxNumSize
         final int maxNumSize = String.valueOf(this.size).length();
 
         String spliter = "-" + "-".repeat(maxNumSize) + "-";
