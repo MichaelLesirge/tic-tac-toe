@@ -1,6 +1,6 @@
 package board;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 
 public class Board<T> {
     protected final int width;
@@ -8,22 +8,52 @@ public class Board<T> {
 
     protected final int size;
 
-    private T [][] board;
+    private int placed;
 
+    private final ArrayList<ArrayList<T>> board;
 
-    public Board(int width, int height) {
+    public Board(int width, int height) throws IllegalArgumentException {
+        if (width <= 0) {
+            throw new IllegalArgumentException(
+                    String.format("Board width must be must be a positive number not %s", width));
+        }
+        if (height <= 0) {
+            throw new IllegalArgumentException(
+                    String.format("Board height must be must be a positive number, not %s", height));
+        }
+
         this.width = width;
         this.height = height;
 
         this.size = this.width * this.height;
+
+        this.board = new ArrayList<ArrayList<T>>(this.height);
+        for(int i = 0; i < this.height; i++)  {
+            ArrayList<T> arr = new ArrayList<T>();
+            for(int j = 0; j < this.width; j++) {
+                arr.add(null);
+            }
+            this.board.add(arr);
+        }
+  
+        this.reset();
     }
 
     protected void reset() {
-        Arrays.fill(this.board, null);
+        // this.board.forEach((el) -> Collections.fill(el, null));
+        this.placed = 0;
     }
 
     protected int toLoc(int i, int j) {
-        return (i * this.height) + j;
+        return (i * this.height) + j + 1;
+    }
+
+    protected int[] toPos(int loc) {
+        loc -= 1;
+        int row = loc / this.height;
+        int col = loc / (row + 1);
+        int arr[] = {row, col};
+        return arr;
     }
 
     protected boolean isInBoard(int i, int j) {
@@ -35,23 +65,30 @@ public class Board<T> {
     }
 
     protected T getTile(int i, int j) {
-        return this.board[i][j];
+        return this.board.get(i).get(j);
     }
 
-    protected void setTile(int i, int j, final T val) {
-        this.board[i][j] = val;
+    protected void setTile(int i, int j, T val) {
+        this.board.get(i).set(j, val);
     }
 
-    public void setTile(int loc, final T val) throws Exception {
+    public boolean isBoardFull() {
+        return this.placed <= this.size;
+    }
+
+    public void setTile(int loc, final T val) throws IllegalArgumentException {
+        loc -= 1;
         int row = loc / this.height;
         int col = loc / (row + 1);
         if (!isInBoard(row, col)) {
-            throw new Exception(String.format("Location %s is not in board", val));
+            throw new IllegalArgumentException(String.format("Location %s is not in board", val));
         }
         if (!isEmpty(row, col)) {
-            throw new Exception(String.format("Location %s is already taken", val));
+            throw new IllegalArgumentException(String.format("Location %s is already taken", val));
         }
+
         this.setTile(row, col, val);
+        this.placed++;
     }
 
     @Override
@@ -69,16 +106,15 @@ public class Board<T> {
 
         String[] rows = new String[this.height];
         for (int i = 0; i < height; i++) {
-
             String[] row = new String[this.width];
             for (int j = 0; j < width; j++) {
-                String num = String.valueOf(isEmpty(i, j) ? toLoc(i, j)+1 : getTile(i, j));
-                num += " ".repeat(maxNumSize - num.length());
-                row[j] = num;
+                String val = String.valueOf(isEmpty(i, j) ? toLoc(i, j) : getTile(i, j));
+                val += " ".repeat(Math.max(maxNumSize - val.length(), 0));
+                row[j] = val;
             }
 
             rows[i] = " " + String.join(" | ", row);
         }
-        return  "\n" + String.join("\n" + splitterRow + "\n", rows) + "\n";
+        return "\n" + String.join("\n" + splitterRow + "\n", rows) + "\n";
     }
 }
