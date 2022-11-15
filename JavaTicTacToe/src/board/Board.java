@@ -3,6 +3,8 @@ package board;
 import java.util.ArrayList;
 
 public class Board<T> {
+    private static final int loc_offset = 1;
+
     protected final int width;
     protected final int height;
 
@@ -28,14 +30,14 @@ public class Board<T> {
         this.size = this.width * this.height;
 
         this.board = new ArrayList<ArrayList<T>>(this.height);
-        for(int i = 0; i < this.height; i++)  {
+        for (int i = 0; i < this.height; i++) {
             ArrayList<T> arr = new ArrayList<T>();
-            for(int j = 0; j < this.width; j++) {
+            for (int j = 0; j < this.width; j++) {
                 arr.add(null);
             }
             this.board.add(arr);
         }
-  
+
         this.reset();
     }
 
@@ -45,22 +47,19 @@ public class Board<T> {
     }
 
     protected int toLoc(int i, int j) {
-        return (i * this.height) + j + 1;
+        return (i * this.width) + j + Board.loc_offset;
     }
 
     protected int[] toPos(int loc) {
-        // todo FIX THIS IT BROCKEN AF
-        loc -= 1;
-        int col = loc == 0 ? 0 : (this.height / loc);
-        System.out.println(loc == 0 ? 0 : ((double) this.height / (double) loc));
-        int row = (loc - col);  
-        int arr[] = {row, col};
-        System.out.println(row + ", " + col);
+        loc -= Board.loc_offset;
+        int row = loc / this.width;
+        int col = loc - (this.width * row);
+        int arr[] = { row, col };
         return arr;
     }
 
     protected boolean isInBoard(int i, int j) {
-        return ((i > -1) && (i < this.width)) && ((j > -1) && (j < this.height));
+        return ((i > -1) && (i < this.height)) && ((j > -1) && (j < this.width));
     }
 
     protected boolean isEmpty(int i, int j) {
@@ -97,7 +96,8 @@ public class Board<T> {
 
     @Override
     public String toString() {
-        // TODO make to string method work for all values even when values (not just numbers) are long. 
+        // TODO make to string method work for all values even when values (not just
+        // numbers) are long.
         // Store value of longest table cell and use that instead of maxNumSize
         final int maxNumSize = String.valueOf(this.size).length();
 
