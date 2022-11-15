@@ -8,21 +8,20 @@ public class Game {
     public static void main(String[] args) {
         final Scanner scanner = new Scanner(System.in);
 
-        TicTacToeBoard board;
-        do {
-            System.out.print("Enter board width: ");
-            int width = scanner.nextInt();
-            System.out.print("Enter board height: ");
-            int height = scanner.nextInt();
+        TicTacToeBoard board = null;
+
+        boolean needsValidBoardSizes = true;
+        while (needsValidBoardSizes) {
+            final int width = getValidInt("Enter board width", scanner);
+            final int height = getValidInt("Enter board height", scanner);
             try {
                 board = new TicTacToeBoard(width, height);
-                break;
+                needsValidBoardSizes = false;
             }
             catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
             }
-            
-        } while (true);
+        }
 
         final Player[] players = {
                 new Player('X', Player.Colors.RED),
@@ -30,24 +29,22 @@ public class Game {
         };
 
         boolean keepPlaying = true;
-
         while (keepPlaying) {
 
-            boolean gameover = false;
             int turnCount = 0;
-
-
+            
+            boolean gameover = false;
             while (!gameover) {
                 Player currentPlayer = players[turnCount % players.length];
 
-                System.out.println(board);
+                System.out.println("\n" + board + "\n");
 
-                while (true) {
-                    System.out.print("Where do you want to go: ");
-                    int loc = scanner.nextInt();
+                boolean needsValidLoc = true;
+                while (needsValidLoc) {
+                    int loc = getValidInt("Where do you want to go", scanner);
                     try {
                         board.setTile(loc, currentPlayer);
-                        break;
+                        needsValidLoc = false;
                     } catch (IllegalArgumentException e) {
                         System.out.println(e.getMessage());
                     }
@@ -59,5 +56,21 @@ public class Game {
         }
 
         scanner.close();
+    }
+
+    private static int getValidInt(final String prompt, Scanner scanner) {
+        boolean hasGotValidInput = false;
+        int num = 0;
+        while (!hasGotValidInput) {
+            System.out.print(prompt + ": ");
+            try {
+                num = scanner.nextInt();
+                hasGotValidInput = true;
+            } catch (java.util.InputMismatchException e) {
+                System.out.println("Invalid input. Must be number.");
+            }
+        }
+        return num;
+
     }
 }

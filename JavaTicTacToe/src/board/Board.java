@@ -94,33 +94,43 @@ public class Board<T> {
         this.placed++;
     }
 
+    private String getSringValueElseLoc(int i, int j) {
+        return String.valueOf(isEmpty(i, j) ? toLoc(i, j) : getTile(i, j));
+    }
+
     @Override
     public String toString() {
-        // TODO make to string method work for all values even when values (not just
-        // numbers) are long.
-        // Store value of longest table cell and use that instead of maxNumSize
-        final int maxNumSize = String.valueOf(this.size).length();
+        String divider = " | ";
 
-        String spliter = "-" + "-".repeat(maxNumSize) + "-";
+        int maxValSize = 1;
 
-        String[] splitters = new String[this.width];
-        for (int i = 0; i < this.width; i++) {
-            splitters[i] = spliter;
-        }
-
-        final String splitterRow = String.join("+", splitters);
-
-        String[] rows = new String[this.height];
+        final int[][] rows_lengths = new int[this.height][this.width];
         for (int i = 0; i < height; i++) {
-            String[] row = new String[this.width];
+            final int[] row_lengths = new int[this.width];
             for (int j = 0; j < width; j++) {
-                String val = String.valueOf(isEmpty(i, j) ? toLoc(i, j) : getTile(i, j));
-                val += " ".repeat(Math.max(maxNumSize - val.length(), 0));
-                row[j] = val;
+                final int len = getSringValueElseLoc(i, j).replaceAll("\u001B\\[[;\\d]*m", "").length();;
+                maxValSize = Math.max(maxValSize, len); 
+                row_lengths[j] = len;
             }
-
-            rows[i] = " " + String.join(" | ", row);
+            rows_lengths[i] = row_lengths;
         }
-        return "\n" + String.join("\n" + splitterRow + "\n", rows) + "\n";
+
+        final String[] final_rows = new String[this.height];
+        for (int i = 0; i < height; i++) {
+            final String[] final_row = new String[this.width];
+            for (int j = 0; j < width; j++) {
+                final String val = getSringValueElseLoc(i, j);
+                final int needed_padding = maxValSize - rows_lengths[i][j];
+                String half = " ".repeat(Math.floorDiv(needed_padding, 2));
+                String extra = ((needed_padding % 2 == 0) ? "" : " ");
+                final_row[j] = half + val + half + extra;
+            }
+            final_rows[i] = " " + String.join(divider, final_row) + " ";
+        }
+
+        final String spliter = (("-" + ("-".repeat(maxValSize)) + "-") + "+").repeat(this.width);
+        final String spliterRow = "\n" + spliter.substring(0, spliter.length()-1) + "\n";
+
+        return String.join(spliterRow, final_rows);
     }
 }
