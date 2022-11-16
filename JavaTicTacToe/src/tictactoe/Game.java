@@ -28,6 +28,8 @@ public class Game {
                 new Player('O', Player.Colors.BLUE),
         };
 
+        int ties = 0;
+
         boolean keepPlaying = true;
         while (keepPlaying) {
 
@@ -50,24 +52,37 @@ public class Game {
                     }
                 }
 
+                if (board.isPlayerWinner(currentPlayer)) {
+                    System.out.printf("Player %s wins!", currentPlayer);
+                    currentPlayer.addWin();
+                    gameover = true;
+                }
+                else if (board.isFull()) {
+                    System.out.println("It's a tie!");
+                    ties++;
+                    gameover = true;
+                }
+
                 turnCount++;
             }
 
+            System.out.println("Scores:");
         }
 
         scanner.close();
     }
 
     private static int getValidInt(final String prompt, Scanner scanner) {
-        boolean hasGotValidInput = false;
         int num = 0;
-        while (!hasGotValidInput) {
+        boolean needsValidInput = true;
+        while (needsValidInput) {
             System.out.print(prompt + ": ");
             try {
                 num = scanner.nextInt();
-                hasGotValidInput = true;
+                needsValidInput = false;
             } catch (java.util.InputMismatchException e) {
                 System.out.println("Invalid input. Must be number.");
+                scanner.nextLine();
             }
         }
         return num;

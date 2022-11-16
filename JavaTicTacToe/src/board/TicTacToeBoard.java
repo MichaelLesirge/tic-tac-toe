@@ -31,4 +31,8 @@ public class TicTacToeBoard extends Board<Player> {
         super.reset();
         this.turnCount = 0;
     }
+
+    public boolean isPlayerWinner(Player player) {
+        return false;
+    }
 }

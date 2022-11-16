@@ -74,8 +74,8 @@ public class Board<T> {
         this.board.get(i).set(j, val);
     }
 
-    public boolean isBoardFull() {
-        return this.placed <= this.size;
+    public boolean isFull() {
+        return this.placed >= this.size;
     }
 
     public void setTile(int loc, final T val) throws IllegalArgumentException {

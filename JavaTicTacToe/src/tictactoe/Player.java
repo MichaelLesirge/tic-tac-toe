@@ -1,7 +1,7 @@
 package tictactoe;
 
 public class Player {
-    public enum Colors {
+    public static enum Colors {
         RESET(0),
         BLACK(30),
         RED(31),
@@ -30,7 +30,7 @@ public class Player {
     final private char letter;
     final private Colors color;
 
-    final private int winCount;
+    private int winCount;
 
     Player(char letter, Colors color) {
         this.letter = letter;
@@ -43,8 +43,8 @@ public class Player {
         return winCount;
     }
 
-    public int length() {
-        return 1;
+    public void addWin() {
+        winCount++;
     }
 
     @Override
