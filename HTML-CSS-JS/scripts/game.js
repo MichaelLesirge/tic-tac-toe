@@ -426,7 +426,9 @@ function makeBoard() {
 
 	const newParms = params.toString();
 	if (oldParems !== newParms) {
-		location.search = newParms;
+		const newURL = new URL(location);
+		newURL.search = newParms;
+		history.pushState({}, null, newURL);
 	}
 
 	document.querySelector("title").innerText += ` (${boardSizes})`;
