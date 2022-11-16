@@ -34,8 +34,10 @@ public class Game {
         while (keepPlaying) {
 
             int turnCount = 0;
+            board.reset();
             
             boolean gameover = false;
+
             while (!gameover) {
                 Player currentPlayer = players[turnCount % players.length];
 
@@ -52,15 +54,23 @@ public class Game {
                     }
                 }
 
-                if (board.isPlayerWinner(currentPlayer)) {
-                    System.out.printf("Player %s wins!", currentPlayer);
-                    currentPlayer.addWin();
+                final boolean isCurrentPlayerWinner = board.isPlayerWinner(currentPlayer);
+                final boolean isTie = board.isFull();
+
+                if (isCurrentPlayerWinner || isTie) {
+
+                    System.out.println("\n" + board + "\n");
+
                     gameover = true;
-                }
-                else if (board.isFull()) {
-                    System.out.println("It's a tie!");
-                    ties++;
-                    gameover = true;
+
+                    if (isCurrentPlayerWinner) {
+                        System.out.printf("Player %s wins!", currentPlayer);
+                        currentPlayer.addWin();
+                    }
+                    else if (isTie) {
+                        System.out.println("It's a tie!");
+                        ties++;
+                    }
                 }
 
                 turnCount++;
@@ -69,7 +79,7 @@ public class Game {
             System.out.println();
 
             final String scoreFormat = "%s: %s\n";
-            System.out.println("Scores:");
+            System.out.println("---Scores---");
             for (Player player : players) {
                 System.out.printf(scoreFormat, player, player.getWinCount());
             }

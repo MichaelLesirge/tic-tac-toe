@@ -31,18 +31,19 @@ public class Board<T> {
 
         this.board = new ArrayList<ArrayList<T>>(this.height);
         for (int i = 0; i < this.height; i++) {
-            ArrayList<T> arr = new ArrayList<T>();
-            for (int j = 0; j < this.width; j++) {
-                arr.add(null);
-            }
-            this.board.add(arr);
+            this.board.add(new ArrayList<T>());            
         }
 
         this.reset();
     }
 
     protected void reset() {
-        // todo this.board.forEach((el) -> Collections.fill(el, null));
+        for (int i = 0; i < this.height; i++) {
+            this.board.get(i).clear();
+            for (int j = 0; j < this.width; j++) {
+                this.board.get(i).add(null);
+            }
+        }
         this.placed = 0;
     }
 
@@ -72,6 +73,10 @@ public class Board<T> {
 
     protected void setTile(int i, int j, final T val) {
         this.board.get(i).set(j, val);
+    }
+
+    protected int getPlaced() {
+        return this.placed;
     }
 
     public boolean isFull() {
