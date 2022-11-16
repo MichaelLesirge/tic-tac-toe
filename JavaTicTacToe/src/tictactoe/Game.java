@@ -66,9 +66,25 @@ public class Game {
                 turnCount++;
             }
 
+            System.out.println();
+
+            final String scoreFormat = "%s: %s\n";
             System.out.println("Scores:");
+            for (Player player : players) {
+                System.out.printf(scoreFormat, player, player.getWinCount());
+            }
+            System.out.printf(scoreFormat, "Ties", ties);
+            
+            System.out.println();
+
+            System.out.print("Do you want to play again [Y/n]: ");
+            scanner.nextLine();
+
+            final String keepPlayingMessage =  scanner.nextLine().toLowerCase();
+            keepPlaying = keepPlayingMessage.equals("y");
         }
 
+        System.out.println("Goodbye!");
         scanner.close();
     }
 
