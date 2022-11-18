@@ -131,7 +131,7 @@ int main()
     const size_t playerCount = 2;
     const char players[playerCount] = {'X', 'O'};
 
-    printf("This project is incomplete.");
+    printf("This project is incomplete.\n\n");
 
     String playAgain;
     do
@@ -142,7 +142,7 @@ int main()
 
         while (true)
         {
-            printf("");
+            printf("\n");
             printf(board.toString().c_str());
 
             bool hasGotValidInput = false;
