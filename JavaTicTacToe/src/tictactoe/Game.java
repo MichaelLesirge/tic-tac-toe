@@ -10,6 +10,11 @@ public class Game {
 
         TicTacToeBoard board = null;
 
+        final Player[] players = {
+            new Player('X', Player.Colors.RED),
+            new Player('O', Player.Colors.BLUE),
+    };
+
         boolean needsValidBoardSizes = true;
         while (needsValidBoardSizes) {
             final int width = getValidInt("Enter board width", scanner);
@@ -22,11 +27,6 @@ public class Game {
                 System.out.println(e.getMessage());
             }
         }
-
-        final Player[] players = {
-                new Player('X', Player.Colors.RED),
-                new Player('O', Player.Colors.BLUE),
-        };
 
         int ties = 0;
 
@@ -55,7 +55,7 @@ public class Game {
                 }
 
                 final boolean isCurrentPlayerWinner = board.isPlayerWinner(currentPlayer);
-                final boolean isTie = board.isFull();
+                final boolean isTie = board.isTie();
 
                 if (isCurrentPlayerWinner || isTie) {
 
@@ -64,7 +64,7 @@ public class Game {
                     gameover = true;
 
                     if (isCurrentPlayerWinner) {
-                        System.out.printf("Player %s wins!", currentPlayer);
+                        System.out.println(String.format("Player %s wins!", currentPlayer));
                         currentPlayer.addWin();
                     }
                     else if (isTie) {

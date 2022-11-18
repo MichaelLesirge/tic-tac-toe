@@ -10,7 +10,7 @@ public class Board<T> {
 
     protected final int size;
 
-    private int placed;
+    private int itemsPlaced;
 
     private final ArrayList<ArrayList<T>> board;
 
@@ -37,14 +37,14 @@ public class Board<T> {
         this.reset();
     }
 
-    protected void reset() {
+    public void reset() {
         for (int i = 0; i < this.height; i++) {
             this.board.get(i).clear();
             for (int j = 0; j < this.width; j++) {
                 this.board.get(i).add(null);
             }
         }
-        this.placed = 0;
+        this.itemsPlaced = 0;
     }
 
     protected int toLoc(int i, int j) {
@@ -75,12 +75,12 @@ public class Board<T> {
         this.board.get(i).set(j, val);
     }
 
-    protected int getPlaced() {
-        return this.placed;
+    protected int getItemsPlaced() {
+        return this.itemsPlaced;
     }
 
     public boolean isFull() {
-        return this.placed >= this.size;
+        return this.itemsPlaced >= this.size;
     }
 
     public void setTile(int loc, final T val) throws IllegalArgumentException {
@@ -96,7 +96,7 @@ public class Board<T> {
         }
 
         this.setTile(row, col, val);
-        this.placed++;
+        this.itemsPlaced++;
     }
 
     private String getSringValueElseLoc(int i, int j) {
