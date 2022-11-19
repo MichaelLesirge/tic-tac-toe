@@ -463,7 +463,7 @@ window.onresize = fixOverflow;
 
 // zoom in / out
 
-const zoomScaleChangeBy = 1;
+const zoomScaleChangeAmount = 1;
 
 const RepeatDelayMs = 500;
 const repeatRateMs = 33;
@@ -482,7 +482,7 @@ function makeZoomButtons() {
 	const zoomInBtn = document.getElementById("zoom-in");
 	const zoomOutBtn = document.getElementById("zoom-out");
 
-	function changeZoomScaleBy(by) {
+	function changeZoomScale(by) {
 		zoomScale = Math.min(Math.max(zoomScale + by, 1), maxScale);
 
 		zoomScaleDisplay.innerText = 100 - startingScale + zoomScale;
@@ -495,19 +495,19 @@ function makeZoomButtons() {
 		zoomInBtn.disabled = zoomScale === maxScale;
 	}
 
-	function addZoomEventListener(btn, by) {
+	function addHeldEventListener(btn, func) {
 		let id;
 		["mousedown", "touchstart"].forEach((event) => {
 			btn.addEventListener(event, (e) => {
 				e.stopPropagation();
-				changeZoomScaleBy(by);
+				func()
 				const startTime = new Date().getTime();
 				let last = false;
 				id = setInterval(() => {
 					if (btn.disabled) clearInterval(id);
 					if (last || startTime + RepeatDelayMs < new Date().getTime()) {
 						last = true;
-						changeZoomScaleBy(by);
+						func()
 					}
 				}, repeatRateMs);
 			});
@@ -518,8 +518,8 @@ function makeZoomButtons() {
 		});
 	}
 
-	addZoomEventListener(zoomInBtn, zoomScaleChangeBy);
-	addZoomEventListener(zoomOutBtn, -zoomScaleChangeBy);
+	addHeldEventListener(zoomInBtn, () => changeZoomScale(zoomScaleChangeAmount));
+	addHeldEventListener(zoomOutBtn, () => changeZoomScale(-zoomScaleChangeAmount));
 }
 
 makeZoomButtons();
