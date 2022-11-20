@@ -462,15 +462,14 @@ fixOverflow();
 window.onresize = fixOverflow;
 
 // zoom in / out
+(() => {
+	const zoomScaleChangeAmount = 1;
 
-const zoomScaleChangeAmount = 1;
+	const RepeatDelayMs = 500;
+	const repeatRateMs = 33;
 
-const RepeatDelayMs = 500;
-const repeatRateMs = 33;
+	const maxScaleVal = 500;
 
-const maxScaleVal = 500;
-
-function makeZoomButtons() {
 	const zoomScaleDisplay = document.getElementById("zoom-scale-display");
 
 	const startingScale = parseInt(board.getCssVar("starting-zoom-scale"));
@@ -520,11 +519,9 @@ function makeZoomButtons() {
 
 	addHeldEventListener(zoomInBtn, () => changeZoomScale(zoomScaleChangeAmount));
 	addHeldEventListener(zoomOutBtn, () => changeZoomScale(-zoomScaleChangeAmount));
-}
+})()
 
-makeZoomButtons();
 
-// you have unsaved proggres alert
 window.onbeforeunload = () => {
 	if (board.isMidGame())
 		return `Are you sure you want to leave? All game progges will be lossed.`;
