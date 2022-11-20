@@ -499,14 +499,14 @@ window.onresize = fixOverflow;
 		["mousedown", "touchstart"].forEach((event) => {
 			btn.addEventListener(event, (e) => {
 				e.stopPropagation();
-				func()
+				func();
 				const startTime = new Date().getTime();
 				let last = false;
 				id = setInterval(() => {
 					if (btn.disabled) clearInterval(id);
 					if (last || startTime + RepeatDelayMs < new Date().getTime()) {
 						last = true;
-						func()
+						func();
 					}
 				}, repeatRateMs);
 			});
@@ -519,8 +519,7 @@ window.onresize = fixOverflow;
 
 	addHeldEventListener(zoomInBtn, () => changeZoomScale(zoomScaleChangeAmount));
 	addHeldEventListener(zoomOutBtn, () => changeZoomScale(-zoomScaleChangeAmount));
-})()
-
+})();
 
 window.onbeforeunload = () => {
 	if (board.isMidGame())
