@@ -302,7 +302,7 @@ class Board {
 	}
 
 	isOverflowing() {
-		return this.getCell(0, 0).el.getBoundingClientRect().left < 0;
+		return this.getCell(0, 0).el.getBoundingClientRect().left < 0 || this.getCell(0, this.width-1).el.getBoundingClientRect().right > (window.innerWidth || document.documentElement.clientWidth);
 	}
 
 	toggleCords() {
@@ -441,10 +441,12 @@ const boardContainer = document.querySelector(".board-container");
 const bodyStyle = document.body.style;
 function fixOverflow() {
 	if (board.isOverflowing()) {
+		console.log("fixing overflow")
 		boardContainer.classList.remove("centered-container");
 		boardContainer.style.width = "max-content";
 		bodyStyle.overflowX = "scroll";
 	} else {
+		console.log("centering")
 		boardContainer.classList.add("centered-container");
 		boardContainer.style.width = "default";
 		bodyStyle.overflowX = "hidden";
@@ -482,10 +484,11 @@ window.onresize = fixOverflow;
 
 		fixOverflow();
 		board.setCssVar("zoom-scale", zoomScale + "vmin");
-		fixOverflow();
-
+		
 		zoomOutBtn.disabled = zoomScale === 1;
 		zoomInBtn.disabled = zoomScale === maxScale;
+
+		fixOverflow();
 	}
 
 	function addHeldEventListener(btn, func) {

@@ -10,13 +10,12 @@
 
 	margin-right: 0;
 	padding-right: 1rem;
+
 }
 
 .board-table {
 	border-collapse: separate;
-	border-spacing: calc(
-		var(--starting-zoom-scale) - var(--zoom-scale) + 0.45vmin
-	);
+	border-spacing: max(calc(var(--starting-zoom-scale) - var(--zoom-scale) + 0.45vmin), 2px);
 	box-shadow: 0 2vmax 3vmax 0 #00000030;
 }
 
