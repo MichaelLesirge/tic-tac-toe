@@ -1,13 +1,6 @@
-import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./consts.js";
+import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE, setNavContainer } from "./utils.js";
 
 // sorry for this mess of a proggram, I was learning JavaScript as I went.
-
-const navContainer = document.querySelector(".fixed-container");
-const navBar = document.querySelector(".fixed-content");
-
-// make sure navbar correctly pushes stuff down
-const navHeight = navBar.offsetHeight;
-navContainer.style.height = `${navHeight}px`;
 
 const toggleCordsButton = document.getElementById("toggle-cords");
 const resetBoardButton = document.getElementById("reset-button");
@@ -456,6 +449,7 @@ function fixOverflow() {
 		boardContainer.style.width = "default";
 		bodyStyle.overflowX = "hidden";
 	}
+	setNavContainer();
 }
 
 fixOverflow();
