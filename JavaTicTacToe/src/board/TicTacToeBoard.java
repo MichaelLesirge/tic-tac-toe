@@ -47,28 +47,26 @@ public class TicTacToeBoard extends Board<Player> {
     }
 
     public boolean isPlayerWinner(Player player) {
-        // check verticle 
+        // check horizontal 
         for (int row = 0; row < this.height; row++) {
             int count = 0;
             for (int col = 0; col < this.width; col++) {
-                System.out.println(count);
                 if (this.get(row, col) == player) {
                     count++;
-                    if (count > this.peicesToWinVertical) {
+                    if (count >= this.peicesToWinHorizontal) {
                         return true;
                     }
                 }
             }
-            System.out.println();
         }
 
-        // check horizontal
+        // check verticle
         for (int col = 0; col < this.width; col++) {
             int count = 0;
             for (int row = 0; row < this.height; row++) {
                 if (this.get(row, col) == player) {
                     count++;
-                    if (count > this.peicesToWinHorizontal) {
+                    if (count >= this.peicesToWinVertical) {
                         return true;
                     }
                 }

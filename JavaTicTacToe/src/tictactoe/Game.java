@@ -43,6 +43,8 @@ public class Game {
 
                 System.out.println("\n" + board + "\n");
 
+                System.out.println(String.format("Turn %s, %ss go.", turnCount+1, currentPlayer));
+                
                 boolean needsValidLoc = true;
                 while (needsValidLoc) {
                     int loc = getValidInt("Where do you want to go", scanner);
