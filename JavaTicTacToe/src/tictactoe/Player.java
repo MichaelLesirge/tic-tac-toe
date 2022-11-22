@@ -22,6 +22,7 @@ public class Player {
             return "\u001B[" + this.colorCode + "m";
         }
 
+        @Override
         public String toString() {
             return this.colorCode();
         }
@@ -31,6 +32,10 @@ public class Player {
     final private Colors color;
 
     private int winCount;
+
+    Player(char letter) {
+        this(letter, null);
+    }
 
     Player(char letter, Colors color) {
         this.letter = letter;
@@ -49,6 +54,10 @@ public class Player {
 
     @Override
     public String toString() {
+        final String letter = String.valueOf(this.letter);
+
+        if (this.color == null) return letter;
+
         return this.color + String.valueOf(this.letter) + Player.Colors.RESET;
     }
 }

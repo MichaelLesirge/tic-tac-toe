@@ -12,7 +12,7 @@ public class Game {
 
         final Player[] players = {
                 new Player('X', Player.Colors.RED),
-                new Player('O', Player.Colors.BLUE),
+                // new Player('O', Player.Colors.BLUE),
         };
 
         boolean needsValidBoardSizes = true;
@@ -91,7 +91,7 @@ public class Game {
             scanner.nextLine();
 
             final String keepPlayingMessage = scanner.nextLine().toLowerCase();
-            keepPlaying = keepPlayingMessage.equals("y");
+            keepPlaying = keepPlayingMessage.equals("y") || keepPlayingMessage.equals("yes");
         }
 
         System.out.println("Goodbye!");
