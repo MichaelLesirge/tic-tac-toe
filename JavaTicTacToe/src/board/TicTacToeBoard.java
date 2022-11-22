@@ -7,8 +7,7 @@ public class TicTacToeBoard extends Board<Player> {
 
     private final int peicesToWinHorizontal;
     private final int peicesToWinVertical;
-
-    private final boolean checkDiagnals;
+    private final int peicesToWinDiagnal;
 
     public TicTacToeBoard() {
         this(TicTacToeBoard.DEFAULT_SIZE, TicTacToeBoard.DEFAULT_SIZE);
@@ -18,7 +17,7 @@ public class TicTacToeBoard extends Board<Player> {
      * Construct a width by height board where you win by getting accros the board
      */
     public TicTacToeBoard(int width, int height) {
-        this(width, height, width, height, width == height);
+        this(width, height, width, height, width == height ? width : -1);
     }
 
     /**
@@ -26,18 +25,20 @@ public class TicTacToeBoard extends Board<Player> {
      * number of peicesToWin in a row
      */
     public TicTacToeBoard(int width, int height, int peicesToWin) {
-        this(width, height, peicesToWin, peicesToWin, true);
+        this(width, height, peicesToWin, peicesToWin, peicesToWin);
     }
 
+    /**
+     * Construct a width by height board where you win by getting the specified
+     * number of peicesToWin in a row for each way to win. Use negitive one to make it impossible
+     */
     public TicTacToeBoard(
             int width, int height,
-            int peicesToWinHorizontal, int peicesToWinVertical,
-            boolean checkDiagnals) {
+            int peicesToWinHorizontal, int peicesToWinVertical, int peicesToWinDiagnal) {
 
         super(width, height);
 
-        this.checkDiagnals = checkDiagnals;
-
+        this.peicesToWinDiagnal = peicesToWinDiagnal;
         this.peicesToWinHorizontal = peicesToWinHorizontal;
         this.peicesToWinVertical = peicesToWinVertical;
     }
