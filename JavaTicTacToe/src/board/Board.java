@@ -59,20 +59,20 @@ public class Board<T> {
         return arr;
     }
 
-    protected boolean isInBoard(int i, int j) {
-        return ((i > -1) && (i < this.height)) && ((j > -1) && (j < this.width));
+    protected boolean isInBoard(int row, int col) {
+        return ((row > -1) && (row < this.height)) && ((col > -1) && (col < this.width));
     }
 
-    protected boolean isEmpty(int i, int j) {
-        return getTile(i, j) == null;
+    protected boolean isEmpty(int row, int col) {
+        return getTile(row, col) == null;
     }
 
-    protected T getTile(int i, int j) {
-        return this.board.get(i).get(j);
+    protected T getTile(int row, int col) {
+        return this.board.get(row).get(col);
     }
 
-    protected void setTile(int i, int j, final T val) {
-        this.board.get(i).set(j, val);
+    protected void setTile(int row, int col, final T val) {
+        this.board.get(row).set(col, val);
     }
 
     protected int getItemsPlaced() {
@@ -99,8 +99,8 @@ public class Board<T> {
         this.itemsPlaced++;
     }
 
-    private String getSringValueElseLoc(int i, int j) {
-        return String.valueOf(isEmpty(i, j) ? toLoc(i, j) : getTile(i, j));
+    private String getSringValueElseLoc(int row, int col) {
+        return String.valueOf(isEmpty(row, col) ? toLoc(row, col) : getTile(row, col));
     }
 
     @Override
@@ -110,27 +110,27 @@ public class Board<T> {
         int maxValSize = 1;
 
         final int[][] rows_lengths = new int[this.height][this.width];
-        for (int i = 0; i < height; i++) {
+        for (int row = 0; row < height; row++) {
             final int[] row_lengths = new int[this.width];
-            for (int j = 0; j < width; j++) {
-                final int len = getSringValueElseLoc(i, j).replaceAll("\u001B\\[[;\\d]*m", "").length();;
+            for (int col = 0; col < width; col++) {
+                final int len = getSringValueElseLoc(row, col).replaceAll("\u001B\\[[;\\d]*m", "").length();;
                 maxValSize = Math.max(maxValSize, len); 
-                row_lengths[j] = len;
+                row_lengths[col] = len;
             }
-            rows_lengths[i] = row_lengths;
+            rows_lengths[row] = row_lengths;
         }
 
         final String[] final_rows = new String[this.height];
-        for (int i = 0; i < height; i++) {
+        for (int row = 0; row < height; row++) {
             final String[] final_row = new String[this.width];
-            for (int j = 0; j < width; j++) {
-                final String val = getSringValueElseLoc(i, j);
-                final int needed_padding = maxValSize - rows_lengths[i][j];
+            for (int col = 0; col < width; col++) {
+                final String val = getSringValueElseLoc(row, col);
+                final int needed_padding = maxValSize - rows_lengths[row][col];
                 String half = " ".repeat(Math.floorDiv(needed_padding, 2));
                 String extra = ((needed_padding % 2 == 0) ? "" : " ");
-                final_row[j] = half + val + half + extra;
+                final_row[col] = half + val + half + extra;
             }
-            final_rows[i] = " " + String.join(divider, final_row) + " ";
+            final_rows[row] = " " + String.join(divider, final_row) + " ";
         }
 
         final String spliter = (("-" + ("-".repeat(maxValSize)) + "-") + "+").repeat(this.width);
