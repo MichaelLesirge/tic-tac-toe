@@ -302,7 +302,7 @@ class Board {
 	}
 
 	isOverflowing() {
-		return this.getCell(0, 0).el.getBoundingClientRect().left < 0 || this.getCell(0, this.width-1).el.getBoundingClientRect().right > (window.innerWidth || document.documentElement.clientWidth);
+		return this.getCell(0, 0).el.getBoundingClientRect().left < 0 || this.getCell(this.width-1, 0).el.getBoundingClientRect().right > (window.innerWidth || document.documentElement.clientWidth);
 	}
 
 	toggleCords() {
@@ -443,12 +443,10 @@ function fixOverflow() {
 	if (board.isOverflowing()) {
 		console.log("fixing overflow")
 		boardContainer.classList.remove("centered-container");
-		boardContainer.style.width = "max-content";
 		bodyStyle.overflowX = "scroll";
 	} else {
 		console.log("centering")
 		boardContainer.classList.add("centered-container");
-		boardContainer.style.width = "default";
 		bodyStyle.overflowX = "hidden";
 	}
 	setNavContainer();
