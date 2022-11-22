@@ -64,14 +64,14 @@ public class Board<T> {
     }
 
     protected boolean isEmpty(int row, int col) {
-        return getTile(row, col) == null;
+        return get(row, col) == null;
     }
 
-    protected T getTile(int row, int col) {
+    protected T get(int row, int col) {
         return this.board.get(row).get(col);
     }
 
-    protected void setTile(int row, int col, final T val) {
+    protected void set(int row, int col, final T val) {
         this.board.get(row).set(col, val);
     }
 
@@ -95,12 +95,12 @@ public class Board<T> {
             throw new IllegalArgumentException(String.format("Location %s is already taken", loc));
         }
 
-        this.setTile(row, col, val);
+        this.set(row, col, val);
         this.itemsPlaced++;
     }
 
-    private String getSringValueElseLoc(int row, int col) {
-        return String.valueOf(isEmpty(row, col) ? toLoc(row, col) : getTile(row, col));
+    private String toString(int row, int col) {
+        return String.valueOf(isEmpty(row, col) ? toLoc(row, col) : get(row, col));
     }
 
     @Override
@@ -113,7 +113,7 @@ public class Board<T> {
         for (int row = 0; row < height; row++) {
             final int[] row_lengths = new int[this.width];
             for (int col = 0; col < width; col++) {
-                final int len = getSringValueElseLoc(row, col).replaceAll("\u001B\\[[;\\d]*m", "").length();;
+                final int len = toString(row, col).replaceAll("\u001B\\[[;\\d]*m", "").length();;
                 maxValSize = Math.max(maxValSize, len); 
                 row_lengths[col] = len;
             }
@@ -124,7 +124,7 @@ public class Board<T> {
         for (int row = 0; row < height; row++) {
             final String[] final_row = new String[this.width];
             for (int col = 0; col < width; col++) {
-                final String val = getSringValueElseLoc(row, col);
+                final String val = toString(row, col);
                 final int needed_padding = maxValSize - rows_lengths[row][col];
                 String half = " ".repeat(Math.floorDiv(needed_padding, 2));
                 String extra = ((needed_padding % 2 == 0) ? "" : " ");
