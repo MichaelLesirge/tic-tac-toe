@@ -7,7 +7,7 @@ public class TicTacToeBoard extends Board<Player> {
 
     private final int peicesToWinHorizontal;
     private final int peicesToWinVertical;
-    private final int peicesToWinDiagnal;
+    private final int peicesToWinDiagonal;
 
     public TicTacToeBoard() {
         this(TicTacToeBoard.DEFAULT_SIZE, TicTacToeBoard.DEFAULT_SIZE);
@@ -30,15 +30,16 @@ public class TicTacToeBoard extends Board<Player> {
 
     /**
      * Construct a width by height board where you win by getting the specified
-     * number of peicesToWin in a row for each way to win. Use negitive one to make it impossible
+     * number of peicesToWin in a row for each way to win. Use negitive one to make
+     * it impossible
      */
     public TicTacToeBoard(
             int width, int height,
-            int peicesToWinHorizontal, int peicesToWinVertical, int peicesToWinDiagnal) {
+            int peicesToWinHorizontal, int peicesToWinVertical, int peicesToWindiagonal) {
 
         super(width, height);
 
-        this.peicesToWinDiagnal = peicesToWinDiagnal;
+        this.peicesToWinDiagonal = peicesToWindiagonal;
         this.peicesToWinHorizontal = peicesToWinHorizontal;
         this.peicesToWinVertical = peicesToWinVertical;
     }
@@ -49,33 +50,36 @@ public class TicTacToeBoard extends Board<Player> {
 
     public boolean isPlayerWinner(Player player) {
         // check horizontal
-        for (int row = 0; row < this.height; row++) {
-            int count = 0;
-            for (int col = 0; col < this.width; col++) {
-                if (this.get(row, col) == player) {
-                    count++;
-                    if (count >= this.peicesToWinHorizontal) {
-                        return true;
+        if (this.peicesToWinHorizontal != -1) {
+            for (int row = 0; row < this.height; row++) {
+                int count = 0;
+                for (int col = 0; col < this.width; col++) {
+                    if (this.get(row, col) == player) {
+                        count++;
+                        if (count >= this.peicesToWinHorizontal) {
+                            return true;
+                        }
                     }
                 }
             }
         }
 
         // check verticle
-        for (int col = 0; col < this.width; col++) {
-            int count = 0;
-            for (int row = 0; row < this.height; row++) {
-                if (this.get(row, col) == player) {
-                    count++;
-                    if (count >= this.peicesToWinVertical) {
-                        return true;
+        if (this.peicesToWinVertical != -1) {
+            for (int col = 0; col < this.width; col++) {
+                int count = 0;
+                for (int row = 0; row < this.height; row++) {
+                    if (this.get(row, col) == player) {
+                        count++;
+                        if (count >= this.peicesToWinVertical) {
+                            return true;
+                        }
                     }
                 }
             }
         }
 
-        if (this.checkDiagnals) {
-            // check top left to buttom right
+        if (this.peicesToWinDiagonal != -1) {
 
         }
 
