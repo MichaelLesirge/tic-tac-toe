@@ -11,9 +11,9 @@ public class Game {
         TicTacToeBoard board = null;
 
         final Player[] players = {
-            new Player('X', Player.Colors.RED),
-            new Player('O', Player.Colors.BLUE),
-    };
+                new Player('X', Player.Colors.RED),
+                new Player('O', Player.Colors.BLUE),
+        };
 
         boolean needsValidBoardSizes = true;
         while (needsValidBoardSizes) {
@@ -22,8 +22,7 @@ public class Game {
             try {
                 board = new TicTacToeBoard(width, height);
                 needsValidBoardSizes = false;
-            }
-            catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
             }
         }
@@ -35,7 +34,7 @@ public class Game {
 
             int turnCount = 0;
             board.reset();
-            
+
             boolean gameover = false;
 
             while (!gameover) {
@@ -43,8 +42,8 @@ public class Game {
 
                 System.out.println("\n" + board + "\n");
 
-                System.out.println(String.format("Turn %s, %ss go.", turnCount+1, currentPlayer));
-                
+                System.out.println(String.format("Turn %s, %ss go.", turnCount + 1, currentPlayer));
+
                 boolean needsValidLoc = true;
                 while (needsValidLoc) {
                     int loc = getValidInt("Where do you want to go", scanner);
@@ -68,8 +67,7 @@ public class Game {
                     if (isCurrentPlayerWinner) {
                         System.out.println(String.format("Player %s wins!", currentPlayer));
                         currentPlayer.addWin();
-                    }
-                    else if (isTie) {
+                    } else if (isTie) {
                         System.out.println("It's a tie!");
                         ties++;
                     }
@@ -86,13 +84,13 @@ public class Game {
                 System.out.printf(scoreFormat, player, player.getWinCount());
             }
             System.out.printf(scoreFormat, "Ties", ties);
-            
+
             System.out.println();
 
             System.out.print("Do you want to play again [Y/n]: ");
             scanner.nextLine();
 
-            final String keepPlayingMessage =  scanner.nextLine().toLowerCase();
+            final String keepPlayingMessage = scanner.nextLine().toLowerCase();
             keepPlaying = keepPlayingMessage.equals("y");
         }
 

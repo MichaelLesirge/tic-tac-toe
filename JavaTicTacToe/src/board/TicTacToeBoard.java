@@ -47,7 +47,7 @@ public class TicTacToeBoard extends Board<Player> {
     }
 
     public boolean isPlayerWinner(Player player) {
-        // check horizontal 
+        // check horizontal
         for (int row = 0; row < this.height; row++) {
             int count = 0;
             for (int col = 0; col < this.width; col++) {

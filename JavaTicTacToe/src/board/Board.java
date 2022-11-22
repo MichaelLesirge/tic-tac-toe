@@ -31,7 +31,7 @@ public class Board<T> {
 
         this.board = new ArrayList<ArrayList<T>>(this.height);
         for (int i = 0; i < this.height; i++) {
-            this.board.add(new ArrayList<T>());            
+            this.board.add(new ArrayList<T>());
         }
 
         this.reset();
@@ -113,8 +113,9 @@ public class Board<T> {
         for (int row = 0; row < height; row++) {
             final int[] row_lengths = new int[this.width];
             for (int col = 0; col < width; col++) {
-                final int len = toString(row, col).replaceAll("\u001B\\[[;\\d]*m", "").length();;
-                maxValSize = Math.max(maxValSize, len); 
+                final int len = toString(row, col).replaceAll("\u001B\\[[;\\d]*m", "").length();
+                ;
+                maxValSize = Math.max(maxValSize, len);
                 row_lengths[col] = len;
             }
             rows_lengths[row] = row_lengths;
@@ -134,7 +135,7 @@ public class Board<T> {
         }
 
         final String spliter = (("-" + ("-".repeat(maxValSize)) + "-") + "+").repeat(this.width);
-        final String spliterRow = "\n" + spliter.substring(0, spliter.length()-1) + "\n";
+        final String spliterRow = "\n" + spliter.substring(0, spliter.length() - 1) + "\n";
 
         return String.join(spliterRow, final_rows);
     }
