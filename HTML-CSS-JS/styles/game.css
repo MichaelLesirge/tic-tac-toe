@@ -6,11 +6,15 @@
 }
 
 .board-container {
-	margin: 1rem;
+	display: flex;
+	flex-direction: row;
 
-	margin-right: 0;
-	padding-right: 1rem;
+	margin: 1rem 0;
+}
 
+.board-container .padding {
+	font-size: 2rem;
+	visibility: hidden;
 }
 
 .board-table {
