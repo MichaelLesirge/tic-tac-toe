@@ -441,11 +441,9 @@ const boardContainer = document.querySelector(".board-container");
 const bodyStyle = document.body.style;
 function fixOverflow() {
 	if (board.isOverflowing()) {
-		console.log("fixing overflow")
 		boardContainer.classList.remove("centered-container");
 		bodyStyle.overflowX = "scroll";
 	} else {
-		console.log("centering")
 		boardContainer.classList.add("centered-container");
 		bodyStyle.overflowX = "hidden";
 	}
