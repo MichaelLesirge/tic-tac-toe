@@ -75,10 +75,6 @@ public class Board<T> {
         this.board.get(row).set(col, val);
     }
 
-    protected int getItemsPlaced() {
-        return this.itemsPlaced;
-    }
-
     public boolean isFull() {
         return this.itemsPlaced >= this.size;
     }
