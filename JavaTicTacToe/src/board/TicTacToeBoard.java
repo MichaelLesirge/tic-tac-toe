@@ -5,9 +5,13 @@ import tictactoe.Player;
 public class TicTacToeBoard extends Board<Player> {
     private final static int DEFAULT_SIZE = 3;
 
-    private final int peicesToWinHorizontal;
-    private final int peicesToWinVertical;
-    private final int peicesToWinDiagonal;
+    private final Integer peicesToWinHorizontal;
+    private final Integer peicesToWinVertical;
+    private final Integer peicesToWinDiagonal;
+
+    private final boolean shouldCheckHorizontal;
+    private final boolean shouldCheckVertical;
+    private final boolean shouldCheckDiagonal;
 
     public TicTacToeBoard() {
         this(TicTacToeBoard.DEFAULT_SIZE, TicTacToeBoard.DEFAULT_SIZE);
@@ -17,7 +21,9 @@ public class TicTacToeBoard extends Board<Player> {
      * Construct a width by height board where you win by getting accros the board
      */
     public TicTacToeBoard(int width, int height) {
-        this(width, height, width, height, width == height ? width : -1);
+        // set win the amount in a row you have to get to win to the length of the row
+        // only set a horizontal win condtion if board is perfect square
+        this(width, height, width, height, width == height ? width : null);
     }
 
     /**
@@ -35,13 +41,21 @@ public class TicTacToeBoard extends Board<Player> {
      */
     public TicTacToeBoard(
             int width, int height,
-            int peicesToWinHorizontal, int peicesToWinVertical, int peicesToWindiagonal) {
+            Integer peicesToWinHorizontal, Integer peicesToWinVertical, Integer peicesToWinDiagonal) {
 
         super(width, height);
 
-        this.peicesToWinDiagonal = peicesToWindiagonal;
+        this.shouldCheckHorizontal = peicesToWinHorizontal != null && peicesToWinHorizontal <= this.width;
+
+        this.shouldCheckVertical = peicesToWinVertical != null && peicesToWinVertical <= this.height;
+
+        this.shouldCheckDiagonal = peicesToWinDiagonal != null && (peicesToWinDiagonal <= this.width || peicesToWinDiagonal <= this.height);
+         
         this.peicesToWinHorizontal = peicesToWinHorizontal;
         this.peicesToWinVertical = peicesToWinVertical;
+        this.peicesToWinDiagonal = peicesToWinDiagonal;
+
+        // System.out.println(this.peicesToWinHorizontal + ", " + canWinHorizontal + ", " + shouldCheckHorizontal);
     }
 
     public boolean isTie() {
@@ -49,40 +63,71 @@ public class TicTacToeBoard extends Board<Player> {
     }
 
     public boolean isPlayerWinner(Player player) {
-        // check horizontal
-        if (this.peicesToWinHorizontal != -1) {
+        if (this.shouldCheckHorizontal) {
+            // check horizontal
             for (int row = 0; row < this.height; row++) {
                 int count = 0;
                 for (int col = 0; col < this.width; col++) {
                     if (this.get(row, col) == player) {
-                        count++;
-                        if (count >= this.peicesToWinHorizontal) {
-                            return true;
-                        }
+                        if (++count >= this.peicesToWinHorizontal) return true;
                     }
                 }
             }
         }
 
         // check verticle
-        if (this.peicesToWinVertical != -1) {
+        if (this.shouldCheckVertical) {
             for (int col = 0; col < this.width; col++) {
                 int count = 0;
                 for (int row = 0; row < this.height; row++) {
                     if (this.get(row, col) == player) {
-                        count++;
-                        if (count >= this.peicesToWinVertical) {
-                            return true;
+                        if (++count >= this.peicesToWinVertical) return true;
+                    }
+                }
+            }
+        }
+
+        if (this.shouldCheckDiagonal) {
+            // top left to buttom right
+            for (int i = this.peicesToWinDiagonal - this.height; i < this.width - this.peicesToWinDiagonal + 1; i++) {
+                int count = 0;
+                for (int j = 0; j < this.height; j++) {
+
+                    final int row = i + j;
+                    final int col = j;
+
+                    System.out.println(("(" + i + ", " + j +  ")") + " -> " + ("(" + row + ", " + col +  ")"));
+
+                    if (this.isInBoard(row, col)) {
+                        if (this.get(row, col) == player) {
+                            if (++count >= this.peicesToWinDiagonal) return true;
+                        }
+                    }
+                }
+            }
+
+            // top left to buttom right
+            for (int i = 0; i < this.height + this.peicesToWinDiagonal; i++) {
+                int count = 0;
+                for (int j = 0; j < this.width + this.height - this.peicesToWinDiagonal; j++) {
+
+                    final int row = i - j;
+                    final int col = j;
+
+                    if (this.isInBoard(row, col)) {
+                        if (this.get(row, col) == player) {
+                            if (++count >= this.peicesToWinDiagonal) return true;
                         }
                     }
                 }
             }
         }
 
-        if (this.peicesToWinDiagonal != -1) {
-
-        }
-
         return false;
+    }
+
+    @Override
+    public String toString(int row, int col) {
+        return super.toString(row, col) + " " + "(" + row + ", " + col +  ")";
     }
 }

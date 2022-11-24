@@ -12,16 +12,23 @@ public class Game {
 
         final Player[] players = {
                 new Player('X', Player.Colors.RED),
-                new Player('O', Player.Colors.BLUE),
+                // new Player('O', Player.Colors.BLUE),
         };
 
-        boolean needsValidBoardSizes = true;
-        while (needsValidBoardSizes) {
+        while (board == null) {
             final int width = getValidInt("Enter board width", scanner);
             final int height = getValidInt("Enter board height", scanner);
+
+            final boolean customWinCondition = askYesOrNo("Add custom amount to win amount", scanner);
+
             try {
-                board = new TicTacToeBoard(width, height);
-                needsValidBoardSizes = false;
+                if (customWinCondition) {
+                    final int customWinAmount = getValidInt("Enter peices needed to win", scanner);
+                    board = new TicTacToeBoard(width, height, customWinAmount);
+                }
+                else {
+                    board = new TicTacToeBoard(width, height);
+                }
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
             }
@@ -87,11 +94,7 @@ public class Game {
 
             System.out.println();
 
-            System.out.print("Do you want to play again [Y/n]: ");
-            scanner.nextLine();
-
-            final String keepPlayingMessage = scanner.nextLine().toLowerCase();
-            keepPlaying = keepPlayingMessage.equals("y") || keepPlayingMessage.equals("yes");
+            keepPlaying = askYesOrNo("Play again", scanner);
         }
 
         System.out.println("Goodbye!");
@@ -113,5 +116,13 @@ public class Game {
         }
         return num;
 
+    }
+
+    private static boolean askYesOrNo(final String prompt, final Scanner scanner) {
+        System.out.print(prompt + " [Y/n]: ");
+        scanner.nextLine();
+
+        final String input = scanner.nextLine().toLowerCase();
+        return input.equals("y") || input.equals("yes");
     }
 }
