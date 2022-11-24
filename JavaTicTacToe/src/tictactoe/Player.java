@@ -37,7 +37,12 @@ public class Player {
         this(letter, null);
     }
 
-    Player(char letter, Colors color) {
+    Player(char letter, Colors color) throws IllegalArgumentException {
+        
+        if (Character.isLetter(letter)) {
+            throw new IllegalArgumentException(String.format("letter must be a letter not %s", letter));
+        }
+        
         this.letter = letter;
         this.color = color;
 
