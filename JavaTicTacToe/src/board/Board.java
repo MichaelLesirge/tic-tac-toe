@@ -99,7 +99,7 @@ public class Board<T> {
         this.itemsPlaced++;
     }
 
-    private String toString(int row, int col) {
+    public String toString(int row, int col) {
         return String.valueOf(isEmpty(row, col) ? toLoc(row, col) : get(row, col));
     }
 
