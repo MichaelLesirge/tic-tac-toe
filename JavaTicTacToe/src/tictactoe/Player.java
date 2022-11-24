@@ -39,7 +39,7 @@ public class Player {
 
     Player(char letter, Colors color) throws IllegalArgumentException {
         
-        if (Character.isLetter(letter)) {
+        if (!Character.isLetter(letter)) {
             throw new IllegalArgumentException(String.format("letter must be a letter not %s", letter));
         }
         
