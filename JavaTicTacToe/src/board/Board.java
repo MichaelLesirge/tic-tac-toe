@@ -105,7 +105,11 @@ public class Board<T> {
 
     @Override
     public String toString() {
-        String divider = " | ";
+        final String vertLine = "|";
+        final String horizontalLine = "-";
+        final String intersetionLine = "+";
+
+        String divider = " " + vertLine + " ";
 
         int maxValSize = 1;
 
@@ -134,7 +138,7 @@ public class Board<T> {
             final_rows[row] = " " + String.join(divider, final_row) + " ";
         }
 
-        final String spliter = (("-" + ("-".repeat(maxValSize)) + "-") + "+").repeat(this.width);
+        final String spliter = ((horizontalLine + (horizontalLine.repeat(maxValSize)) + horizontalLine) + intersetionLine).repeat(this.width);
         final String spliterRow = "\n" + spliter.substring(0, spliter.length() - 1) + "\n";
 
         return String.join(spliterRow, final_rows);
