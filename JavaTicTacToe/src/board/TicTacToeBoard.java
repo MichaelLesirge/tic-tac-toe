@@ -89,14 +89,14 @@ public class TicTacToeBoard extends Board<Player> {
 
         if (this.shouldCheckDiagonal) {
             // top left to buttom right
-            for (int i = this.peicesToWinDiagonal - this.height; i < this.width - this.peicesToWinDiagonal + 1; i++) {
+            for (int i = 0; i < (this.width - this.peicesToWinDiagonal) + 1; i++) {
                 int count = 0;
                 for (int j = 0; j < this.height; j++) {
 
-                    final int row = i + j;
-                    final int col = j;
+                    final int row = j;
+                    final int col = i + j;
 
-                    System.out.println(("(" + i + ", " + j +  ")") + " -> " + ("(" + row + ", " + col +  ")"));
+                    System.out.println("a: " + ("(" + i + ", " + j +  ")") + " -> " + ("(" + row + ", " + col +  ")"));
 
                     if (this.isInBoard(row, col)) {
                         if (this.get(row, col) == player) {
@@ -106,13 +106,14 @@ public class TicTacToeBoard extends Board<Player> {
                 }
             }
 
-            // top left to buttom right
-            for (int i = 0; i < this.height + this.peicesToWinDiagonal; i++) {
+            for (int i = 1; i < (this.height - this.peicesToWinDiagonal) + 1; i++) {
                 int count = 0;
-                for (int j = 0; j < this.width + this.height - this.peicesToWinDiagonal; j++) {
+                for (int j = 0; j < this.width; j++) {
 
-                    final int row = i - j;
+                    final int row = i + j;
                     final int col = j;
+
+                    System.out.println("b: " + ("(" + i + ", " + j +  ")") + " -> " + ("(" + row + ", " + col +  ")"));
 
                     if (this.isInBoard(row, col)) {
                         if (this.get(row, col) == player) {
