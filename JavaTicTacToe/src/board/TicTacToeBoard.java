@@ -69,7 +69,12 @@ public class TicTacToeBoard extends Board<Player> {
                 int count = 0;
                 for (int col = 0; col < this.width; col++) {
                     if (this.get(row, col) == player) {
-                        if (++count >= this.peicesToWinHorizontal) return true;
+                        if (++count >= this.peicesToWinHorizontal) {
+                            return true;
+                        }
+                    }
+                    else {
+                        count = 0;
                     }
                 }
             }
@@ -81,7 +86,12 @@ public class TicTacToeBoard extends Board<Player> {
                 int count = 0;
                 for (int row = 0; row < this.height; row++) {
                     if (this.get(row, col) == player) {
-                        if (++count >= this.peicesToWinVertical) return true;
+                        if (++count >= this.peicesToWinVertical) {
+                            return true;
+                        }
+                    }
+                    else {
+                        count = 0;
                     }
                 }
             }
@@ -100,7 +110,12 @@ public class TicTacToeBoard extends Board<Player> {
 
                     if (this.isInBoard(row, col)) {
                         if (this.get(row, col) == player) {
-                            if (++count >= this.peicesToWinDiagonal) return true;
+                            if (++count >= this.peicesToWinDiagonal) {
+                                return true;
+                            }
+                        }
+                        else {
+                            count = 0;
                         }
                     }
                 }
@@ -117,7 +132,12 @@ public class TicTacToeBoard extends Board<Player> {
 
                     if (this.isInBoard(row, col)) {
                         if (this.get(row, col) == player) {
-                            if (++count >= this.peicesToWinDiagonal) return true;
+                            if (++count >= this.peicesToWinDiagonal) {
+                                return true;
+                            }
+                        }
+                        else {
+                            count = 0;
                         }
                     }
                 }
