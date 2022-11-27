@@ -99,36 +99,20 @@ public class TicTacToeBoard extends Board<Player> {
 
         if (this.shouldCheckDiagonal) {
             // top left to buttom right
-            for (int i = 0; i < (this.width - this.peicesToWinDiagonal) + 1; i++) {
+
+            final boolean isWider = this.width >= this.height;
+
+            final int primary = isWider ? this.width : this.height;
+            final int secondary = !isWider ? this.width : this.height;
+
+            for (int i = -this.peicesToWinDiagonal; i < primary - this.peicesToWinDiagonal + 1; i++) {
                 int count = 0;
-                for (int j = 0; j < this.height; j++) {
+                for (int j = 0; j < secondary; j++) {
 
-                    final int row = j;
-                    final int col = i + j;
+                    final int row = j + (!isWider ? i : 0);
+                    final int col = j + (isWider ? i : 0);
 
-                    System.out.println("a: " + ("(" + i + ", " + j +  ")") + " -> " + ("(" + row + ", " + col +  ")"));
-
-                    if (this.isInBoard(row, col)) {
-                        if (this.get(row, col) == player) {
-                            if (++count >= this.peicesToWinDiagonal) {
-                                return true;
-                            }
-                        }
-                        else {
-                            count = 0;
-                        }
-                    }
-                }
-            }
-
-            for (int i = 1; i < (this.height - this.peicesToWinDiagonal) + 1; i++) {
-                int count = 0;
-                for (int j = 0; j < this.width; j++) {
-
-                    final int row = i + j;
-                    final int col = j;
-
-                    System.out.println("b: " + ("(" + i + ", " + j +  ")") + " -> " + ("(" + row + ", " + col +  ")"));
+                    // System.out.println(":tl2br " + ("(" + i + ", " + j +  ")") + " -> " + ("(" + row + ", " + col +  ")"));
 
                     if (this.isInBoard(row, col)) {
                         if (this.get(row, col) == player) {
