@@ -1,6 +1,6 @@
 package board;
 
-import tictactoe.Player;
+import game.Player;
 
 public class TicTacToeBoard extends Board<Player> {
     private final static int DEFAULT_SIZE = 3;

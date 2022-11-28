@@ -1,4 +1,4 @@
-package tictactoe;
+package game;
 
 public class Player {
     public static enum Colors {
