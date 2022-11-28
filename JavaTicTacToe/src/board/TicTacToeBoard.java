@@ -98,30 +98,46 @@ public class TicTacToeBoard extends Board<Player> {
         }
 
         if (this.shouldCheckDiagonal) {
-            // top left to buttom right
-
+            
             final boolean isWider = this.width >= this.height;
-
+            
             final int primary = isWider ? this.width : this.height;
             final int secondary = !isWider ? this.width : this.height;
-
-            for (int i = -this.peicesToWinDiagonal; i < primary - this.peicesToWinDiagonal + 1; i++) {
-                int count = 0;
+            
+            for (int i = this.peicesToWinDiagonal-secondary; i < primary - this.peicesToWinDiagonal + 1; i++) {
+                int countTL2BR = 0;
+                int countTR2BL = 0;
                 for (int j = 0; j < secondary; j++) {
+                    
+                    // top left to buttom right
+                    final int rowTL2BR = isWider ? j : i+j;
+                    final int colTL2BR = isWider ? i+j : j;
+        
+                    // top right to buttom left
+                    final int rowTR2BL = isWider ? j : this.width-(i+j)-1;
+                    final int colTR2BL = isWider ? this.width-(i+j)-1 : j;
 
-                    final int row = j + (!isWider ? i : 0);
-                    final int col = j + (isWider ? i : 0);
+                    // System.out.println(String.format("(%s, %s) ->  tl2br:(%s, %s), tr2bl:(%s, %s)", i, j, rowTL2BR, colTL2BR, rowTR2BL, colTR2BL));
 
-                    // System.out.println(":tl2br " + ("(" + i + ", " + j +  ")") + " -> " + ("(" + row + ", " + col +  ")"));
-
-                    if (this.isInBoard(row, col)) {
-                        if (this.get(row, col) == player) {
-                            if (++count >= this.peicesToWinDiagonal) {
+                    if (this.isInBoard(rowTL2BR, colTL2BR)) {
+                        if (this.get(rowTL2BR, colTL2BR) == player) {
+                            if (++countTL2BR >= this.peicesToWinDiagonal) {
                                 return true;
                             }
                         }
                         else {
-                            count = 0;
+                            countTL2BR = 0;
+                        }
+                    }
+                    
+                    if (this.isInBoard(rowTR2BL, colTR2BL)) {
+                        if (this.get(rowTR2BL, colTR2BL) == player) {
+                            if (++countTR2BL >= this.peicesToWinDiagonal) {
+                                return true;
+                            }
+                        }
+                        else {
+                            countTR2BL = 0;
                         }
                     }
                 }
