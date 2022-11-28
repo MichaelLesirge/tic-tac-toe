@@ -12,7 +12,7 @@ public class Game {
 
         final Player[] players = {
                 new Player('X', Player.Colors.RED),
-                // new Player('O', Player.Colors.BLUE),
+                new Player('O', Player.Colors.BLUE),
         };
 
         while (board == null) {
