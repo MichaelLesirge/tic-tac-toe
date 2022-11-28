@@ -7,6 +7,9 @@
 #include <string>
 #include <map>
 
+#define PRINT(x) std::cout << x
+#define PRINTLN(x) std::cout << x << "\n"
+
 using String = std::string;
 
 class Board
@@ -82,7 +85,7 @@ public:
             out.push_back('\n');
         }
 
-        return out;
+        return out.erase(out.length()-1);
     }
 };
 
@@ -131,7 +134,7 @@ int main()
     const size_t playerCount = 2;
     const char players[playerCount] = {'X', 'O'};
 
-    printf("This project is incomplete.\n\n");
+    PRINTLN("This project is incomplete.");
 
     String playAgain;
     do
@@ -142,8 +145,7 @@ int main()
 
         while (true)
         {
-            printf("\n");
-            printf(board.toString().c_str());
+            PRINTLN("\n" + board.toString() + "\n");
 
             bool hasGotValidInput = false;
 
@@ -152,7 +154,7 @@ int main()
             while (!hasGotValidInput)
             {   
                 String choice;
-                printf("Turn %s. Where do you want to go: ", turnCount);
+                printf("Turn %s. Where do you want to go: ", std::to_string(turnCount).c_str());
                 std::getline(std::cin, choice);
 
                 if (choice == "QUIT")
@@ -172,7 +174,7 @@ int main()
                 }
                 catch (const std::invalid_argument &ex)
                 {
-                    printf(ex.what());
+                    PRINTLN(ex.what());
                 }
             }
 
@@ -180,11 +182,11 @@ int main()
 
             if (board.getCell(1, 1) == currentPlayer)
             {
-                printf("Player %s.", currentPlayer);
+                PRINTLN("\n" + board.toString() + "\n");
             }
         }
 
-        printf(board.toString().c_str());
+        PRINTLN(board.toString());
 
         std::cout << "Do you want to play agien: [Y/n] ";
         std::cin >> playAgain;
