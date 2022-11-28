@@ -136,8 +136,9 @@ int main()
 
     PRINTLN("This project is incomplete.");
 
-    String playAgain;
-    do
+    bool playAgain = true;
+
+    while (playAgain)
     {
         board.reset();
 
@@ -154,7 +155,7 @@ int main()
             while (!hasGotValidInput)
             {   
                 String choice;
-                printf("Turn %s. Where do you want to go: ", std::to_string(turnCount).c_str());
+                printf("Turn %s. Where do you want to go: ", std::to_string(turnCount+1).c_str());
                 std::getline(std::cin, choice);
 
                 if (choice == "QUIT")
@@ -188,8 +189,20 @@ int main()
 
         PRINTLN(board.toString());
 
-        std::cout << "Do you want to play agien: [Y/n] ";
-        std::cin >> playAgain;
+        if (board.isBoardFull()) {
+            PRINTLN("Its a tie");
+            playAgain = false;
+        }
+        else if (false) {
+            playAgain = false;
+        }
+        else {
+            String wantsToPlayAgain;
 
-    } while (playAgain == "y" || playAgain == "Y");
+            std::cout << "Do you want to play agien: [Y/n] ";
+            std::cin >> wantsToPlayAgain;
+
+            playAgain = wantsToPlayAgain == "y" || wantsToPlayAgain == "Y";
+        }
+    }
 }
