@@ -187,7 +187,7 @@ int main()
 
                 if (choice == "QUIT")
                 {
-                    PRINTLN("Good Bye");
+                    PRINTLN("Good Bye! :(");
                     exit(0);
                 }
 
