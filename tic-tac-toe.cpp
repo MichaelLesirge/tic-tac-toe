@@ -52,7 +52,7 @@ public:
         }
     }
 
-    bool isBoardFull() const
+    bool isFull() const
     {
         return placed >= TOTAL_SIZE;
     }
@@ -181,30 +181,24 @@ int main()
                 }
             }
 
-            turnCount++;
-
-            if (board.getCell(1, 1) == currentPlayer)
-            {
-                PRINTLN("\n" + board.toString() + "\n");
+            if (board.isFull()) {
+                PRINTLN("Its a tie");
+                playAgain = false;
             }
-        }
+            else if (false) {
+                playAgain = false;
+            }
+
+                turnCount++;
+            }
 
         PRINTLN(board.toString());
 
-        if (board.isBoardFull()) {
-            PRINTLN("Its a tie");
-            playAgain = false;
-        }
-        else if (false) {
-            playAgain = false;
-        }
-        else {
-            String wantsToPlayAgain;
+        String wantsToPlayAgain;
 
-            std::cout << "Do you want to play agien: [Y/n] ";
-            std::cin >> wantsToPlayAgain;
+        std::cout << "Do you want to play agien: [Y/n] ";
+        std::cin >> wantsToPlayAgain;
 
-            playAgain = wantsToPlayAgain == "y" || wantsToPlayAgain == "Y";
-        }
+        playAgain = wantsToPlayAgain == "y" || wantsToPlayAgain == "Y";
     }
 }
