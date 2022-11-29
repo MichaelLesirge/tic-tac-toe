@@ -93,13 +93,15 @@ const std::map<String, size_t> verticalInputMapper = {
     {"top", 0},
     {"center", 1},
     {"middle", 1},
-    {"buttom", 2}};
+    {"buttom", 2},
+};
 
 const std::map<String, size_t> horizontalInputMapper = {
     {"left", 0},
     {"center", 1},
     {"middle", 1},
-    {"right", 2}};
+    {"right", 2},
+};
 
 void getPosInput(const String &s, size_t &choiceX, size_t &choiceY)
 {
