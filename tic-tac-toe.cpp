@@ -34,6 +34,10 @@ private:
         return board[i][j];
     }
 
+    void incIfEqual(size_t i, size_t j, char val, size_t& counter) {
+        if (get(i, j) == val) counter++;
+    }
+
 public:
     Board()
     {
@@ -55,6 +59,26 @@ public:
     bool isFull() const
     {
         return placed >= TOTAL_SIZE;
+    }
+
+    bool isPlayerWinner(char player) {
+        size_t hCount = 0;
+        size_t vCount = 0;
+        size_t dlrCount = 0;
+        size_t drlCount = 0;
+        for (size_t i = 0; i < SIZE; i++)
+        {   
+            incIfEqual(i, i, player, dlrCount);
+            incIfEqual(i, SIZE-i-1, player, drlCount);
+            for (size_t j = 0; j < SIZE; j++)
+            {
+                incIfEqual(i, j, player, hCount);
+                incIfEqual(j, i, player, vCount);
+            }
+        }
+        PRINTLN(hCount << ", " << vCount << ", " << dlrCount << ", " << drlCount);
+        return hCount >= SIZE || vCount >= SIZE || dlrCount >= SIZE || drlCount >= SIZE;
+        
     }
 
     void placeCell(size_t x, size_t y, char val)
@@ -146,7 +170,8 @@ int main()
 
         size_t turnCount = 0;
 
-        while (true)
+        bool playing = true;
+        while (playing)
         {
             PRINTLN("\n" + board.toString() + "\n");
 
@@ -157,12 +182,12 @@ int main()
             while (!hasGotValidInput)
             {   
                 String choice;
-                printf("Turn %s. Where do you want to go: ", std::to_string(turnCount+1).c_str());
+                PRINT("Where do you want to go: ");
                 std::getline(std::cin, choice);
 
                 if (choice == "QUIT")
                 {
-                    printf("Good Bye");
+                    PRINTLN("Good Bye");
                     exit(0);
                 }
 
@@ -170,7 +195,7 @@ int main()
                 {
                     size_t choiceX;
                     size_t choiceY;
-                    getPosInput(choice, choiceX, choiceY);
+                    getPosInput(choice, choiceX, choiceY); // store x and y pos in choiceX and choiceY
                     board.placeCell(choiceX, choiceY, currentPlayer); // placeCell current player at choice X, Y
 
                     hasGotValidInput = true;
@@ -183,16 +208,17 @@ int main()
 
             if (board.isFull()) {
                 PRINTLN("Its a tie");
-                playAgain = false;
+                playing = false;
             }
-            else if (false) {
-                playAgain = false;
-            }
-
-                turnCount++;
+            else if (board.isPlayerWinner(currentPlayer)) {
+                PRINTLN("Player " << currentPlayer << " wins!");
+                playing = false;
             }
 
-        PRINTLN(board.toString());
+            turnCount++;
+        }
+
+        PRINTLN("\n" + board.toString() + "\n");
 
         String wantsToPlayAgain;
 
@@ -200,5 +226,6 @@ int main()
         std::cin >> wantsToPlayAgain;
 
         playAgain = wantsToPlayAgain == "y" || wantsToPlayAgain == "Y";
+        std::cin.get();
     }
 }
