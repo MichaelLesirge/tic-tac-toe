@@ -302,7 +302,11 @@ class Board {
 	}
 
 	isOverflowing() {
-		return this.getCell(0, 0).el.getBoundingClientRect().left < 0 || this.getCell(this.width-1, 0).el.getBoundingClientRect().right > (window.innerWidth || document.documentElement.clientWidth);
+		return (
+			this.getCell(0, 0).el.getBoundingClientRect().left < 0 ||
+			this.getCell(this.width - 1, 0).el.getBoundingClientRect().right >
+				(window.innerWidth || document.documentElement.clientWidth)
+		);
 	}
 
 	toggleCords() {
@@ -454,7 +458,7 @@ fixOverflow();
 window.onresize = fixOverflow;
 
 // zoom in / out
-(() => {
+{
 	const zoomScaleChangeAmount = 1;
 
 	const RepeatDelayMs = 500;
@@ -462,57 +466,72 @@ window.onresize = fixOverflow;
 
 	const maxScaleVal = 500;
 
-	const zoomScaleDisplay = document.getElementById("zoom-scale-display");
+	{
 
-	const startingScale = parseInt(board.getCssVar("starting-zoom-scale"));
+		const zoomScaleDisplay = document.getElementById("zoom-scale-display");
 
-	let zoomScale = parseInt(board.getCssVar("zoom-scale"));
+		const startingScale = parseInt(board.getCssVar("starting-zoom-scale"));
 
-	const maxScale = maxScaleVal + startingScale - 100;
+		let zoomScale = localStorage.getItem("zoomScale");
+		if (zoomScale === null) {
+			zoomScale = parseInt(board.getCssVar("zoom-scale"));
+		}
 
-	const zoomInBtn = document.getElementById("zoom-in");
-	const zoomOutBtn = document.getElementById("zoom-out");
+		const maxScale = maxScaleVal + startingScale - 100;
 
-	function changeZoomScale(by) {
-		zoomScale = Math.min(Math.max(zoomScale + by, 1), maxScale);
+		const zoomInBtn = document.getElementById("zoom-in");
+		const zoomOutBtn = document.getElementById("zoom-out");
 
-		zoomScaleDisplay.innerText = 100 - startingScale + zoomScale;
+		function setZoomScale(x) {
+			zoomScale = Math.min(Math.max(x, 1), maxScale);
 
-		fixOverflow();
-		board.setCssVar("zoom-scale", zoomScale + "vmin");
-		
-		zoomOutBtn.disabled = zoomScale === 1;
-		zoomInBtn.disabled = zoomScale === maxScale;
+			zoomScaleDisplay.innerText = 100 - startingScale + zoomScale;
 
-		fixOverflow();
-	}
+			fixOverflow();
+			localStorage.setItem("zoomScale", zoomScale);
 
-	function addHeldEventListener(btn, func) {
-		let id;
-		["mousedown", "touchstart"].forEach((event) => {
-			btn.addEventListener(event, (e) => {
-				e.stopPropagation();
-				func();
-				const startTime = new Date().getTime();
-				let last = false;
-				id = setInterval(() => {
-					if (btn.disabled) clearInterval(id);
-					if (last || startTime + RepeatDelayMs < new Date().getTime()) {
-						last = true;
-						func();
-					}
-				}, repeatRateMs);
+			board.setCssVar("zoom-scale", x + "vmin");
+
+			zoomOutBtn.disabled = zoomScale === 1;
+			zoomInBtn.disabled = zoomScale === maxScale;
+
+			fixOverflow();
+		}
+
+		function changeZoomScale(by) {
+			setZoomScale(zoomScale + by);
+		}
+
+		function addHeldEventListener(btn, func) {
+			let id;
+			["mousedown", "touchstart"].forEach((event) => {
+				btn.addEventListener(event, (e) => {
+					e.stopPropagation();
+					func();
+					const startTime = new Date().getTime();
+					let last = false;
+					id = setInterval(() => {
+						if (btn.disabled) clearInterval(id);
+						if (last || startTime + RepeatDelayMs < new Date().getTime()) {
+							last = true;
+							func();
+						}
+					}, repeatRateMs);
+				});
 			});
-		});
 
-		["mouseup", "touchend", "mouseleave"].forEach((event) => {
-			btn.addEventListener(event, (e) => clearInterval(id));
-		});
+			["mouseup", "touchend", "mouseleave"].forEach((event) => {
+				btn.addEventListener(event, (e) => clearInterval(id));
+			});
+		}
+
+		
+		setZoomScale(zoomScale);
+	
+		addHeldEventListener(zoomInBtn, () => changeZoomScale(zoomScaleChangeAmount));
+		addHeldEventListener(zoomOutBtn, () => changeZoomScale(-zoomScaleChangeAmount));
 	}
-
-	addHeldEventListener(zoomInBtn, () => changeZoomScale(zoomScaleChangeAmount));
-	addHeldEventListener(zoomOutBtn, () => changeZoomScale(-zoomScaleChangeAmount));
-})();
+};
 
 window.onbeforeunload = () => {
 	if (board.isMidGame())
