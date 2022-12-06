@@ -19,7 +19,7 @@ public class Game {
             final int width = getValidInt("Enter board width", scanner);
             final int height = getValidInt("Enter board height", scanner);
 
-            final boolean customWinCondition = askYesOrNo("Add custom amount to win amount", scanner);
+            final boolean customWinCondition = askYesOrNo("Add custom amount to win", scanner);
 
             try {
                 if (customWinCondition) {
