@@ -114,7 +114,6 @@ public class Board<T> {
             final int[] row_lengths = new int[this.width];
             for (int col = 0; col < width; col++) {
                 final int len = toString(row, col).replaceAll("\u001B\\[[;\\d]*m", "").length();
-                ;
                 maxValSize = Math.max(maxValSize, len);
                 row_lengths[col] = len;
             }
