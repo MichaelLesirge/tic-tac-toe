@@ -8,6 +8,12 @@ def create_board(*dimentions):
 class Board:
     def __init__(self, *dimentions) -> None:
         self.board = create_board(*dimentions)
-        print(self.board)
+        self.dimentions = dimentions
 
-Board(4, 3, 2)
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}{str(self.dimentions)}"
+    
+
+
+x = Board(4)
+print(x)
