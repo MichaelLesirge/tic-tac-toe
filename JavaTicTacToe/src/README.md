@@ -1,0 +1,1 @@
+The goal of this project was to learn the most about Java as I could in one project so I made it meaninglessly overcomplicated just for the sake of it. 

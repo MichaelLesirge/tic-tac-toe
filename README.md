@@ -6,8 +6,8 @@ Every time I learn a new programming langauge well enough I try to create a vers
 
 [Run Python game](https://www.programiz.com/python-programming/online-compiler/) (tic-tac-toe.py).  
 [Run C++ game](https://www.programiz.com/cpp-programming/online-compiler/) (tic-tac-toe.cpp).  
-Just copy and paste it into the main file and hit run.  
+Just copy and paste it into the main file and hit run. This only works with easly with the 1 file games.
 
 ## Plans
 
-This directory kind of empty currently but I am tring to learn C++. I also want to learn Java, C#, and Go at some point.
+I probbly wont make any new ones of these for a while so I can get better at the stuff I sort of know but when I do feel like learning a new langage it will probbly either be TypeScript, Go, C#, or maybe even Rust.
