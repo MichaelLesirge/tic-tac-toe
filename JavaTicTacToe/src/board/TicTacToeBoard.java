@@ -114,10 +114,10 @@ public class TicTacToeBoard extends Board<Player> {
                     final int colTL2BR = isWider ? i+j : j;
         
                     // top right to buttom left
-                    final int rowTR2BL = isWider ? j : this.width-(i+j)-1;
-                    final int colTR2BL = isWider ? this.width-(i+j)-1 : j;
+                    final int rowTR2BL = isWider ? j : primary-(i+j)-1;
+                    final int colTR2BL = isWider ? primary-(i+j)-1 : j;
 
-                    // System.out.println(String.format("(%s, %s) ->  tl2br:(%s, %s), tr2bl:(%s, %s)", i, j, rowTL2BR, colTL2BR, rowTR2BL, colTR2BL));
+                    System.out.println(String.format("(%s, %s) ->  tl2br:(%s, %s), tr2bl:(%s, %s)", i, j, rowTL2BR, colTL2BR, rowTR2BL, colTR2BL));
 
                     if (this.isInBoard(rowTL2BR, colTL2BR)) {
                         if (this.get(rowTL2BR, colTL2BR) == player) {
@@ -147,8 +147,8 @@ public class TicTacToeBoard extends Board<Player> {
         return false;
     }
 
-    // @Override
-    // public String toString(int row, int col) {
-    //     return super.toString(row, col) + " " + "(" + row + ", " + col +  ")";
-    // }
+    @Override
+    public String toString(int row, int col) {
+        return super.toString(row, col) + " " + "(" + row + ", " + col +  ")";
+    }
 }

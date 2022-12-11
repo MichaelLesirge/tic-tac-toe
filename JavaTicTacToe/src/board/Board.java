@@ -128,7 +128,7 @@ public class Board<T> {
                 final int needed_padding = maxValSize - rows_lengths[row][col];
                 String half = " ".repeat(Math.floorDiv(needed_padding, 2));
                 String extra = ((needed_padding % 2 == 0) ? "" : " ");
-                final_row[col] = half + val + half + extra;
+                final_row[col] = half + extra + val + half;
             }
             final_rows[row] = " " + String.join(divider, final_row) + " ";
         }
