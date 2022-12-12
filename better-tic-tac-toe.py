@@ -47,7 +47,6 @@ class Cell:
         if len(self.indexs) == 0:
             return ""
 
-
         to_int_amount = min(self.to_int_chars, len(self.indexs))
 
         letters = "".join([ALPHABET[index] for index in self.indexs[:-to_int_amount]])
@@ -78,8 +77,11 @@ class Board:
 
         self.step_amount = 2
 
-        self.offset = 1
-        self.cell_size = len(str((self.dimentions[0] if len(self.dimentions) > 0 else 0) * (self.dimentions[1] if len(self.dimentions) > 1 else 1))) + (len(self.dimentions)-2 if len(self.dimentions) > 2 else 0)
+        buttom_cell = self.board
+        while isinstance(buttom_cell, list):
+            buttom_cell = buttom_cell[-1]
+
+        self.cell_size = len(str(buttom_cell))
 
         # signle line - ASKII
         self.verticle_line_char, self.horizontal_line_char, self.cross_line_char = "│", "─", "┼"
@@ -89,6 +91,8 @@ class Board:
 
         # simple - UTF-8
         # self.verticle_line_char, self.horizontal_line_char, self.cross_line_char = "|", "+", "-"
+
+        self.str_template = self._create_template()
 
     def get(self, indexes: list[int]) -> str:
         if len(indexes) != len(self.dimentions):
@@ -111,13 +115,47 @@ class Board:
             val = val[index]
         val[indexes[-1]] = value
 
+    def _create_template(self) -> str:
+        # luckly this only happens once so it does not need to be super efficent
+
+        def create_template(v, make_horizontal) -> str | list:
+            if not isinstance(v, list):
+                return "%s"
+
+            # Maybe try going up the chain not down it
+            v = [create_template(item, not make_horizontal) for item in v]
+
+            if make_horizontal:
+                rows = [item.split("\n") for item in v]
+                sep = " " + self.verticle_line_char + " "
+
+                if len(rows[0]) == 1:
+                    return " " + (sep).join(v) + " "
+
+                final = ""
+
+                for i in range(len(rows[0])):
+                    final += sep.join([item[i] for item in rows])
+                    final += "\n"
+
+                return final
+
+            else:
+                cells_count = v[0].count("%s")
+
+                sep = self.horizontal_line_char * (self.cell_size + 2)
+
+                return ("\n" + (self.cross_line_char.join([sep] * cells_count)) + "\n").join(v)
+
+        return create_template(self.board, len(self.dimentions) % 2 == 1)
+
     def __repr__(self) -> str:
         return f"<'{__name__}.{self.__class__.__name__}' board={self.board}, dimentions={self.dimentions}>"
 
     def __str__(self) -> str:
-        return repr(self)
+        return self.str_template.replace("%s", " " * self.cell_size)
 
-board = Board([2, 2, 2, 2])
-print(board.board)
-print()
+
+size = [3, 3, 3, 3]
+board = Board(list(reversed(size)))
 print(board)
