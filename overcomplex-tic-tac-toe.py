@@ -3,6 +3,10 @@ from math import ceil
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
+print("THIS IS A WORK IN PROGRESS")
+print("Try a different project for now")
+print()
+
 def create_n_dimentional_list(dimentions: list[int], fill_factory, *, indexs = None) -> list:
     if indexs is None:
         indexs = []
@@ -72,8 +76,8 @@ class Board:
     def __init__(self, dimentions: list[int]) -> None:
         if any([item == 0 for item in dimentions]):
             dimentions = []
-        if len(dimentions) > 3:
-            raise ValueError(f"Why one earth do you want to play {len(dimentions)}D tic-tac-toe?")
+        # if len(dimentions) > 3:
+        #     raise ValueError(f"Why one earth do you want to play {len(dimentions)}D tic-tac-toe?")
 
         self.dimentions = dimentions
         self.board = create_n_dimentional_list(self.dimentions, lambda indexs: Cell(indexs, self.dimentions))
@@ -163,6 +167,6 @@ class Board:
         return self.str_template.replace("%s", " " * self.cell_size)
 
 
-size = [3, 3, 3, 3]
+size = [3, 3, 3]
 board = Board(list(reversed(size)))
 print(board)
