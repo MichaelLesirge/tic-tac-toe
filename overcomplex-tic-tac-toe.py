@@ -72,6 +72,9 @@ class Board:
     def __init__(self, dimentions: list[int]) -> None:
         if any([item == 0 for item in dimentions]):
             dimentions = []
+        if len(dimentions) > 3:
+            raise ValueError(f"Why one earth do you want to play {len(dimentions)}D tic-tac-toe?")
+
         self.dimentions = dimentions
         self.board = create_n_dimentional_list(self.dimentions, lambda indexs: Cell(indexs, self.dimentions))
 
@@ -141,11 +144,14 @@ class Board:
                 return final
 
             else:
-                cells_count = v[0].count("%s")
+                if isinstance(v[0], str):
+                    count = v[0].count("%s")
+                else:
+                    count = len(v[0]) + 1
 
                 sep = self.horizontal_line_char * (self.cell_size + 2)
 
-                return ("\n" + (self.cross_line_char.join([sep] * cells_count)) + "\n").join(v)
+                return ("\n" + (self.cross_line_char.join([sep] * count)) + "\n").join(v)
 
         return create_template(self.board, len(self.dimentions) % 2 == 1)
 
@@ -153,6 +159,7 @@ class Board:
         return f"<'{__name__}.{self.__class__.__name__}' board={self.board}, dimentions={self.dimentions}>"
 
     def __str__(self) -> str:
+        print(self.board)
         return self.str_template.replace("%s", " " * self.cell_size)
 
 
