@@ -101,9 +101,12 @@ public class Board<T> {
 
     @Override
     public String toString() {
-        final String vertLine = "|";
-        final String horizontalLine = "-";
-        final String intersetionLine = "+";
+        // final String vertLine = "|";
+        // final String horizontalLine = "-";
+        // final String intersetionLine = "+";
+        final String vertLine = "│";
+        final String horizontalLine = "─";
+        final String intersetionLine = "┼";
 
         String divider = " " + vertLine + " ";
 
