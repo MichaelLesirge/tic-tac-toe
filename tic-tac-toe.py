@@ -13,15 +13,18 @@ def main():
     if bool_input("Do you want a custom board"):
         message = "Enter the %s of the board: "
         width, height = int_input(message % "width"), int_input(message % "height")
-        board = Board(width, height)
     else:
-        board = Board()
-    Player.board = board
+        width, height = Board.DEFAULT_SIZE, Board.DEFAULT_SIZE 
 
     print()
 
-    if bool_input("Do you want a custom win condtion"):
-        pass
+    if bool_input("Do you want a custom win condition"):
+        peices_to_win = int_input("Enter peices to win: ")
+        peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = peices_to_win, peices_to_win, peices_to_win
+    else:
+        peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = width, height, (width if width == height else None)
+
+    board = Board(width, height, peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal)
 
     print()
 
@@ -82,10 +85,22 @@ class Board:
     DEFAULT_SIZE = 3
     OFFSET = 1
 
-    def __init__(self, width=DEFAULT_SIZE, height=DEFAULT_SIZE):
+    def __init__(self, width: int, height: int, peices_to_win_horizontal: int, peices_to_win_verticle: int, peices_to_win_diagnal: int):
         self.width: int = width
         self.height: int = height
         self.size: int = (self.width * self.height)
+
+        self.should_check_horizontal = (peices_to_win_horizontal != None) and (peices_to_win_horizontal <= self.width)
+
+        self.should_check_verticle = (peices_to_win_verticle != None) and (peices_to_win_verticle <= self.height)
+
+        self.should_check_diagonal = (peices_to_win_diagnal != None) and (peices_to_win_diagnal <= self.width or peices_to_win_diagnal <= self.height)
+         
+        self.peices_to_win_horizontal = peices_to_win_horizontal
+        self.peices_to_win_verticle = peices_to_win_verticle
+        self.peices_to_win_diagnal = peices_to_win_diagnal
+
+        self.max_cell_size = len(str(self.size))
 
         self.placed: int
         self.board: list[list]
@@ -96,20 +111,84 @@ class Board:
         self.board = [[None for col in range(self.width)]
                       for row in range(self.height)]
 
-    def is_valid_location(self, row, col) -> bool:
+    def is_valid_location(self, row: int, col: int) -> bool:
         return (row < self.height) and (col < self.width)
 
-    def is_empty_location(self, row, col) -> bool:
+    def is_empty_location(self, row: int, col: int) -> bool:
         return self.board[row][col] is None
 
     def is_full(self) -> bool:
         return self.placed >= self.size
 
-    def is_winner(self, player) -> bool:
-        # todo
+    def is_winner(self, player: "Player") -> bool:
+        if self.should_check_horizontal:
+            for row in range(self.height):
+                count = 0
+                for col in range(self.width):
+                    if self.get(row, col) == player:
+                        count += 1
+                        if count >= self.peices_to_win_horizontal:
+                            return True
+                    else:
+                        count = 0
+
+        if self.should_check_verticle:
+            for col in range(self.width):
+                count = 0
+                for row in range(self.height):
+                    if self.get(row, col) == player:
+                        count += 1
+                        if count >= self.peices_to_win_verticle:
+                            return True
+                    else:
+                        count = 0
+
+        if self.should_check_diagonal:
+            isWider = self.width >= self.height
+            primary = self.width if isWider else self.height
+            secondary = self.width if not isWider else self.height
+
+            for i in range(self.peices_to_win_diagnal - secondary, primary - self.peices_to_win_diagnal + 1):
+                countTL2BR = 0
+                countTR2BL = 0
+                for j in range(secondary):
+                    # top left to buttom right
+                    rowTL2BR = j if isWider else i + j
+                    colTL2BR = i + j if isWider else j
+
+                    # top right to buttom left
+                    rowTR2BL = j if isWider else primary - (i + j) - 1
+                    colTR2BL = primary - (i + j) - 1 if isWider else j
+
+                    # print(f'({i}, {j}) ->  tl2br:({rowTL2BR}, {colTL2BR}), tr2bl:({rowTR2BL}, {colTR2BL})')
+
+                    if self.is_valid_location(rowTL2BR, colTL2BR):
+                        if self.get(rowTL2BR, colTL2BR) == player:
+                            countTL2BR += 1
+                            if countTL2BR >= self.peices_to_win_diagnal:
+                                return True
+                        else:
+                            countTL2BR = 0
+
+                    if self.is_valid_location(rowTR2BL, colTR2BL):
+                        if self.get(rowTR2BL, colTR2BL) == player:
+                            countTR2BL += 1
+                            if countTR2BL >= self.peices_to_win_diagnal:
+                                return True
+                        else:
+                            countTR2BL = 0
+
         return False
 
-    def place(self, loc: int, val: "Player"):
+
+    def get(self, row: int, col: int):
+        return self.board[row][col]
+
+    def set(self, row: int, col: int, val) -> None:
+        self.board[row][col] = val
+        
+
+    def place(self, loc: int, player: "Player") -> None:
         loc -= self.OFFSET
 
         row = loc // self.width
@@ -120,7 +199,7 @@ class Board:
         if not self.is_empty_location(row, col):
             raise ValueError("location is already occupied")
 
-        self.board[row][col] = val
+        self.board[row][col] = player
 
         self.placed += 1
 
@@ -128,8 +207,8 @@ class Board:
         return f"{self.__class__.__name__}({self.board})"
 
     def __str__(self):
-        # I'm so sorry future self, but I realised it was possible and this projected does not matter so I just did it.
-        return "\n" + (("\n" + "┼".join(["-" + ("-" * len(str(self.size))) + "-"] * self.width) + "-" + "\n").join([" " + ((" " + "│" + " ").join([centered_padding(str(item if item is not None else ((i*self.width)+j+self.OFFSET)), len(str(self.size))) for j, item in enumerate(row)]) + " ") for i, row in enumerate(self.board)])) + "\n"
+        # I'm so sorry future self, but I realised it was possible and this project does not matter so I just did it.
+        return "\n" + (("\n" + "┼".join(["─" + ("─" * self.max_cell_size) + "─"] * self.width) + "─" + "\n").join([" " + ((" " + "│" + " ").join([centered_padding(item if item is not None else str((i*self.width)+j+self.OFFSET), self.max_cell_size) for j, item in enumerate(row)]) + " ") for i, row in enumerate(self.board)])) + "\n"
 
 
 class Player:
@@ -175,6 +254,9 @@ class Player:
             except ValueError as exs:
                 print_invalid(exs)
 
+    def __len__(self) -> int:
+        return 1
+
     def __repr__(self):
         return f"{self.__class__.__name__}(char={self.char}, wins={self.wins})"
 
@@ -184,11 +266,10 @@ class Player:
         return self.char
 
 
-def centered_padding(val, amount, *, buffer=" "):
-    amount -= (1 if isinstance(val, Player) else len(val))
+def centered_padding(val: str, amount, *, buffer=" "):
+    amount -= len(val)
 
     side_amount, extra = divmod(amount, 2)
-
     return (buffer * (side_amount + extra)) + str(val) + (buffer * side_amount)
 
 
