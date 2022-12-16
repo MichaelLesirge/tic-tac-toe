@@ -63,6 +63,8 @@ public class Player {
 
         if (this.color == null) return letter;
 
-        return this.color + String.valueOf(this.letter) + Player.Colors.RESET;
+        final String boldCode = "\033[1m";
+
+        return this.color + boldCode + String.valueOf(this.letter) + Player.Colors.RESET;
     }
 }
