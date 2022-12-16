@@ -11,7 +11,7 @@ def main():
     Player.color_mode = True
 
     if bool_input("Do you want a custom board"):
-        message = "Enter the %s of the board: "
+        message = "Enter the %s of the board"
         width, height = int_input(message % "width"), int_input(message % "height")
     else:
         width, height = Board.DEFAULT_SIZE, Board.DEFAULT_SIZE 
@@ -19,7 +19,7 @@ def main():
     print()
 
     if bool_input("Do you want a custom win condition"):
-        peices_to_win = int_input("Enter peices to win: ")
+        peices_to_win = int_input("Enter peices to win")
         peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = peices_to_win, peices_to_win, peices_to_win
     else:
         peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = width, height, (width if width == height else None)
@@ -30,7 +30,7 @@ def main():
 
     players: list[Player] = []
     if bool_input("Do you want a custom players"):
-        for i in range(1, int_input("Enter the number of players: ") + 1):
+        for i in range(1, int_input("Enter the number of players") + 1):
             print()
             print(f"Player {i}")
             new_player = create_player()
@@ -278,11 +278,13 @@ def print_invalid(exs):
 
 
 def bool_input(prompt):
-    user_input = input(prompt + " (y/n): ").strip().lower()
+    prompt += " (y/n): "
+    user_input = input(prompt).strip().lower()
     return user_input in ("y", "yes", "true")
 
 
 def int_input(prompt):
+    prompt += ": "
     while True:
         try:
             user_input = int(input(prompt).strip())
