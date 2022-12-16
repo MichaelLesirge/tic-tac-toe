@@ -17,7 +17,13 @@ public class Game {
 
         while (board == null) {
             final int width = getValidInt("Enter board width", scanner);
+            
+            if (width > 30) {
+                System.out.println("\u001B[33mWarning: Board width might be to big for console size. Line overflow may make board appear distorted.\u001B[0m");
+            }
+
             final int height = getValidInt("Enter board height", scanner);
+
 
             final boolean customWinCondition = askYesOrNo("Add custom amount to win", scanner);
 
