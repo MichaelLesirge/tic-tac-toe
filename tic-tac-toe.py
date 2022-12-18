@@ -2,7 +2,7 @@
 # https://www.programiz.com/python-programming/online-compiler/
 
 def main():
-    print("Welcome to tic-tac-toe with python!")
+    print("Welcome to tic-tac-toe with Python!")
 
     # color_mode = bool_input("Does you console support ASCII color codes if your not sure, \u001b[31mis this red for you\033[0m")
     # Player.color_mode = color_mode
@@ -115,7 +115,7 @@ class Board:
         return (row < self.height) and (col < self.width)
 
     def is_empty_location(self, row: int, col: int) -> bool:
-        return self.board[row][col] is None
+        return self.get(row, col) is None
 
     def is_full(self) -> bool:
         return self.placed >= self.size
@@ -199,7 +199,7 @@ class Board:
         if not self.is_empty_location(row, col):
             raise ValueError("location is already occupied")
 
-        self.board[row][col] = player
+        self.set(row, col, player)
 
         self.placed += 1
 
@@ -254,9 +254,6 @@ class Player:
             except ValueError as exs:
                 print_invalid(exs)
 
-    def __len__(self) -> int:
-        return 1
-
     def __repr__(self):
         return f"{self.__class__.__name__}(char={self.char}, wins={self.wins})"
 
@@ -266,8 +263,8 @@ class Player:
         return self.char
 
 
-def centered_padding(val: str, amount, *, buffer=" "):
-    amount -= len(val)
+def centered_padding(val: str | Player, amount, *, buffer=" "):
+    amount -= 1 if isinstance(val, Player) else len(val)
 
     side_amount, extra = divmod(amount, 2)
     return (buffer * (side_amount + extra)) + str(val) + (buffer * side_amount)
