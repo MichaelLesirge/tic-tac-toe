@@ -10,34 +10,11 @@ def main():
 
     Player.color_mode = True
 
-    if bool_input("Do you want a custom board"):
-        message = "Enter the %s of the board"
-        width, height = int_input(message % "width"), int_input(message % "height")
-    else:
-        width, height = Board.DEFAULT_SIZE, Board.DEFAULT_SIZE 
+    board = make_board()
 
     print()
 
-    if bool_input("Do you want a custom win condition"):
-        peices_to_win = int_input("Enter peices to win")
-        peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = peices_to_win, peices_to_win, peices_to_win
-    else:
-        peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = width, height, (width if width == height else None)
-
-    board = Board(width, height, peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal)
-
-    print()
-
-    players: list[Player] = []
-    if bool_input("Do you want a custom players"):
-        for i in range(1, int_input("Enter the number of players") + 1):
-            print()
-            print(f"Player {i}")
-            new_player = create_player()
-            players.append(new_player)
-    else:
-        players.append(Player("X", "red"))
-        players.append(Player("O", "blue"))
+    players = make_players()
 
     print()
 
@@ -79,6 +56,54 @@ def main():
         playing = bool_input("Do you want to play again")
 
     print("Good Bye!")
+
+def make_board() -> "Board":
+    if bool_input("Do you want a custom board"):
+        message = "Enter the %s of the board"
+        width, height = int_input(message % "width"), int_input(message % "height")
+    else:
+        width, height = Board.DEFAULT_SIZE, Board.DEFAULT_SIZE 
+
+    print()
+
+    if bool_input("Do you want a custom win condition"):
+        peices_to_win = int_input("Enter peices to win")
+        peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = peices_to_win, peices_to_win, peices_to_win
+    else:
+        peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = width, height, (width if width == height else None)
+
+    return Board(width, height, peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal)
+
+def make_players():
+    players = []
+    if bool_input("Do you want a custom players"):
+        for i in range(1, int_input("Enter the number of players") + 1):
+            print()
+            print(f"Player {i}")
+            new_player = create_player()
+            players.append(new_player)
+    else:
+        players.append(Player("X", "red"))
+        players.append(Player("O", "blue"))
+    return players
+
+def create_player():
+    while True:
+        try:
+            char = input("Letter: ").strip()
+            player = Player(char)
+            break
+        except ValueError as exs:
+            print_invalid(exs)
+    if Player.color_mode:
+        while True:
+            try:
+                color = input("Color: ").strip().lower()
+                player = Player(char, color)
+                break
+            except ValueError as exs:
+                print_invalid(exs)
+    return player
 
 
 class Board:
@@ -289,26 +314,6 @@ def int_input(prompt):
             print_invalid("answer with a number")
         else:
             return user_input
-
-
-def create_player():
-    while True:
-        try:
-            char = input("Letter: ").strip()
-            player = Player(char)
-            break
-        except ValueError as exs:
-            print_invalid(exs)
-    if Player.color_mode:
-        while True:
-            try:
-                color = input("Color: ").strip().lower()
-                player = Player(char, color)
-                break
-            except ValueError as exs:
-                print_invalid(exs)
-    return player
-
 
 if __name__ == "__main__":
     main()
