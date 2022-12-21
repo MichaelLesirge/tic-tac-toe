@@ -3,14 +3,6 @@ import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE, setNavContainer } from "./u
 setNavContainer();
 
 const boardSizeInputs = document.querySelectorAll("input.board-size");
-boardSizeInputs.forEach((el) => {
-	el.setAttribute("value", DEFAULT_SIZE); // must use setAttribute for value otherwise built in reset to default does not function
-	el.oninput = () => {
-		validInput(el);
-		updateMax();
-	};
-});
-
 const maxInputLen = SUGGESTED_MAX_SIZE.toString().length;
 const sizeInputs = document.querySelectorAll("input.size");
 const winConstionInput = document.querySelector("input#win-condition");
@@ -25,6 +17,14 @@ function updateMax() {
 	winConstionInput.max = max;
 	displayCaption();
 }
+
+boardSizeInputs.forEach((el) => {
+	el.setAttribute("value", DEFAULT_SIZE); // must use setAttribute for value otherwise built in reset to default does not function
+	el.oninput = () => {
+		validInput(el);
+		updateMax();
+	};
+});
 
 function validInput(input) {
 	input.value = input.value.replace("-", "");
