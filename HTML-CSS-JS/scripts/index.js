@@ -2,10 +2,17 @@ import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE, setNavContainer } from "./u
 
 setNavContainer();
 
-const maxInputLen = SUGGESTED_MAX_SIZE.toString().length;
-
-const sizeInputs = document.querySelectorAll("input.size");
 const boardSizeInputs = document.querySelectorAll("input.board-size");
+boardSizeInputs.forEach((el) => {
+	el.setAttribute("value", DEFAULT_SIZE); // must use setAttribute for value otherwise built in reset to default does not function
+	el.oninput = () => {
+		validInput(el);
+		updateMax();
+	};
+});
+
+const maxInputLen = SUGGESTED_MAX_SIZE.toString().length;
+const sizeInputs = document.querySelectorAll("input.size");
 const winConstionInput = document.querySelector("input#win-condition");
 const form = document.getElementById("create-game-form");
 
@@ -29,13 +36,6 @@ sizeInputs.forEach((el) => {
 	el.max = SUGGESTED_MAX_SIZE;
 });
 
-boardSizeInputs.forEach((el) => {
-	el.setAttribute("value", DEFAULT_SIZE); // must use setAttribute for value otherwise built in reset to default does not function
-	el.oninput = () => {
-		validInput(el);
-		updateMax();
-	};
-});
 
 const winConstionExplanation = document.getElementById("explanation");
 function displayCaption() {
