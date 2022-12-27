@@ -287,6 +287,35 @@ class Player:
         return self.char
 
 
+class AI_Player(Player):
+    """Very inefficent TicTacToe AI"""
+
+    """
+    plan:
+    save strategies in file
+    
+    static train method for specific board type.
+
+
+    ALSO MOVE CHECKING TO RIGHT AFTER INPUT AND 
+    MAKE FUNTION TO HANDLE WHILE: TRY: ... EXCEPT: PRINT
+    """
+
+    SAVE_FOLDER = "tic-tac-toe-AI-strategies/"
+
+    cached_strategies = {}
+
+    def __init__(self, char: str, color: str = None) -> None:
+        super().__init__(char, color)
+    
+    @staticmethod
+    def train(self, board, iterations=1000000):
+        pass
+
+    def take_trun(self, board: Board) -> None:
+        board.place(0, self)
+
+
 def centered_padding(val: str | Player, amount: int , *, buffer: str = " ") -> str:
     amount -= 1 if isinstance(val, Player) else len(val)
 
@@ -305,14 +334,15 @@ def bool_input(prompt):
 
 
 def int_input(prompt):
+    get_valid_input
+
+def get_valid_input(prompt: str, converter, *, error_message: str = None):
     prompt += ": "
     while True:
         try:
-            user_input = int(input(prompt).strip())
-        except ValueError:
-            print_invalid("answer with a number")
-        else:
-            return user_input
+            user_input = converter(input(prompt))
+        except ValueError as er:
+            print_invalid(er)
 
 if __name__ == "__main__":
     main()
