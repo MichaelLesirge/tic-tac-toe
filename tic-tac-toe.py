@@ -3,12 +3,11 @@
 
 def main():
     print("Welcome to tic-tac-toe with Python!")
+    print()
 
-    # color_mode = bool_input("Does you console support ASCII color codes if your not sure, \u001b[31mis this red for you\033[0m")
-    # Player.color_mode = color_mode
+    # Player.color_mode = bool_input("Does you console support ASCII color codes if your not sure, \u001b[31mis this red for you\033[0m")
+
     # print()
-
-    Player.color_mode = True
 
     board = make_board()
 
@@ -36,14 +35,15 @@ def main():
 
             if board.is_winner(player):
                 print(board)
-                player.wins += 1
                 print(f"Player {player} wins!")
+                player.wins += 1
                 in_game = False
             elif board.is_full():
                 print(board)
-                ties_count += 1
                 print("It's a tie!")
+                ties_count += 1
                 in_game = False
+
         print()
 
         print(f"Ties: {ties_count}")
@@ -57,27 +57,31 @@ def main():
 
     print("Good Bye!")
 
+
 def make_board() -> "Board":
     if bool_input("Do you want a custom board"):
         message = "Enter the %s of the board"
-        width, height = int_input(message % "width"), int_input(message % "height")
+        width, height = int_input(message % "width", require_positive=True), int_input(
+            message % "height", require_positive=True)
     else:
-        width, height = Board.DEFAULT_SIZE, Board.DEFAULT_SIZE 
+        width, height = Board.DEFAULT_SIZE, Board.DEFAULT_SIZE
 
     print()
 
     if bool_input("Do you want a custom win condition"):
-        peices_to_win = int_input("Enter peices to win")
+        peices_to_win = int_input("Enter peices to win", require_positive=True)
         peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = peices_to_win, peices_to_win, peices_to_win
     else:
-        peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = width, height, (width if width == height else None)
+        peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = width, height, (
+            width if width == height else None)
 
     return Board(width, height, peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal)
+
 
 def create_players():
     players = []
     if bool_input("Do you want a custom players"):
-        for i in range(1, int_input("Enter the number of players") + 1):
+        for i in range(1, int_input("Enter the number of players", require_positive=True) + 1):
             print()
             print(f"Player {i}")
             new_player = create_player()
@@ -87,39 +91,49 @@ def create_players():
         players.append(Player("O", "blue"))
     return players
 
+
 def create_player():
-    while True:
-        try:
-            char = input("Letter: ").strip()
-            break
-        except ValueError as exs:
-            print_invalid(exs)
+    def valid_letter(x):
+        if len(x) != 1:
+            raise ValueError("Player character must be one character")
+        if not x.isalpha():
+            raise ValueError("Player character must be a letter")
+        return x.upper()
+
+    def valid_color(x):
+        x = x.lower()
+        if x not in Player.colors:
+            possible_colors = list(Player.colors.keys())
+            raise ValueError(f"\"{x}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
+        return x
+
+    letter = get_valid_input("Letter", valid_letter)
+
+    color = None
     if Player.color_mode:
-        while True:
-            try:
-                color = input("Color: ").strip().lower()
-                player = Player(char, color)
-                break
-            except ValueError as exs:
-                print_invalid(exs)
-    return player
+        color = get_valid_input("Color", valid_color)
+
+    return Player(letter, color)
 
 
 class Board:
     DEFAULT_SIZE = 3
     OFFSET = 1
 
-    def __init__(self, width: int, height: int, peices_to_win_horizontal: int, peices_to_win_verticle: int, peices_to_win_diagnal: int):        
+    def __init__(self, width: int, height: int, peices_to_win_horizontal: int, peices_to_win_verticle: int, peices_to_win_diagnal: int):
         self.width = width
         self.height = height
         self.size = (self.width * self.height)
 
-        self.should_check_horizontal = (peices_to_win_horizontal != None) and (peices_to_win_horizontal <= self.width)
+        self.should_check_horizontal = (peices_to_win_horizontal != None) and (
+            peices_to_win_horizontal <= self.width)
 
-        self.should_check_verticle = (peices_to_win_verticle != None) and (peices_to_win_verticle <= self.height)
+        self.should_check_verticle = (peices_to_win_verticle != None) and (
+            peices_to_win_verticle <= self.height)
 
-        self.should_check_diagonal = (peices_to_win_diagnal != None) and (peices_to_win_diagnal <= self.width or peices_to_win_diagnal <= self.height)
-         
+        self.should_check_diagonal = (peices_to_win_diagnal != None) and (
+            peices_to_win_diagnal <= self.width or peices_to_win_diagnal <= self.height)
+
         self.peices_to_win_horizontal = peices_to_win_horizontal
         self.peices_to_win_verticle = peices_to_win_verticle
         self.peices_to_win_diagnal = peices_to_win_diagnal
@@ -204,13 +218,11 @@ class Board:
 
         return False
 
-
     def get(self, row: int, col: int):
         return self.board[row][col]
 
     def set(self, row: int, col: int, val) -> None:
         self.board[row][col] = val
-        
 
     def place(self, loc: int, player: "Player") -> None:
         loc -= self.OFFSET
@@ -307,7 +319,7 @@ class AI_Player(Player):
 
     def __init__(self, char: str, color: str = None) -> None:
         super().__init__(char, color)
-    
+
     @staticmethod
     def train(self, board, iterations=1000000):
         pass
@@ -316,15 +328,11 @@ class AI_Player(Player):
         board.place(0, self)
 
 
-def centered_padding(val: str | Player, amount: int , *, buffer: str = " ") -> str:
+def centered_padding(val: str | Player, amount: int, *, buffer: str = " ") -> str:
     amount -= 1 if isinstance(val, Player) else len(val)
 
     side_amount, extra = divmod(amount, 2)
     return (buffer * (side_amount + extra)) + str(val) + (buffer * side_amount)
-
-
-def print_invalid(exs) -> None:
-    print(f"Invalid input, {exs}.")
 
 
 def bool_input(prompt):
@@ -333,16 +341,34 @@ def bool_input(prompt):
     return user_input in ("y", "yes", "true")
 
 
-def int_input(prompt):
-    get_valid_input
+def int_input(prompt, *, require_positive=True):
+    def func(x):
+        x = int(x)
+        if require_positive and x <= 0:
+            raise ValueError("input must be positive")
+        return x
 
-def get_valid_input(prompt: str, converter, *, error_message: str = None):
+    get_valid_input(
+        prompt, func, fallback_error_message="input must be a number")
+
+
+def get_valid_input(prompt: str, converter, *, fallback_error_message: str = None):
     prompt += ": "
     while True:
         try:
-            user_input = converter(input(prompt))
-        except ValueError as er:
-            print_invalid(er)
+            user_input = converter(input(prompt).strip())
+        except ValueError as exs:
+            if fallback_error_message is None:
+                print_invalid(exs)
+            else:
+                print_invalid(fallback_error_message)
+        else:
+            return user_input
+
+
+def print_invalid(exs) -> None:
+    print(f"Invalid input, {exs}.")
+
 
 if __name__ == "__main__":
     main()
