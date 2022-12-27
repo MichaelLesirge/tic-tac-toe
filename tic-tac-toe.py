@@ -14,7 +14,7 @@ def main():
 
     print()
 
-    players = make_players()
+    players = create_players()
 
     print()
 
@@ -32,7 +32,7 @@ def main():
             print(board)
             print(f"{player}'s turn.")
 
-            player.take_turn(on=board)
+            player.take_turn(board)
 
             if board.is_winner(player):
                 print(board)
@@ -74,7 +74,7 @@ def make_board() -> "Board":
 
     return Board(width, height, peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal)
 
-def make_players():
+def create_players():
     players = []
     if bool_input("Do you want a custom players"):
         for i in range(1, int_input("Enter the number of players") + 1):
@@ -91,7 +91,6 @@ def create_player():
     while True:
         try:
             char = input("Letter: ").strip()
-            player = Player(char)
             break
         except ValueError as exs:
             print_invalid(exs)
@@ -110,10 +109,10 @@ class Board:
     DEFAULT_SIZE = 3
     OFFSET = 1
 
-    def __init__(self, width: int, height: int, peices_to_win_horizontal: int, peices_to_win_verticle: int, peices_to_win_diagnal: int):
-        self.width: int = width
-        self.height: int = height
-        self.size: int = (self.width * self.height)
+    def __init__(self, width: int, height: int, peices_to_win_horizontal: int, peices_to_win_verticle: int, peices_to_win_diagnal: int):        
+        self.width = width
+        self.height = height
+        self.size = (self.width * self.height)
 
         self.should_check_horizontal = (peices_to_win_horizontal != None) and (peices_to_win_horizontal <= self.width)
 
@@ -137,7 +136,7 @@ class Board:
                       for row in range(self.height)]
 
     def is_valid_location(self, row: int, col: int) -> bool:
-        return (row < self.height) and (col < self.width)
+        return (-1 < row < self.height) and (-1 < col < self.width)
 
     def is_empty_location(self, row: int, col: int) -> bool:
         return self.get(row, col) is None
@@ -228,16 +227,16 @@ class Board:
 
         self.placed += 1
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.board})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         # I'm so sorry future self, but I realised it was possible and this project does not matter so I just did it.
         return "\n" + (("\n" + "┼".join(["─" + ("─" * self.max_cell_size) + "─"] * self.width) + "─" + "\n").join([" " + ((" " + "│" + " ").join([centered_padding(item if item is not None else str((i*self.width)+j+self.OFFSET), self.max_cell_size) for j, item in enumerate(row)]) + " ") for i, row in enumerate(self.board)])) + "\n"
 
 
 class Player:
-    color_mode = False
+    color_mode = True
 
     colors = {
         "red": "\u001b[31m",
@@ -249,7 +248,7 @@ class Player:
         "white": "\u001b[37m",
     }
 
-    def __init__(self, char: str, color: str = None):
+    def __init__(self, char: str, color: str = None) -> None:
         if len(char) != 1:
             raise ValueError("Player character must be one character")
         if not char.isalpha():
@@ -267,35 +266,35 @@ class Player:
 
         self.wins = 0
 
-    def take_turn(self, on: Board):
+    def take_turn(self, board: Board) -> None:
         while True:
             try:
                 print()
                 loc = input("Enter where you want to go: ")
                 if not loc.isnumeric():
                     raise ValueError("Location must be a number")
-                on.place(int(loc), self)
+                board.place(int(loc), self)
                 return
             except ValueError as exs:
                 print_invalid(exs)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(char={self.char}, wins={self.wins})"
 
-    def __str__(self):
-        if Player.color_mode:
+    def __str__(self) -> str:
+        if Player.color_mode and self.color:
             return self.color + "\033[1m" + self.char + "\033[0m"
         return self.char
 
 
-def centered_padding(val: str | Player, amount, *, buffer=" "):
+def centered_padding(val: str | Player, amount: int , *, buffer: str = " ") -> str:
     amount -= 1 if isinstance(val, Player) else len(val)
 
     side_amount, extra = divmod(amount, 2)
     return (buffer * (side_amount + extra)) + str(val) + (buffer * side_amount)
 
 
-def print_invalid(exs):
+def print_invalid(exs) -> None:
     print(f"Invalid input, {exs}.")
 
 
