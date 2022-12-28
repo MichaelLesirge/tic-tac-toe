@@ -123,6 +123,9 @@ class Board:
     def __init__(self, width: int, height: int, peices_to_win_horizontal: int, peices_to_win_verticle: int, peices_to_win_diagnal: int):
         self.width = width
         self.height = height
+
+        self.sizes = (width, height)
+
         self.size = (self.width * self.height)
 
         self.should_check_horizontal = (peices_to_win_horizontal != None) and (
@@ -158,7 +161,8 @@ class Board:
     def is_full(self) -> bool:
         return self.placed >= self.size
 
-    def is_winner(self, player: "Player") -> bool:
+    def win_percents(self, player: "Player") -> list[int, int, int, int]:
+        win_chances = [0, 0, 0, 0]
         if self.should_check_horizontal:
             for row in range(self.height):
                 count = 0
@@ -166,7 +170,7 @@ class Board:
                     if self.get(row, col) == player:
                         count += 1
                         if count >= self.peices_to_win_horizontal:
-                            return True
+                            win_chances[0] = count / self.peices_to_win_horizontal
                     else:
                         count = 0
 
@@ -177,7 +181,7 @@ class Board:
                     if self.get(row, col) == player:
                         count += 1
                         if count >= self.peices_to_win_verticle:
-                            return True
+                            win_chances[1] = count / self.peices_to_win_verticle
                     else:
                         count = 0
 
@@ -204,7 +208,7 @@ class Board:
                         if self.get(rowTL2BR, colTL2BR) == player:
                             countTL2BR += 1
                             if countTL2BR >= self.peices_to_win_diagnal:
-                                return True
+                                win_chances[2] = countTL2BR / self.peices_to_win_diagnal
                         else:
                             countTL2BR = 0
 
@@ -212,11 +216,15 @@ class Board:
                         if self.get(rowTR2BL, colTR2BL) == player:
                             countTR2BL += 1
                             if countTR2BL >= self.peices_to_win_diagnal:
-                                return True
+                                win_chances[3] = countTR2BL / self.peices_to_win_diagnal
                         else:
                             countTR2BL = 0
 
-        return False
+        return win_chances
+
+    def is_winner(self, player: "Player") -> bool:
+        x = self.win_percents(player)
+        return 1 in x
 
     def get(self, row: int, col: int):
         return self.board[row][col]
@@ -321,11 +329,17 @@ class AI_Player(Player):
         super().__init__(char, color)
 
     @staticmethod
-    def train(self, board, iterations=1000000):
+    def train(board: Board, iterations: int = 1000000):
         pass
 
+    @staticmethod
+    def make_board_name(board: Board):
+        return f"{board.width}x{board.height}"
+
+
     def take_trun(self, board: Board) -> None:
-        board.place(0, self)
+        pass
+
 
 
 def centered_padding(val: str | Player, amount: int, *, buffer: str = " ") -> str:
