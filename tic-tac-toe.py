@@ -1,11 +1,25 @@
 # Run here by copying and pasting code in to main file:
 # https://www.programiz.com/python-programming/online-compiler/
 
-def main():
+color_mode = True
+
+colors = {
+    "red": "\u001b[31m",
+    "blue": "\u001b[34m",
+    "green": "\u001b[32m",
+    "yellow": "\u001b[33m",
+    "magenta": "\u001b[35m",
+    "cyan": "\u001b[36m",
+    "white": "\u001b[37m",
+}
+
+x = 2
+
+def main() -> None:
     print("Welcome to tic-tac-toe with Python!")
     print()
 
-    # Player.color_mode = bool_input("Does you console support ASCII color codes if your not sure, \u001b[31mis this red for you\033[0m")
+    # color_mode = bool_input("Does you console support ASCII color codes if your not sure, \u001b[31mis this red for you\033[0m")
 
     # print()
 
@@ -93,24 +107,24 @@ def create_players():
 
 
 def create_player():
-    def valid_letter(x):
+    def valid_letter(x: str) -> str:
         if len(x) != 1:
             raise ValueError("Player character must be one character")
         if not x.isalpha():
             raise ValueError("Player character must be a letter")
         return x.upper()
 
-    def valid_color(x):
+    def valid_color(x: str) -> str:
         x = x.lower()
-        if x not in Player.colors:
-            possible_colors = list(Player.colors.keys())
+        if x not in colors:
+            possible_colors = list(colors.keys())
             raise ValueError(f"\"{x}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
         return x
 
     letter = get_valid_input("Letter", valid_letter)
 
     color = None
-    if Player.color_mode:
+    if color_mode:
         color = get_valid_input("Color", valid_color)
 
     return Player(letter, color)
@@ -124,18 +138,16 @@ class Board:
         self.width = width
         self.height = height
 
-        self.sizes = (width, height)
+        self.dimentions = (width, height)
 
         self.size = (self.width * self.height)
 
         self.should_check_horizontal = (peices_to_win_horizontal != None) and (
             peices_to_win_horizontal <= self.width)
 
-        self.should_check_verticle = (peices_to_win_verticle != None) and (
-            peices_to_win_verticle <= self.height)
+        self.should_check_verticle = (peices_to_win_verticle != None) and (peices_to_win_verticle <= self.height)
 
-        self.should_check_diagonal = (peices_to_win_diagnal != None) and (
-            peices_to_win_diagnal <= self.width or peices_to_win_diagnal <= self.height)
+        self.should_check_diagonal = (peices_to_win_diagnal != None) and (peices_to_win_diagnal <= self.width or peices_to_win_diagnal <= self.height)
 
         self.peices_to_win_horizontal = peices_to_win_horizontal
         self.peices_to_win_verticle = peices_to_win_verticle
@@ -256,32 +268,20 @@ class Board:
 
 
 class Player:
-    color_mode = True
-
-    colors = {
-        "red": "\u001b[31m",
-        "blue": "\u001b[34m",
-        "green": "\u001b[32m",
-        "yellow": "\u001b[33m",
-        "magenta": "\u001b[35m",
-        "cyan": "\u001b[36m",
-        "white": "\u001b[37m",
-    }
-
     def __init__(self, char: str, color: str = None) -> None:
         if len(char) != 1:
             raise ValueError("Player character must be one character")
         if not char.isalpha():
             raise ValueError("Player character must be a letter")
-        self.char = char.upper()
+        self.char = char
 
-        if (color is not None) and Player.color_mode:
+        if color is not None:
             color = color.lower()
-            if color not in Player.colors:
+            if color not in colors:
                 possible_colors = list(self.colors.keys())
                 raise ValueError(
                     f"\"{color}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
-            color = Player.colors[color]
+            color = colors[color]
         self.color = color
 
         self.wins = 0
@@ -289,10 +289,7 @@ class Player:
     def take_turn(self, board: Board) -> None:
         while True:
             try:
-                print()
-                loc = input("Enter where you want to go: ")
-                if not loc.isnumeric():
-                    raise ValueError("Location must be a number")
+                loc = int_input("Enter where you want to go")
                 board.place(int(loc), self)
                 return
             except ValueError as exs:
@@ -302,7 +299,7 @@ class Player:
         return f"{self.__class__.__name__}(char={self.char}, wins={self.wins})"
 
     def __str__(self) -> str:
-        if Player.color_mode and self.color:
+        if color_mode and self.color:
             return self.color + "\033[1m" + self.char + "\033[0m"
         return self.char
 
@@ -310,36 +307,38 @@ class Player:
 class AI_Player(Player):
     """Very inefficent TicTacToe AI"""
 
-    """
-    plan:
-    save strategies in file
-    
-    static train method for specific board type.
-
-
-    ALSO MOVE CHECKING TO RIGHT AFTER INPUT AND 
-    MAKE FUNTION TO HANDLE WHILE: TRY: ... EXCEPT: PRINT
-    """
+    WIN_POINT_MULTIPLIER = 1
+    TIE_POINT_MULTIPLIER = 0.3
+    LOSE_POINT_MULTIPLIER = 0
 
     SAVE_FOLDER = "tic-tac-toe-AI-strategies/"
+    BOARD_NAME_FORMAT = "%sx%s."
 
     cached_strategies = {}
 
     def __init__(self, char: str, color: str = None) -> None:
         super().__init__(char, color)
 
-    @staticmethod
-    def train(board: Board, iterations: int = 1000000):
+    @classmethod
+    def train(cls, board: Board, iterations: int = 1000000) -> None:
+        board_name = cls.make_board_name(board)
         pass
 
-    @staticmethod
-    def make_board_name(board: Board):
-        return f"{board.width}x{board.height}"
+    @classmethod
+    def make_board_name(cls, board: Board) -> str:
+        return cls.BOARD_NAME_FORMAT % board.dimentions
 
 
-    def take_trun(self, board: Board) -> None:
-        pass
-
+    def take_turn(self, board: Board) -> None:
+        board_name = self.make_board_name(board)
+        if board_name not in self.cached_strategies:
+            try:
+                with open(self.SAVE_FOLDER + board_name, "r") as file:
+                    file.read()
+            except FileNotFoundError as er:
+                raise ValueError(f"AI_Player has not been trained on {board_name} board.") from er
+        
+        strategy = self.cached_strategies[board_name]
 
 
 def centered_padding(val: str | Player, amount: int, *, buffer: str = " ") -> str:
@@ -354,34 +353,31 @@ def bool_input(prompt):
     user_input = input(prompt).strip().lower()
     return user_input in ("y", "yes", "true")
 
-
-def int_input(prompt, *, require_positive=True):
-    def func(x):
-        x = int(x)
+def int_input(prompt, *, require_positive=False):
+    def func(x: str):
+        try:
+            x = int(x)
+        except ValueError:
+            raise ValueError("input must be number")
         if require_positive and x <= 0:
             raise ValueError("input must be positive")
         return x
 
-    get_valid_input(
-        prompt, func, fallback_error_message="input must be a number")
+    return get_valid_input(prompt, func)
 
-
-def get_valid_input(prompt: str, converter, *, fallback_error_message: str = None):
+def get_valid_input(prompt: str, converter, *, input_func=input):
     prompt += ": "
     while True:
         try:
-            user_input = converter(input(prompt).strip())
-        except ValueError as exs:
-            if fallback_error_message is None:
-                print_invalid(exs)
-            else:
-                print_invalid(fallback_error_message)
+            user_input = converter(input_func(prompt))
+        except ValueError as er:
+            print_invalid(er)
         else:
             return user_input
 
 
-def print_invalid(exs) -> None:
-    print(f"Invalid input, {exs}.")
+def print_invalid(er) -> None:
+    print(f"Invalid input, {er}.")
 
 
 if __name__ == "__main__":
