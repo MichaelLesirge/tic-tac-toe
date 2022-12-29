@@ -314,15 +314,21 @@ class AI_Player(Player):
     SAVE_FOLDER = "tic-tac-toe-AI-strategies/"
     BOARD_NAME_FORMAT = "%sx%s."
 
-    cached_strategies = {}
+    _cached_strategies = {}
 
     def __init__(self, char: str, color: str = None) -> None:
         super().__init__(char, color)
 
     @classmethod
+    def _clear_cache(cls):
+        cls._cached_strategies.clear()
+
+    @classmethod
     def train(cls, board: Board, iterations: int = 1000000) -> None:
         board_name = cls.make_board_name(board)
-        pass
+        stategy = {"a": "b"}
+        
+
 
     @classmethod
     def make_board_name(cls, board: Board) -> str:
@@ -331,15 +337,20 @@ class AI_Player(Player):
 
     def take_turn(self, board: Board) -> None:
         board_name = self.make_board_name(board)
-        if board_name not in self.cached_strategies:
+        if board_name not in self._cached_strategies:
             try:
                 with open(self.SAVE_FOLDER + board_name, "r") as file:
-                    file.read()
+                    self._cached_strategies[board_name] = eval(file.read)
             except FileNotFoundError as er:
                 raise ValueError(f"AI_Player has not been trained on {board_name} board.") from er
+            except Exception as er:
+                er.add_note("Invalid file contents")
+                raise er
         
-        strategy = self.cached_strategies[board_name]
+        strategy = self._cached_strategies[board_name]
 
+a = AI_Player("T")
+a.take_turn(Board(3, 3, 0, 0, 0))
 
 def centered_padding(val: str | Player, amount: int, *, buffer: str = " ") -> str:
     amount -= 1 if isinstance(val, Player) else len(val)
