@@ -181,8 +181,7 @@ class Board:
                 for col in range(self.width):
                     if self.get(row, col) == player:
                         count += 1
-                        if count >= self.peices_to_win_horizontal:
-                            win_chances[0] = count / self.peices_to_win_horizontal
+                        win_chances[0] = max(count / self.peices_to_win_horizontal, win_chances[0])
                     else:
                         count = 0
 
@@ -192,8 +191,7 @@ class Board:
                 for row in range(self.height):
                     if self.get(row, col) == player:
                         count += 1
-                        if count >= self.peices_to_win_verticle:
-                            win_chances[1] = count / self.peices_to_win_verticle
+                        win_chances[1] = max(count / self.peices_to_win_verticle, win_chances[1])
                     else:
                         count = 0
 
@@ -219,16 +217,14 @@ class Board:
                     if self.is_valid_location(rowTL2BR, colTL2BR):
                         if self.get(rowTL2BR, colTL2BR) == player:
                             countTL2BR += 1
-                            if countTL2BR >= self.peices_to_win_diagnal:
-                                win_chances[2] = countTL2BR / self.peices_to_win_diagnal
+                            win_chances[2] = max(countTL2BR / self.peices_to_win_diagnal, win_chances[2])
                         else:
                             countTL2BR = 0
 
                     if self.is_valid_location(rowTR2BL, colTR2BL):
                         if self.get(rowTR2BL, colTR2BL) == player:
                             countTR2BL += 1
-                            if countTR2BL >= self.peices_to_win_diagnal:
-                                win_chances[3] = countTR2BL / self.peices_to_win_diagnal
+                            win_chances[3] = max(countTR2BL / self.peices_to_win_diagnal, win_chances[3])
                         else:
                             countTR2BL = 0
 
@@ -236,6 +232,7 @@ class Board:
 
     def is_winner(self, player: "Player") -> bool:
         x = self.win_percents(player)
+        print(x)
         return 1 in x
 
     def get(self, row: int, col: int):
@@ -348,9 +345,6 @@ class AI_Player(Player):
                 raise er
         
         strategy = self._cached_strategies[board_name]
-
-a = AI_Player("T")
-a.take_turn(Board(3, 3, 0, 0, 0))
 
 def centered_padding(val: str | Player, amount: int, *, buffer: str = " ") -> str:
     amount -= 1 if isinstance(val, Player) else len(val)
