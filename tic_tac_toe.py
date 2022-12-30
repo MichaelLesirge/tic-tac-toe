@@ -2,6 +2,7 @@
 # https://www.programiz.com/python-programming/online-compiler/
 
 from random import choices
+from time import sleep
 
 color_mode = True
 
@@ -329,6 +330,8 @@ class AI_Player(Player):
     TIE_POINT = 0.5
     MAX_POINT_COUNT = 10
 
+    DELAY = 0
+
     SAVE_FILE = "tic-tac-toe-AI-strategy-%s.txt"
 
     # {"board name": ({location for first turn: location score, ...}, {(board state): best_move, ...}), ...}
@@ -398,14 +401,14 @@ class AI_Player(Player):
             board.reset()
 
         if print_percent_done: print("Training process complete.")
+        if print_percent_done: print(f"{len(strategy)} of {((len(players)+1)**board.size)} scinaroes covered")
+
         maxed_strategy = {board_state: max(moves, key=moves.get) for board_state, moves in strategy.items()}
 
         cls._cached_strategies[board_name] = (
             {board.to_loc(row, col): points for ((row, col), points) in strategy[get_relitive_board_state(board)].items()},
             {board_state: (board.to_loc(row, col)) for (board_state, (row, col)) in maxed_strategy.items()}
         )
-
-        print(f"{len(strategy)} of {((len(players)+1)**board.size)//4} scinaroes covered")
 
         try:
             with open(cls.SAVE_FILE % board_name, "wt") as file:
@@ -445,6 +448,7 @@ class AI_Player(Player):
             # TODO pick random valid choice
 
         board.place(loc, self)
+        sleep(self.DELAY)
 
 def get_relitive_board_state(board: Board, player: Player = None):
     mapper = {}
