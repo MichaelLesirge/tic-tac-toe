@@ -18,10 +18,6 @@ colors = {
 
 OFFSET = 1
 
-"""
-TODO make rotation work again
-"""
-
 def main() -> None:
     print("Welcome to tic-tac-toe with Python!")
     print()
@@ -38,8 +34,8 @@ def main() -> None:
     # players = create_players()
     # print()
 
-    # AI_Player.train(board, players, iterations=1000000, print_percent_done=True)
-    # print()
+    AI_Player.train(board, players, iterations=100000, print_percent_done=True)
+    print()
 
     ties_count = 0
 
@@ -52,16 +48,16 @@ def main() -> None:
 
         in_game = True
         while in_game:
-            player = players[board.placed % len(players)]
+            current_player = players[board.placed % len(players)]
             print(board)
-            print(f"{player}'s turn.")
+            print(f"{current_player}'s turn.")
 
-            player.take_turn(board, players)
+            current_player.take_turn(board, players)
 
-            if board.is_winner(player):
+            if board.is_winner(current_player):
                 print(board)
-                print(f"Player {player} wins!")
-                player.wins += 1
+                print(f"Player {current_player} wins!")
+                current_player.wins += 1
                 in_game = False
             elif board.is_full():
                 print(board)
@@ -328,15 +324,10 @@ class AI_Player(Player):
 
     In the future I am going to make this use a real neural network / use a libary like PyTorch or Tensorflow. For now I want to try and do it with no libaries (except random)
     """
-
-    WIN_POINT = 1
-    TIE_POINT = 1
-    LOSE_POINT = 0
-
     MAX_POINT_COUNT = 100000
 
     RAND_START = True
-    DELAY = 0
+    DELAY = 0.0
 
     SAVE_FILE = "strategy-%s.txt"
 
@@ -368,6 +359,8 @@ class AI_Player(Player):
 
         if print_percent_done: print("start training")
 
+        start = time()
+
         for i in range(1, iterations+1):
             players_moves = {player: [] for player in players}
 
@@ -383,34 +376,31 @@ class AI_Player(Player):
                 if plan is None:
                     plan = strategy[board_state] = {(row, col): 1 for col in range(board.width) for row in range(board.height)}
 
-                loc = pick_empty_weighted_random_loc(plan, board)
-                row, col = loc
+                pos = pick_empty_weighted_random_loc(plan, board)
+                row, col = pos
 
                 board.valid_set(row, col, current_player)
                 players_moves[current_player].append((plan, (row, col)))
 
                 if board.is_winner(current_player):
-                    for player, moves in players_moves.items():
-                        for plan, loc in moves:
-                            if player == current_player:
-                                plan[loc] += cls.WIN_POINT * (board.size - turn_count)
-                            else:
-                                plan[loc] = max(plan[loc] - cls.LOSE_POINT, 1)
+                    for plan, pos in players_moves[current_player]:
+                            plan[pos] += (board.size - turn_count)
                     playing = False
                 elif board.is_full():
-                    for player, moves in players_moves.items():
-                        for plan, loc in moves:
-                            plan[loc] += cls.TIE_POINT
+                    for moves in players_moves.values():
+                        for plan, pos in moves:
+                            plan[pos] += 1
                     playing = False
 
                 turn_count += 1
             
             if print_percent_done and (i % percentage_notifacation_interval == 0):
-                print(f"{(i // percentage_notifacation_interval)}% Complete. (game #{i:,})")
-                print(board)
+                print(f"{(i // percentage_notifacation_interval)}% Complete. (game #{i:,})\r", end="")
             board.reset()
 
-        if print_percent_done: print("Training process complete.")
+        end = time()
+
+        if print_percent_done: print(f"Training process complete. {iterations:,} games played in {end-start:.3} seconds")
 
         maxed_strategy = {board_state: max(moves, key=moves.get) for board_state, moves in strategy.items()}
 
@@ -423,8 +413,7 @@ class AI_Player(Player):
             with open(cls.SAVE_FILE % board_name, "wt") as file:
                 file.write(str(cls._cached_strategies[board_name]).replace(" ", ""))
         except PermissionError as er:
-            print("Can not write strategy to file in this enviroment")
-                
+            print("Can not write strategy to file in this enviroment")         
 
     @classmethod 
     def make_board_name(cls, board: Board, players: list[Player]) -> str:
@@ -474,7 +463,7 @@ def get_relitive_board_state(board: Board, player: Player = None):
 
     return tuple(new_board)
 
-def get_matching_any_rotation(key: tuple[tuple[object]], d: dict[tuple[tuple[object]]: object]) -> object:
+def get_matching_any_rotation(key: tuple[tuple[object]], d: dict[tuple[tuple[object]]: object]):
     # TODO make this work for all rotations and when mirroed (look at phone)
 
     # for i in range(4):
