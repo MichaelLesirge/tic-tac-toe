@@ -16,6 +16,10 @@ colors = {
 }
 
 OFFSET = 1
+"""
+TODO right now the plan is for all players so it does not defend right
+also test rotion and other stuff
+"""
 
 def main() -> None:
     print("Welcome to tic-tac-toe with Python!")
@@ -33,9 +37,8 @@ def main() -> None:
     # players = create_players()
     # print()
 
-    AI_Player.train(board, players, iterations=100000, print_percent_done=True)
+    AI_Player.train(board, players, iterations=1000000, print_percent_done=True)
     print(AI_Player._cached_strategies)
-    
 
     ties_count = 0
 
@@ -249,16 +252,18 @@ class Board:
     def get_board_state(self) -> tuple[tuple[object]]:
         return tuple(tuple(item and item.item_count for item in row) for row in self.board)
 
-    def to_loc(self, loc: int) -> tuple[int, int]:
+    def to_pos(self, loc: int) -> tuple[int, int]:
         loc -= OFFSET
 
         row = loc // self.width
         col = loc - (self.width * row)
         return row, col
 
+    def to_loc(self, row: int, col: int) -> int:
+        return (row*self.width)+col+OFFSET
 
     def place(self, loc: int, player: object) -> None:
-        row, col = self.to_loc(loc)
+        row, col = self.to_pos(loc)
 
         if not self.is_valid_location(row, col):
             raise ValueError(f"location must be from 1 to {self.size}")
@@ -276,7 +281,7 @@ class Board:
 
     def __str__(self) -> str:
         # I'm so sorry future self, but I realised it was possible and this project does not matter so I just did it.
-        return "\n" + (("\n" + "┼".join(["─" + ("─" * self.max_cell_size) + "─"] * self.width) + "─" + "\n").join([" " + ((" " + "│" + " ").join([centered_padding(item if item is not None else str((i*self.width)+j+OFFSET), self.max_cell_size) for j, item in enumerate(row)]) + " ") for i, row in enumerate(self.board)])) + "\n"
+        return "\n" + (("\n" + "┼".join(["─" + ("─" * self.max_cell_size) + "─"] * self.width) + "─" + "\n").join([" " + ((" " + "│" + " ").join([centered_padding(item if item is not None else str(self.to_loc(i, j)), self.max_cell_size) for j, item in enumerate(row)]) + " ") for i, row in enumerate(self.board)])) + "\n"
 
 
 class Player:
@@ -298,7 +303,7 @@ class Player:
         self.color = color
 
         self.item_count = self.cur_count
-        self.cur_count += 1
+        Player.cur_count += 1
 
         self.wins = 0
 
@@ -331,6 +336,7 @@ class AI_Player(Player):
 
     WIN_POINT = 1
     TIE_POINT = 0.5
+    MAX_POINT_COUNT = 10
 
     SAVE_FILE = "tic-tac-toe-AI-strategy-%s.txt"
 
@@ -341,19 +347,20 @@ class AI_Player(Player):
         super().__init__(char, color)
 
     @classmethod
-    def train(cls, board: Board, player_count: int ,iterations: int = 1000000, print_percent_done: bool = False) -> None:
-        def pick_empty_weighted_random_loc(d: dict[tuple[int, int], int], board: Board) -> tuple[int, int]:
-            d = d.copy()
-            for (row, col) in d:
-                if not board.is_empty_location(row, col):
-                    d[(row, col)] = 0
-            return pick_weighted_random_value(d)
+    def train(cls, board: Board, players: list[Player], iterations: int = 1000000, print_percent_done: bool = False) -> None:
 
         board.reset()
+        
+        def pick_empty_weighted_random_loc(d: dict[tuple[int, int], int], board: Board) -> tuple[int, int]:
+            d1 = {}
+            for (row, col), points in d.items():
+                if not board.is_empty_location(row, col):
+                    d1[(row, col)] = 0
+                else:
+                    d1[((row, col))] = min(points, cls.MAX_POINT_COUNT)
+            return pick_weighted_random_value(d1)
 
         board_name = cls.make_board_name(board)
-        
-        players = list(range(player_count))
 
         percentage_notifacation_interval = iterations // 100
 
@@ -376,33 +383,40 @@ class AI_Player(Player):
                 if plan is None:
                     plan = strategy[board_state] = {(row, col): 1 for col in range(board.width) for row in range(board.height)}
 
-                loc = pick_empty_weighted_random_loc(plan, board)
-                row, col = loc
-
-                board.set(row, col, current_player)
-                players_moves[current_player].append((plan, (row, col)))
-
-                if board.is_winner(current_player):
-                    for plan, loc in players_moves[current_player]:
-                        plan[loc] += cls.WIN_POINT
-                    playing = False
-                if board.is_full():
+                try:
+                    loc = pick_empty_weighted_random_loc(plan, board)
+                except ValueError:
                     for moves in players_moves.values():
                         for plan, loc in moves:
                             plan[loc] += cls.TIE_POINT
                         playing = False
+                else:
+                    row, col = loc
+
+                    board.set(row, col, current_player)
+                    players_moves[current_player].append((plan, (row, col)))
+
+                    if board.is_winner(current_player):
+                        for plan, loc in players_moves[current_player]:
+                            plan[loc] += cls.WIN_POINT
+                        playing = False
+                    
+                    turn_count += 1
             
             if print_percent_done and (i % percentage_notifacation_interval == 0): print(f"{(i // percentage_notifacation_interval)}% Complete. (game #{i:,})")
             board.reset()
 
         if print_percent_done: print("Training process complete.")
-        print(strategy)
-        maxed_strategy = {board_state: max(moves.keys(), key=plan.get) for board_state, moves in strategy.items()}
+        maxed_strategy = {board_state: max(moves, key=moves.get) for board_state, moves in strategy.items()}
 
-        cls._cached_strategies[board_name] = (strategy[board.get_board_state()], maxed_strategy)
+        cls._cached_strategies[board_name] = (
+            {board.to_loc(row, col): points for ((row, col), points) in strategy[board.get_board_state()].items()},
+            {board_state: (board.to_loc(row, col)) for (board_state, (row, col)) in maxed_strategy.items()}
+        )
+
         try:
             with open(cls.SAVE_FILE % board_name, "wt") as file:
-                file.write(str(strategy))
+                file.write(str(cls._cached_strategies[board_name]))
         except PermissionError as er:
             print("Can not write strategy to file in this enviroment")
                 
@@ -431,16 +445,14 @@ class AI_Player(Player):
         if board.placed == 0:
             loc = pick_weighted_random_value(first_move_options)
         else:
-            print()
+            print(board.get_board_state())
             loc = get_matching_any_rotation(board.get_board_state(), strategy)
 
         if loc is None:
-            raise NotImplementedError(f"did not exspore possiblity of board {board.get_board_state()}, {(board.board)}")
+            raise NotImplementedError(f"did not exspore possiblity of board {board.get_board_state()}")
             # TODO pick random valid choice
 
-        row, col = loc
-
-        board.set(row, col, self)
+        board.place(loc, self)
 
 def get_matching_any_rotation(key: tuple[tuple[object]], d: dict[tuple[tuple[object]]: object]) -> object:
     for i in range(4):
