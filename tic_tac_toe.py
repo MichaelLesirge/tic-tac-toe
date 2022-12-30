@@ -29,10 +29,13 @@ def main() -> None:
     # board = make_board()
     # print()
 
-    AI_Player.train(board, iterations=1000000, print_percent_done=True)
     players = [Player("X", "red"), AI_Player("O", "blue")]
     # players = create_players()
     # print()
+
+    AI_Player.train(board, players, iterations=100000, print_percent_done=True)
+    print(AI_Player._cached_strategies)
+    
 
     ties_count = 0
 
@@ -160,7 +163,7 @@ class Board:
         self.max_cell_size = len(str(self.size))
 
         self.placed: int
-        self.board: list[list[Player | None]]
+        self.board: list[list[object]]
         self.reset()
 
     def reset(self) -> None:
@@ -233,7 +236,7 @@ class Board:
 
         return win_chances
 
-    def is_winner(self, player: "Player") -> bool:
+    def is_winner(self, player: object) -> bool:
         chances = self.win_percents(player)
         return 1 in chances
 
@@ -243,6 +246,9 @@ class Board:
     def set(self, row: int, col: int, val: object) -> None:
         self.board[row][col] = val
 
+    def get_board_state(self) -> tuple[tuple[object]]:
+        return tuple(tuple(item and item.item_count for item in row) for row in self.board)
+
     def to_loc(self, loc: int) -> tuple[int, int]:
         loc -= OFFSET
 
@@ -251,8 +257,7 @@ class Board:
         return row, col
 
 
-    def place(self, loc: int, player: "Player") -> None:
-
+    def place(self, loc: int, player: object) -> None:
         row, col = self.to_loc(loc)
 
         if not self.is_valid_location(row, col):
@@ -275,6 +280,8 @@ class Board:
 
 
 class Player:
+    cur_count = 0
+
     def __init__(self, char: str, color: str = None) -> None:
         if len(char) != 1:
             raise ValueError("Player character must be one character")
@@ -286,10 +293,12 @@ class Player:
             color = color.lower()
             if color not in colors:
                 possible_colors = list(self.colors.keys())
-                raise ValueError(
-                    f"\"{color}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
+                raise ValueError(f"\"{color}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
             color = colors[color]
         self.color = color
+
+        self.item_count = self.cur_count
+        self.cur_count += 1
 
         self.wins = 0
 
@@ -320,42 +329,77 @@ class AI_Player(Player):
     In the future I am going to make this use a real neural network / use a libary like PyTorch or Tensorflow. For now I want to try and do it with no libaries (except random)
     """
 
-    WIN_POINT_MULTIPLIER = 1
-    TIE_POINT_MULTIPLIER = 1
-    LOSE_POINT_MULTIPLIER = 0
+    WIN_POINT = 1
+    TIE_POINT = 0.5
 
     SAVE_FILE = "tic-tac-toe-AI-strategy-%s.txt"
 
-    # {"board name": ({location for first turn: location score, ...}, {(board stage with True for self and False for enemy): int, ...}), ...}
-    _cached_strategies: dict[str: tuple[dict[int: int], dict[tuple[bool,]: int]]] = {}
+    # {"board name": ({location for first turn: location score, ...}, {(board state with True for self and False for enemy): int, ...}), ...}
+    _cached_strategies: dict[str, tuple[dict[tuple[int, int], int], dict[tuple[bool,], int]]] = {}
 
     def __init__(self, char: str, color: str = None) -> None:
         super().__init__(char, color)
 
     @classmethod
-    def train(cls, board: Board, iterations: int = 1000000, *, print_percent_done: bool = False) -> None:
+    def train(cls, board: Board, player_count: int ,iterations: int = 1000000, print_percent_done: bool = False) -> None:
+        def pick_empty_weighted_random_loc(d: dict[tuple[int, int], int], board: Board) -> tuple[int, int]:
+            d = d.copy()
+            for (row, col) in d:
+                if not board.is_empty_location(row, col):
+                    d[(row, col)] = 0
+            return pick_weighted_random_value(d)
+
         board.reset()
 
         board_name = cls.make_board_name(board)
+        
+        players = list(range(player_count))
 
         percentage_notifacation_interval = iterations // 100
 
-        strategy: dict[tuple[bool,]: dict[int: int]] = {}
+        strategy: dict[tuple[bool,]: dict[tuple[int, int]: int]] = {}
 
         if print_percent_done: print("start training")
 
-
-
         for i in range(1, iterations+1):
-            if print_percent_done and (i % percentage_notifacation_interval == 0): print(f"{(i // percentage_notifacation_interval)}% Complete. (game #{i:,})")
-            # TODO make legit everything actally work
+            players_moves: dict[str, list[tuple[dict[tuple[int, int], int], ]]] = {player: [] for player in players}
+
+            turn_count = 0
+            playing = True
+
+            while playing:
+                current_player = players[turn_count % len(players)]
+
+                board_state = board.get_board_state()
+                plan = get_matching_any_rotation(board_state, strategy)
+
+                if plan is None:
+                    plan = strategy[board_state] = {(row, col): 1 for col in range(board.width) for row in range(board.height)}
+
+                loc = pick_empty_weighted_random_loc(plan, board)
+                row, col = loc
+
+                board.set(row, col, current_player)
+                players_moves[current_player].append((plan, (row, col)))
+
+                if board.is_winner(current_player):
+                    for plan, loc in players_moves[current_player]:
+                        plan[loc] += cls.WIN_POINT
+                    playing = False
+                if board.is_full():
+                    for moves in players_moves.values():
+                        for plan, loc in moves:
+                            plan[loc] += cls.TIE_POINT
+                        playing = False
             
+            if print_percent_done and (i % percentage_notifacation_interval == 0): print(f"{(i // percentage_notifacation_interval)}% Complete. (game #{i:,})")
             board.reset()
 
         if print_percent_done: print("Training process complete.")
-        maxed_strategy = {board_state: moves[max(moves.keys(), key=moves.get)] for board_state, moves in strategy.items()}
+        print(strategy)
+        maxed_strategy = {board_state: max(moves.keys(), key=plan.get) for board_state, moves in strategy.items()}
 
-        cls._cached_strategies[board_name] = (strategy[make_compare_map(board.board)])
+        cls._cached_strategies[board_name] = (strategy[board.get_board_state()], maxed_strategy)
         try:
             with open(cls.SAVE_FILE % board_name, "wt") as file:
                 file.write(str(strategy))
@@ -387,13 +431,16 @@ class AI_Player(Player):
         if board.placed == 0:
             loc = pick_weighted_random_value(first_move_options)
         else:
-            board_map = make_compare_map(board.board, self) 
-            loc = get_matching_any_rotation(board_map)
-            if loc is None:
-                raise NotImplementedError(f"did not exspore possiblity of board {board_map}, {(board.board)}")
-                # TODO pick random valid choice
+            print()
+            loc = get_matching_any_rotation(board.get_board_state(), strategy)
 
-        board.place(loc)
+        if loc is None:
+            raise NotImplementedError(f"did not exspore possiblity of board {board.get_board_state()}, {(board.board)}")
+            # TODO pick random valid choice
+
+        row, col = loc
+
+        board.set(row, col, self)
 
 def get_matching_any_rotation(key: tuple[tuple[object]], d: dict[tuple[tuple[object]]: object]) -> object:
     for i in range(4):
@@ -402,11 +449,9 @@ def get_matching_any_rotation(key: tuple[tuple[object]], d: dict[tuple[tuple[obj
         key = rotate_90_degree(key) 
     return None
 
-def pick_weighted_random_value(d: dict[object: int]) -> object:
-    return choices(d.keys(), d.values())[0]
 
-def make_compare_map(l: tuple[tuple[object]], obj: object):
-    return tuple(tuple(item and (item is obj) for item in row) for row in l)
+def pick_weighted_random_value(d: dict[object, int]) -> object:
+    return choices(list(d.keys()), d.values())[0]
 
 def rotate_90_degree(l: tuple[tuple[object]]) -> tuple[tuple[object]]:
     return tuple(tuple(x)[::-1] for x in zip(*l))
