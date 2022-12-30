@@ -1,6 +1,8 @@
 # Run here by copying and pasting code in to main file:
 # https://www.programiz.com/python-programming/online-compiler/
 
+from random import choices
+
 color_mode = True
 
 colors = {
@@ -13,25 +15,27 @@ colors = {
     "white": "\u001b[37m",
 }
 
-x = 2
+OFFSET = 1
 
 def main() -> None:
     print("Welcome to tic-tac-toe with Python!")
     print()
 
     # color_mode = bool_input("Does you console support ASCII color codes if your not sure, \u001b[31mis this red for you\033[0m")
-
     # print()
 
-    board = make_board()
+    
+    board = Board(3, 3, 3, 3, 3)
+    # board = make_board()
+    # print()
 
-    print()
-
-    players = create_players()
-
-    print()
+    AI_Player.train(board, iterations=1000000, print_percent_done=True)
+    players = [Player("X", "red"), AI_Player("O", "blue")]
+    # players = create_players()
+    # print()
 
     ties_count = 0
+
     game_count = 0
 
     playing = True
@@ -92,7 +96,7 @@ def make_board() -> "Board":
     return Board(width, height, peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal)
 
 
-def create_players():
+def create_players() -> list["Player"]:
     players = []
     if bool_input("Do you want a custom players"):
         for i in range(1, int_input("Enter the number of players", require_positive=True) + 1):
@@ -106,7 +110,7 @@ def create_players():
     return players
 
 
-def create_player():
+def create_player() -> "Player":
     def valid_letter(x: str) -> str:
         if len(x) != 1:
             raise ValueError("Player character must be one character")
@@ -132,15 +136,15 @@ def create_player():
 
 class Board:
     DEFAULT_SIZE = 3
-    OFFSET = 1
 
     def __init__(self, width: int, height: int, peices_to_win_horizontal: int, peices_to_win_verticle: int, peices_to_win_diagnal: int):
         self.width = width
         self.height = height
 
-        self.dimentions = (width, height)
+        self.size = self.width * self.height
 
-        self.size = (self.width * self.height)
+        self.min_loc = OFFSET
+        self.max_loc = self.size + OFFSET - 1
 
         self.should_check_horizontal = (peices_to_win_horizontal != None) and (
             peices_to_win_horizontal <= self.width)
@@ -156,13 +160,12 @@ class Board:
         self.max_cell_size = len(str(self.size))
 
         self.placed: int
-        self.board: list[list]
+        self.board: list[list[Player | None]]
         self.reset()
 
-    def reset(self):
+    def reset(self) -> None:
         self.placed = 0
-        self.board = [[None for col in range(self.width)]
-                      for row in range(self.height)]
+        self.board = [[None for col in range(self.width)] for row in range(self.height)]
 
     def is_valid_location(self, row: int, col: int) -> bool:
         return (-1 < row < self.height) and (-1 < col < self.width)
@@ -231,21 +234,26 @@ class Board:
         return win_chances
 
     def is_winner(self, player: "Player") -> bool:
-        x = self.win_percents(player)
-        print(x)
-        return 1 in x
+        chances = self.win_percents(player)
+        return 1 in chances
 
-    def get(self, row: int, col: int):
+    def get(self, row: int, col: int) -> object:
         return self.board[row][col]
 
-    def set(self, row: int, col: int, val) -> None:
+    def set(self, row: int, col: int, val: object) -> None:
         self.board[row][col] = val
 
-    def place(self, loc: int, player: "Player") -> None:
-        loc -= self.OFFSET
+    def to_loc(self, loc: int) -> tuple[int, int]:
+        loc -= OFFSET
 
         row = loc // self.width
         col = loc - (self.width * row)
+        return row, col
+
+
+    def place(self, loc: int, player: "Player") -> None:
+
+        row, col = self.to_loc(loc)
 
         if not self.is_valid_location(row, col):
             raise ValueError(f"location must be from 1 to {self.size}")
@@ -256,12 +264,14 @@ class Board:
 
         self.placed += 1
 
+    # def __repr__(self) -> str:
+    #     return f"{self.__class__.__name__}({self.board})"
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.board})"
+        return f"{self.__class__.__name__}({self.width}, {self.height}, {self.peices_to_win_horizontal}, {self.peices_to_win_verticle}, {self.peices_to_win_diagnal})"
 
     def __str__(self) -> str:
         # I'm so sorry future self, but I realised it was possible and this project does not matter so I just did it.
-        return "\n" + (("\n" + "┼".join(["─" + ("─" * self.max_cell_size) + "─"] * self.width) + "─" + "\n").join([" " + ((" " + "│" + " ").join([centered_padding(item if item is not None else str((i*self.width)+j+self.OFFSET), self.max_cell_size) for j, item in enumerate(row)]) + " ") for i, row in enumerate(self.board)])) + "\n"
+        return "\n" + (("\n" + "┼".join(["─" + ("─" * self.max_cell_size) + "─"] * self.width) + "─" + "\n").join([" " + ((" " + "│" + " ").join([centered_padding(item if item is not None else str((i*self.width)+j+OFFSET), self.max_cell_size) for j, item in enumerate(row)]) + " ") for i, row in enumerate(self.board)])) + "\n"
 
 
 class Player:
@@ -302,49 +312,104 @@ class Player:
 
 
 class AI_Player(Player):
-    """Very inefficent TicTacToe AI"""
+    """
+    Very inefficent TicTacToe AI.
+    All it does it play a bunch of games and find the "best" move for that specific situation.
+    It creates a dict for each board state it encounters and saves the move that makes it win the most as the value.
+
+    In the future I am going to make this use a real neural network / use a libary like PyTorch or Tensorflow. For now I want to try and do it with no libaries (except random)
+    """
 
     WIN_POINT_MULTIPLIER = 1
-    TIE_POINT_MULTIPLIER = 0.3
+    TIE_POINT_MULTIPLIER = 1
     LOSE_POINT_MULTIPLIER = 0
 
-    SAVE_FOLDER = "tic-tac-toe-AI-strategies/"
-    BOARD_NAME_FORMAT = "%sx%s."
+    SAVE_FILE = "tic-tac-toe-AI-strategy-%s.txt"
 
-    _cached_strategies = {}
+    # {"board name": ({location for first turn: location score, ...}, {(board stage with True for self and False for enemy): int, ...}), ...}
+    _cached_strategies: dict[str: tuple[dict[int: int], dict[tuple[bool,]: int]]] = {}
 
     def __init__(self, char: str, color: str = None) -> None:
         super().__init__(char, color)
 
     @classmethod
-    def _clear_cache(cls):
-        cls._cached_strategies.clear()
+    def train(cls, board: Board, iterations: int = 1000000, *, print_percent_done: bool = False) -> None:
+        board.reset()
 
-    @classmethod
-    def train(cls, board: Board, iterations: int = 1000000) -> None:
         board_name = cls.make_board_name(board)
-        stategy = {"a": "b"}
-        
 
+        percentage_notifacation_interval = iterations // 100
+
+        strategy: dict[tuple[bool,]: dict[int: int]] = {}
+
+        if print_percent_done: print("start training")
+
+
+
+        for i in range(1, iterations+1):
+            if print_percent_done and (i % percentage_notifacation_interval == 0): print(f"{(i // percentage_notifacation_interval)}% Complete. (game #{i:,})")
+            # TODO make legit everything actally work
+            
+            board.reset()
+
+        if print_percent_done: print("Training process complete.")
+        maxed_strategy = {board_state: moves[max(moves.keys(), key=moves.get)] for board_state, moves in strategy.items()}
+
+        cls._cached_strategies[board_name] = (strategy[make_compare_map(board.board)])
+        try:
+            with open(cls.SAVE_FILE % board_name, "wt") as file:
+                file.write(str(strategy))
+        except PermissionError as er:
+            print("Can not write strategy to file in this enviroment")
+                
 
     @classmethod
     def make_board_name(cls, board: Board) -> str:
-        return cls.BOARD_NAME_FORMAT % board.dimentions
-
+        return repr(board)
 
     def take_turn(self, board: Board) -> None:
         board_name = self.make_board_name(board)
         if board_name not in self._cached_strategies:
             try:
-                with open(self.SAVE_FOLDER + board_name, "r") as file:
-                    self._cached_strategies[board_name] = eval(file.read)
+                with open(self.SAVE_FILE % board_name, "rt") as file:
+                    self._cached_strategies[board_name] = eval(file.read())
+            except PermissionError as er:
+                print("Can not read strategy from file in this enviroment")
             except FileNotFoundError as er:
                 raise ValueError(f"AI_Player has not been trained on {board_name} board.") from er
             except Exception as er:
-                er.add_note("Invalid file contents")
+                er.add_note(f"Invalid file contents: {er}")
                 raise er
         
-        strategy = self._cached_strategies[board_name]
+        # have more random first move to make game less repitive 
+        first_move_options, strategy = self._cached_strategies[board_name]
+        
+        if board.placed == 0:
+            loc = pick_weighted_random_value(first_move_options)
+        else:
+            board_map = make_compare_map(board.board, self) 
+            loc = get_matching_any_rotation(board_map)
+            if loc is None:
+                raise NotImplementedError(f"did not exspore possiblity of board {board_map}, {(board.board)}")
+                # TODO pick random valid choice
+
+        board.place(loc)
+
+def get_matching_any_rotation(key: tuple[tuple[object]], d: dict[tuple[tuple[object]]: object]) -> object:
+    for i in range(4):
+        if key in d:
+            return d[key]
+        key = rotate_90_degree(key) 
+    return None
+
+def pick_weighted_random_value(d: dict[object: int]) -> object:
+    return choices(d.keys(), d.values())[0]
+
+def make_compare_map(l: tuple[tuple[object]], obj: object):
+    return tuple(tuple(item and (item is obj) for item in row) for row in l)
+
+def rotate_90_degree(l: tuple[tuple[object]]) -> tuple[tuple[object]]:
+    return tuple(tuple(x)[::-1] for x in zip(*l))
 
 def centered_padding(val: str | Player, amount: int, *, buffer: str = " ") -> str:
     amount -= 1 if isinstance(val, Player) else len(val)
@@ -353,12 +418,12 @@ def centered_padding(val: str | Player, amount: int, *, buffer: str = " ") -> st
     return (buffer * (side_amount + extra)) + str(val) + (buffer * side_amount)
 
 
-def bool_input(prompt):
+def bool_input(prompt: str) -> None:
     prompt += " (y/n): "
     user_input = input(prompt).strip().lower()
     return user_input in ("y", "yes", "true")
 
-def int_input(prompt, *, require_positive=False):
+def int_input(prompt: str, *, require_positive: bool = False) -> None:
     def func(x: str):
         try:
             x = int(x)
@@ -370,11 +435,11 @@ def int_input(prompt, *, require_positive=False):
 
     return get_valid_input(prompt, func)
 
-def get_valid_input(prompt: str, converter, *, input_func=input):
+def get_valid_input(prompt: str, converter):
     prompt += ": "
     while True:
         try:
-            user_input = converter(input_func(prompt))
+            user_input = converter(input(prompt).strip())
         except ValueError as er:
             print_invalid(er)
         else:
