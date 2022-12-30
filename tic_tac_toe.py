@@ -18,7 +18,7 @@ colors = {
 OFFSET = 1
 
 """
-TODO test rotion and other stuff
+TODO make rotation work again
 """
 
 def main() -> None:
@@ -38,8 +38,6 @@ def main() -> None:
     # print()
 
     AI_Player.train(board, players, iterations=10000, print_percent_done=True)
-    print()
-    print(AI_Player._cached_strategies)
 
     ties_count = 0
 
@@ -402,14 +400,12 @@ class AI_Player(Player):
         if print_percent_done: print("Training process complete.")
         maxed_strategy = {board_state: max(moves, key=moves.get) for board_state, moves in strategy.items()}
 
-        print(strategy)
-        print()
-        print(maxed_strategy)
-
         cls._cached_strategies[board_name] = (
             {board.to_loc(row, col): points for ((row, col), points) in strategy[get_relitive_board_state(board)].items()},
             {board_state: (board.to_loc(row, col)) for (board_state, (row, col)) in maxed_strategy.items()}
         )
+
+        print(f"{len(strategy)} of {((len(players)+1)**board.size)//4} scinaroes covered")
 
         try:
             with open(cls.SAVE_FILE % board_name, "wt") as file:
@@ -467,7 +463,9 @@ def get_relitive_board_state(board: Board, player: Player = None):
     return tuple(new_board)
 
 def get_matching_any_rotation(key: tuple[tuple[object]], d: dict[tuple[tuple[object]]: object]) -> object:
-    for i in range(4):
+    # TODO make this work
+    # for i in range(4):
+    for i in range(1):
         if key in d:
             return d[key]
         key = rotate_90_degree(key) 
