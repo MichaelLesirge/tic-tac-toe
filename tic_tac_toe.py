@@ -16,9 +16,9 @@ colors = {
 }
 
 OFFSET = 1
+
 """
-TODO right now the plan is for all players so it does not defend right
-also test rotion and other stuff
+TODO test rotion and other stuff
 """
 
 def main() -> None:
@@ -37,7 +37,8 @@ def main() -> None:
     # players = create_players()
     # print()
 
-    AI_Player.train(board, players, iterations=1000000, print_percent_done=True)
+    AI_Player.train(board, players, iterations=10000, print_percent_done=True)
+    print()
     print(AI_Player._cached_strategies)
 
     ties_count = 0
@@ -249,9 +250,6 @@ class Board:
     def set(self, row: int, col: int, val: object) -> None:
         self.board[row][col] = val
 
-    def get_board_state(self) -> tuple[tuple[object]]:
-        return tuple(tuple(item and item.item_count for item in row) for row in self.board)
-
     def to_pos(self, loc: int) -> tuple[int, int]:
         loc -= OFFSET
 
@@ -285,8 +283,6 @@ class Board:
 
 
 class Player:
-    cur_count = 0
-
     def __init__(self, char: str, color: str = None) -> None:
         if len(char) != 1:
             raise ValueError("Player character must be one character")
@@ -301,9 +297,6 @@ class Player:
                 raise ValueError(f"\"{color}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
             color = colors[color]
         self.color = color
-
-        self.item_count = self.cur_count
-        Player.cur_count += 1
 
         self.wins = 0
 
@@ -340,8 +333,8 @@ class AI_Player(Player):
 
     SAVE_FILE = "tic-tac-toe-AI-strategy-%s.txt"
 
-    # {"board name": ({location for first turn: location score, ...}, {(board state with True for self and False for enemy): int, ...}), ...}
-    _cached_strategies: dict[str, tuple[dict[tuple[int, int], int], dict[tuple[bool,], int]]] = {}
+    # {"board name": ({location for first turn: location score, ...}, {(board state): best_move, ...}), ...}
+    _cached_strategies = {}
 
     def __init__(self, char: str, color: str = None) -> None:
         super().__init__(char, color)
@@ -364,12 +357,12 @@ class AI_Player(Player):
 
         percentage_notifacation_interval = iterations // 100
 
-        strategy: dict[tuple[bool,]: dict[tuple[int, int]: int]] = {}
+        strategy = {}
 
         if print_percent_done: print("start training")
 
         for i in range(1, iterations+1):
-            players_moves: dict[str, list[tuple[dict[tuple[int, int], int], ]]] = {player: [] for player in players}
+            players_moves = {player: [] for player in players}
 
             turn_count = 0
             playing = True
@@ -377,7 +370,7 @@ class AI_Player(Player):
             while playing:
                 current_player = players[turn_count % len(players)]
 
-                board_state = board.get_board_state()
+                board_state = get_relitive_board_state(board, current_player)
                 plan = get_matching_any_rotation(board_state, strategy)
 
                 if plan is None:
@@ -409,8 +402,12 @@ class AI_Player(Player):
         if print_percent_done: print("Training process complete.")
         maxed_strategy = {board_state: max(moves, key=moves.get) for board_state, moves in strategy.items()}
 
+        print(strategy)
+        print()
+        print(maxed_strategy)
+
         cls._cached_strategies[board_name] = (
-            {board.to_loc(row, col): points for ((row, col), points) in strategy[board.get_board_state()].items()},
+            {board.to_loc(row, col): points for ((row, col), points) in strategy[get_relitive_board_state(board)].items()},
             {board_state: (board.to_loc(row, col)) for (board_state, (row, col)) in maxed_strategy.items()}
         )
 
@@ -445,14 +442,29 @@ class AI_Player(Player):
         if board.placed == 0:
             loc = pick_weighted_random_value(first_move_options)
         else:
-            print(board.get_board_state())
-            loc = get_matching_any_rotation(board.get_board_state(), strategy)
+            loc = get_matching_any_rotation(get_relitive_board_state(board, self), strategy)
 
         if loc is None:
-            raise NotImplementedError(f"did not exspore possiblity of board {board.get_board_state()}")
+            raise NotImplementedError(f"did not exspore possiblity of board {get_relitive_board_state(board, self)}")
             # TODO pick random valid choice
 
         board.place(loc, self)
+
+def get_relitive_board_state(board: Board, player: Player = None):
+    mapper = {}
+    if player: mapper[player] = 0
+    new_board = []
+    for row in board.board:
+        new_row = []
+        for item in row:
+            if item:
+                if item not in mapper:
+                    mapper[item] = len(mapper)
+                item = mapper[item]
+            new_row.append(item)
+        new_board.append(tuple(new_row))
+
+    return tuple(new_board)
 
 def get_matching_any_rotation(key: tuple[tuple[object]], d: dict[tuple[tuple[object]]: object]) -> object:
     for i in range(4):
@@ -461,12 +473,11 @@ def get_matching_any_rotation(key: tuple[tuple[object]], d: dict[tuple[tuple[obj
         key = rotate_90_degree(key) 
     return None
 
+def rotate_90_degree(l: tuple[tuple[object]]) -> tuple[tuple[object]]:
+    return tuple(tuple(x)[::-1] for x in zip(*l))
 
 def pick_weighted_random_value(d: dict[object, int]) -> object:
     return choices(list(d.keys()), d.values())[0]
-
-def rotate_90_degree(l: tuple[tuple[object]]) -> tuple[tuple[object]]:
-    return tuple(tuple(x)[::-1] for x in zip(*l))
 
 def centered_padding(val: str | Player, amount: int, *, buffer: str = " ") -> str:
     amount -= 1 if isinstance(val, Player) else len(val)
