@@ -2,7 +2,7 @@
 # https://www.programiz.com/python-programming/online-compiler/
 
 from random import choices
-from time import sleep
+from time import sleep, time
 
 color_mode = True
 
@@ -38,7 +38,8 @@ def main() -> None:
     # players = create_players()
     # print()
 
-    AI_Player.train(board, players, iterations=10000, print_percent_done=True)
+    # AI_Player.train(board, players, iterations=1000000, print_percent_done=True)
+    # print()
 
     ties_count = 0
 
@@ -55,7 +56,7 @@ def main() -> None:
             print(board)
             print(f"{player}'s turn.")
 
-            player.take_turn(board)
+            player.take_turn(board, players)
 
             if board.is_winner(player):
                 print(board)
@@ -246,6 +247,10 @@ class Board:
     def get(self, row: int, col: int) -> object:
         return self.board[row][col]
 
+    def valid_set(self, row: int, col: int, val: object) -> None:
+        self.placed += 1
+        self.board[row][col] = val
+
     def set(self, row: int, col: int, val: object) -> None:
         self.board[row][col] = val
 
@@ -267,9 +272,7 @@ class Board:
         if not self.is_empty_location(row, col):
             raise ValueError("location is already occupied")
 
-        self.set(row, col, player)
-
-        self.placed += 1
+        self.valid_set(row, col, player)
 
     # def __repr__(self) -> str:
     #     return f"{self.__class__.__name__}({self.board})"
@@ -299,7 +302,7 @@ class Player:
 
         self.wins = 0
 
-    def take_turn(self, board: Board) -> None:
+    def take_turn(self, board: Board, players: list["Player"]) -> None:
         while True:
             try:
                 loc = int_input("Enter where you want to go")
@@ -327,12 +330,15 @@ class AI_Player(Player):
     """
 
     WIN_POINT = 1
-    TIE_POINT = 0.5
-    MAX_POINT_COUNT = 10
+    TIE_POINT = 1
+    LOSE_POINT = 0
 
+    MAX_POINT_COUNT = 100000
+
+    RAND_START = True
     DELAY = 0
 
-    SAVE_FILE = "tic-tac-toe-AI-strategy-%s.txt"
+    SAVE_FILE = "strategy-%s.txt"
 
     # {"board name": ({location for first turn: location score, ...}, {(board state): best_move, ...}), ...}
     _cached_strategies = {}
@@ -354,7 +360,7 @@ class AI_Player(Player):
                     d1[((row, col))] = min(points, cls.MAX_POINT_COUNT)
             return pick_weighted_random_value(d1)
 
-        board_name = cls.make_board_name(board)
+        board_name = cls.make_board_name(board, players)
 
         percentage_notifacation_interval = iterations // 100
 
@@ -377,31 +383,34 @@ class AI_Player(Player):
                 if plan is None:
                     plan = strategy[board_state] = {(row, col): 1 for col in range(board.width) for row in range(board.height)}
 
-                try:
-                    loc = pick_empty_weighted_random_loc(plan, board)
-                except ValueError:
-                    for moves in players_moves.values():
+                loc = pick_empty_weighted_random_loc(plan, board)
+                row, col = loc
+
+                board.valid_set(row, col, current_player)
+                players_moves[current_player].append((plan, (row, col)))
+
+                if board.is_winner(current_player):
+                    for player, moves in players_moves.items():
+                        for plan, loc in moves:
+                            if player == current_player:
+                                plan[loc] += cls.WIN_POINT * (board.size - turn_count)
+                            else:
+                                plan[loc] = max(plan[loc] - cls.LOSE_POINT, 1)
+                    playing = False
+                elif board.is_full():
+                    for player, moves in players_moves.items():
                         for plan, loc in moves:
                             plan[loc] += cls.TIE_POINT
-                        playing = False
-                else:
-                    row, col = loc
+                    playing = False
 
-                    board.set(row, col, current_player)
-                    players_moves[current_player].append((plan, (row, col)))
-
-                    if board.is_winner(current_player):
-                        for plan, loc in players_moves[current_player]:
-                            plan[loc] += cls.WIN_POINT
-                        playing = False
-                    
-                    turn_count += 1
+                turn_count += 1
             
-            if print_percent_done and (i % percentage_notifacation_interval == 0): print(f"{(i // percentage_notifacation_interval)}% Complete. (game #{i:,})")
+            if print_percent_done and (i % percentage_notifacation_interval == 0):
+                print(f"{(i // percentage_notifacation_interval)}% Complete. (game #{i:,})")
+                print(board)
             board.reset()
 
         if print_percent_done: print("Training process complete.")
-        if print_percent_done: print(f"{len(strategy)} of {((len(players)+1)**board.size)} scinaroes covered")
 
         maxed_strategy = {board_state: max(moves, key=moves.get) for board_state, moves in strategy.items()}
 
@@ -412,17 +421,17 @@ class AI_Player(Player):
 
         try:
             with open(cls.SAVE_FILE % board_name, "wt") as file:
-                file.write(str(cls._cached_strategies[board_name]))
+                file.write(str(cls._cached_strategies[board_name]).replace(" ", ""))
         except PermissionError as er:
             print("Can not write strategy to file in this enviroment")
                 
 
-    @classmethod
-    def make_board_name(cls, board: Board) -> str:
-        return repr(board)
+    @classmethod 
+    def make_board_name(cls, board: Board, players: list[Player]) -> str:
+        return f"b({board.width}x{board.height})w({board.peices_to_win_horizontal},{board.peices_to_win_verticle},{board.peices_to_win_diagnal})p({len(players)})"
 
-    def take_turn(self, board: Board) -> None:
-        board_name = self.make_board_name(board)
+    def take_turn(self, board: Board, players: list[Player]) -> None:
+        board_name = self.make_board_name(board, players)
         if board_name not in self._cached_strategies:
             try:
                 with open(self.SAVE_FILE % board_name, "rt") as file:
@@ -432,13 +441,12 @@ class AI_Player(Player):
             except FileNotFoundError as er:
                 raise ValueError(f"AI_Player has not been trained on {board_name} board.") from er
             except Exception as er:
-                er.add_note(f"Invalid file contents: {er}")
-                raise er
+                raise ValueError(f"Invalid file contents: {er}") from er
         
         # have more random first move to make game less repitive 
         first_move_options, strategy = self._cached_strategies[board_name]
         
-        if board.placed == 0:
+        if self.RAND_START and board.placed == 0:
             loc = pick_weighted_random_value(first_move_options)
         else:
             loc = get_matching_any_rotation(get_relitive_board_state(board, self), strategy)
@@ -467,7 +475,8 @@ def get_relitive_board_state(board: Board, player: Player = None):
     return tuple(new_board)
 
 def get_matching_any_rotation(key: tuple[tuple[object]], d: dict[tuple[tuple[object]]: object]) -> object:
-    # TODO make this work
+    # TODO make this work for all rotations and when mirroed (look at phone)
+
     # for i in range(4):
     for i in range(1):
         if key in d:
