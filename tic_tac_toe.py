@@ -26,16 +26,15 @@ def main() -> None:
     # print()
 
     
-    board = Board(3, 3, 3, 3, 3)
-    # board = make_board()
-    # print()
-
-    players = [Player("X", "red"), AI_Player("O", "blue")]
-    # players = create_players()
-    # print()
-
-    AI_Player.train(board, players, iterations=100000, print_percent_done=True)
+    board = make_board()
     print()
+
+    players = create_players()
+    print()
+
+    if any((isinstance(player, AI_Player) for player in players)):
+        AI_Player.train(board, players, iterations=board.size*100000, print_percent_done=True)
+        print()
 
     ties_count = 0
 
@@ -128,13 +127,17 @@ def create_player() -> "Player":
             raise ValueError(f"\"{x}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
         return x
 
+    make_ai = bool_input("Is player AI player")
+
     letter = get_valid_input("Letter", valid_letter)
 
     color = None
     if color_mode:
         color = get_valid_input("Color", valid_color)
 
-    return Player(letter, color)
+    player_type = AI_Player if make_ai else Player
+
+    return player_type(letter, color)
 
 
 class Board:
