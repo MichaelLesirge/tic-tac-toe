@@ -32,7 +32,7 @@ def main() -> None:
     players = create_players()
     print()
 
-    if any((isinstance(player, AI_Player) for player in players)):
+    if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(board, players):
         AI_Player.train(board, players, iterations=board.size*100000, print_percent_done=True)
         print()
 
@@ -107,8 +107,8 @@ def create_players() -> list["Player"]:
             new_player = create_player()
             players.append(new_player)
     else:
-        players.append(Player("X", "red"))
-        players.append(Player("O", "blue"))
+        players.append(Human_Player("X", "red"))
+        players.append(Human_Player("O", "blue"))
     return players
 
 
@@ -127,7 +127,7 @@ def create_player() -> "Player":
             raise ValueError(f"\"{x}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
         return x
 
-    make_ai = bool_input("Is player AI player")
+    make_ai = bool_input("Bot")
 
     letter = get_valid_input("Letter", valid_letter)
 
@@ -135,7 +135,7 @@ def create_player() -> "Player":
     if color_mode:
         color = get_valid_input("Color", valid_color)
 
-    player_type = AI_Player if make_ai else Player
+    player_type = AI_Player if make_ai else Human_Player
 
     return player_type(letter, color)
 
@@ -301,14 +301,6 @@ class Player:
 
         self.wins = 0
 
-    def take_turn(self, board: Board, players: list["Player"]) -> None:
-        while True:
-            try:
-                loc = int_input("Enter where you want to go")
-                board.place(int(loc), self)
-                return
-            except ValueError as exs:
-                print_invalid(exs)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(char={self.char}, wins={self.wins})"
@@ -318,6 +310,15 @@ class Player:
             return self.color + "\033[1m" + self.char + "\033[0m"
         return self.char
 
+class Human_Player(Player):
+    def take_turn(self, board: Board, players: list["Player"]) -> None:
+        while True:
+            try:
+                loc = int_input("Enter where you want to go")
+                board.place(int(loc), self)
+                return
+            except ValueError as exs:
+                print_invalid(exs)
 
 class AI_Player(Player):
     """
@@ -332,13 +333,28 @@ class AI_Player(Player):
     RAND_START = True
     DELAY = 0.0
 
-    SAVE_FILE = "strategy-%s.txt"
+    SAVE_FILE_NAME_TEMPLATE = "strategy-%s.txt"
 
     # {"board name": ({location for first turn: location score, ...}, {(board state): best_move, ...}), ...}
     _cached_strategies = {}
 
     def __init__(self, char: str, color: str = None) -> None:
         super().__init__(char, color)
+
+    @classmethod
+    def needs_training(cls, board: Board, players: list[Player]) -> bool:
+        name = cls.make_game_name(board, players)
+        if name in cls._cached_strategies:
+            return False
+        try:
+            open(cls.SAVE_FILE_NAME_TEMPLATE % name).close()
+        except FileNotFoundError:
+            return True
+        except PermissionError:
+            return True
+        else:
+            return False
+        
 
     @classmethod
     def train(cls, board: Board, players: list[Player], iterations: int = 1000000, print_percent_done: bool = False) -> None:
@@ -354,13 +370,15 @@ class AI_Player(Player):
                     d1[((row, col))] = min(points, cls.MAX_POINT_COUNT)
             return pick_weighted_random_value(d1)
 
-        board_name = cls.make_board_name(board, players)
+        board_name = cls.make_game_name(board, players)
 
         percentage_notifacation_interval = iterations // 100
 
         strategy = {}
 
-        if print_percent_done: print("start training")
+        if print_percent_done: 
+            print("start training")
+            print(f"0% Complete. Game 0 of {iterations:,}\r", end="")
 
         start = time()
 
@@ -398,12 +416,12 @@ class AI_Player(Player):
                 turn_count += 1
             
             if print_percent_done and (i % percentage_notifacation_interval == 0):
-                print(f"{(i // percentage_notifacation_interval)}% Complete. (game #{i:,})\r", end="")
+                print(f"{(i // percentage_notifacation_interval)}% Complete. Game {i:,} of {iterations:,}\r", end="")
             board.reset()
 
         end = time()
-
-        if print_percent_done: print(f"Training process complete. {iterations:,} games played in {end-start:.3} seconds")
+        
+        if print_percent_done: print(f"Training process complete. {iterations:,} games played in {int(end-start):,} seconds")
 
         maxed_strategy = {board_state: max(moves, key=moves.get) for board_state, moves in strategy.items()}
 
@@ -413,20 +431,20 @@ class AI_Player(Player):
         )
 
         try:
-            with open(cls.SAVE_FILE % board_name, "wt") as file:
+            with open(cls.SAVE_FILE_NAME_TEMPLATE % board_name, "wt") as file:
                 file.write(str(cls._cached_strategies[board_name]).replace(" ", ""))
         except PermissionError as er:
             print("Can not write strategy to file in this enviroment")         
 
     @classmethod 
-    def make_board_name(cls, board: Board, players: list[Player]) -> str:
+    def make_game_name(cls, board: Board, players: list[Player]) -> str:
         return f"b({board.width}x{board.height})w({board.peices_to_win_horizontal},{board.peices_to_win_verticle},{board.peices_to_win_diagnal})p({len(players)})"
 
     def take_turn(self, board: Board, players: list[Player]) -> None:
-        board_name = self.make_board_name(board, players)
+        board_name = self.make_game_name(board, players)
         if board_name not in self._cached_strategies:
             try:
-                with open(self.SAVE_FILE % board_name, "rt") as file:
+                with open(self.SAVE_FILE_NAME_TEMPLATE % board_name, "rt") as file:
                     self._cached_strategies[board_name] = eval(file.read())
             except PermissionError as er:
                 print("Can not read strategy from file in this enviroment")
@@ -466,13 +484,14 @@ def get_relitive_board_state(board: Board, player: Player = None):
 
     return tuple(new_board)
 
-def get_matching_any_rotation(key: tuple[tuple[object]], d: dict[tuple[tuple[object]]: object]):
+def get_matching_any_rotation(key: tuple[tuple[object]], d: dict[tuple[tuple[object]]: object]) -> tuple[tuple[tuple[object]], object]:
     # TODO make this work for all rotations and when mirroed (look at phone)
 
     # for i in range(4):
     for i in range(1):
         if key in d:
             return d[key]
+            return key, d[key]
         key = rotate_90_degree(key) 
     return None
 
