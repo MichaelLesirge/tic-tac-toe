@@ -444,8 +444,8 @@ class AI_Player(Player):
             loc = get_matching_any_rotation(get_relitive_board_state(board, self), strategy)
 
         if loc is None:
-            raise NotImplementedError(f"did not exspore possiblity of board {get_relitive_board_state(board, self)}")
             # TODO pick random valid choice
+            raise NotImplementedError("I don't know what to do on this board state.")
 
         board.place(loc, self)
         sleep(self.DELAY)
