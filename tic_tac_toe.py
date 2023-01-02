@@ -32,7 +32,7 @@ def main() -> None:
     players = create_players()
     print()
 
-    if any((isinstance(player, AI_Player) for player in players)):
+    if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(board, players):
         AI_Player.train(board, players, iterations=board.size*100000, print_percent_done=True)
         print()
 
@@ -81,15 +81,14 @@ def main() -> None:
 def make_board() -> "Board":
     if bool_input("Do you want a custom board"):
         message = "Enter the %s of the board"
-        width, height = int_input(message % "width", require_positive=True), int_input(
-            message % "height", require_positive=True)
+        width, height = int_input(message % "width", min=1), int_input(message % "height", min=1)
     else:
         width, height = Board.DEFAULT_SIZE, Board.DEFAULT_SIZE
 
     print()
 
     if bool_input("Do you want a custom win condition"):
-        peices_to_win = int_input("Enter peices to win", require_positive=True)
+        peices_to_win = int_input("Enter peices to win", min=1)
         peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = peices_to_win, peices_to_win, peices_to_win
     else:
         peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = width, height, (
@@ -101,14 +100,14 @@ def make_board() -> "Board":
 def create_players() -> list["Player"]:
     players = []
     if bool_input("Do you want a custom players"):
-        for i in range(1, int_input("Enter the number of players", require_positive=True) + 1):
+        for i in range(1, int_input("Enter the number of players", min=1) + 1):
             print()
             print(f"Player {i}")
             new_player = create_player()
             players.append(new_player)
     else:
-        players.append(Player("X", "red"))
-        players.append(Player("O", "blue"))
+        players.append(Human_Player("X", "red"))
+        players.append(Human_Player("O", "blue"))
     return players
 
 
@@ -127,7 +126,7 @@ def create_player() -> "Player":
             raise ValueError(f"\"{x}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
         return x
 
-    make_ai = bool_input("Is player AI player")
+    make_ai = bool_input("Bot")
 
     letter = get_valid_input("Letter", valid_letter)
 
@@ -135,7 +134,7 @@ def create_player() -> "Player":
     if color_mode:
         color = get_valid_input("Color", valid_color)
 
-    player_type = AI_Player if make_ai else Player
+    player_type = AI_Player if make_ai else Human_Player
 
     return player_type(letter, color)
 
@@ -301,14 +300,6 @@ class Player:
 
         self.wins = 0
 
-    def take_turn(self, board: Board, players: list["Player"]) -> None:
-        while True:
-            try:
-                loc = int_input("Enter where you want to go")
-                board.place(int(loc), self)
-                return
-            except ValueError as exs:
-                print_invalid(exs)
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(char={self.char}, wins={self.wins})"
@@ -318,6 +309,9 @@ class Player:
             return self.color + "\033[1m" + self.char + "\033[0m"
         return self.char
 
+class Human_Player(Player):
+    def take_turn(self, board: Board, players: list["Player"]) -> None:
+        get_valid_input("Enter where you want to go", lambda loc: board.place(loc, self), input_func=int_input)
 
 class AI_Player(Player):
     """
@@ -332,13 +326,28 @@ class AI_Player(Player):
     RAND_START = True
     DELAY = 0.0
 
-    SAVE_FILE = "strategy-%s.txt"
+    SAVE_FILE_NAME_TEMPLATE = "strategy-%s.txt"
 
     # {"board name": ({location for first turn: location score, ...}, {(board state): best_move, ...}), ...}
-    _cached_strategies = {}
+    _cached_strategies: dict[str, tuple[dict[int, int], tuple[tuple[int]]: int]] = {}
 
     def __init__(self, char: str, color: str = None) -> None:
         super().__init__(char, color)
+
+    @classmethod
+    def needs_training(cls, board: Board, players: list[Player]) -> bool:
+        name = cls.make_game_name(board, players)
+        if name in cls._cached_strategies:
+            return False
+        try:
+            open(cls.SAVE_FILE_NAME_TEMPLATE % name).close()
+        except FileNotFoundError:
+            return True
+        except PermissionError:
+            return True
+        else:
+            return False
+        
 
     @classmethod
     def train(cls, board: Board, players: list[Player], iterations: int = 1000000, print_percent_done: bool = False) -> None:
@@ -354,13 +363,15 @@ class AI_Player(Player):
                     d1[((row, col))] = min(points, cls.MAX_POINT_COUNT)
             return pick_weighted_random_value(d1)
 
-        board_name = cls.make_board_name(board, players)
+        board_name = cls.make_game_name(board, players)
 
         percentage_notifacation_interval = iterations // 100
 
         strategy = {}
 
-        if print_percent_done: print("start training")
+        if print_percent_done: 
+            print("start training")
+            print(f"0% Complete. Game 0 of {iterations:,}\r", end="")
 
         start = time()
 
@@ -374,36 +385,36 @@ class AI_Player(Player):
                 current_player = players[turn_count % len(players)]
 
                 board_state = get_relitive_board_state(board, current_player)
-                plan = get_matching_any_rotation(board_state, strategy)
+                options = strategy.get(board_state)
 
-                if plan is None:
-                    plan = strategy[board_state] = {(row, col): 1 for col in range(board.width) for row in range(board.height)}
+                if options is None:
+                    options = strategy[board_state] = {(row, col): 1 for col in range(board.width) for row in range(board.height)}
 
-                pos = pick_empty_weighted_random_loc(plan, board)
+                pos = pick_empty_weighted_random_loc(options, board)
                 row, col = pos
 
                 board.valid_set(row, col, current_player)
-                players_moves[current_player].append((plan, (row, col)))
+                players_moves[current_player].append((options, (row, col)))
 
                 if board.is_winner(current_player):
-                    for plan, pos in players_moves[current_player]:
-                            plan[pos] += (board.size - turn_count)
+                    for options, pos in players_moves[current_player]:
+                        options[pos] += (board.size - turn_count)
                     playing = False
                 elif board.is_full():
                     for moves in players_moves.values():
-                        for plan, pos in moves:
-                            plan[pos] += 1
+                        for options, pos in moves:
+                            options[pos] += 1
                     playing = False
 
                 turn_count += 1
             
             if print_percent_done and (i % percentage_notifacation_interval == 0):
-                print(f"{(i // percentage_notifacation_interval)}% Complete. (game #{i:,})\r", end="")
+                print(f"{(i // percentage_notifacation_interval)}% Complete. Game {i:,} of {iterations:,}\r", end="")
             board.reset()
 
         end = time()
-
-        if print_percent_done: print(f"Training process complete. {iterations:,} games played in {end-start:.3} seconds")
+        
+        if print_percent_done: print(f"Training process complete. {iterations:,} games played in {int(end-start):,} seconds")
 
         maxed_strategy = {board_state: max(moves, key=moves.get) for board_state, moves in strategy.items()}
 
@@ -413,20 +424,20 @@ class AI_Player(Player):
         )
 
         try:
-            with open(cls.SAVE_FILE % board_name, "wt") as file:
+            with open(cls.SAVE_FILE_NAME_TEMPLATE % board_name, "wt") as file:
                 file.write(str(cls._cached_strategies[board_name]).replace(" ", ""))
         except PermissionError as er:
             print("Can not write strategy to file in this enviroment")         
 
     @classmethod 
-    def make_board_name(cls, board: Board, players: list[Player]) -> str:
+    def make_game_name(cls, board: Board, players: list[Player]) -> str:
         return f"b({board.width}x{board.height})w({board.peices_to_win_horizontal},{board.peices_to_win_verticle},{board.peices_to_win_diagnal})p({len(players)})"
 
     def take_turn(self, board: Board, players: list[Player]) -> None:
-        board_name = self.make_board_name(board, players)
+        board_name = self.make_game_name(board, players)
         if board_name not in self._cached_strategies:
             try:
-                with open(self.SAVE_FILE % board_name, "rt") as file:
+                with open(self.SAVE_FILE_NAME_TEMPLATE % board_name, "rt") as file:
                     self._cached_strategies[board_name] = eval(file.read())
             except PermissionError as er:
                 print("Can not read strategy from file in this enviroment")
@@ -441,7 +452,7 @@ class AI_Player(Player):
         if self.RAND_START and board.placed == 0:
             loc = pick_weighted_random_value(first_move_options)
         else:
-            loc = get_matching_any_rotation(get_relitive_board_state(board, self), strategy)
+            loc = strategy.get(get_relitive_board_state(board, self))
 
         if loc is None:
             # TODO pick random valid choice
@@ -450,7 +461,7 @@ class AI_Player(Player):
         board.place(loc, self)
         sleep(self.DELAY)
 
-def get_relitive_board_state(board: Board, player: Player = None):
+def get_relitive_board_state(board: Board, player: Player = None) -> tuple[tuple[int]]:
     mapper = {}
     if player: mapper[player] = 0
     new_board = []
@@ -466,18 +477,23 @@ def get_relitive_board_state(board: Board, player: Player = None):
 
     return tuple(new_board)
 
-def get_matching_any_rotation(key: tuple[tuple[object]], d: dict[tuple[tuple[object]]: object]):
-    # TODO make this work for all rotations and when mirroed (look at phone)
-
-    # for i in range(4):
-    for i in range(1):
-        if key in d:
-            return d[key]
-        key = rotate_90_degree(key) 
+# https://nestedsoftware.com/2019/06/15/tic-tac-toe-with-the-minimax-algorithm-5988.123625.html
+def get_state_any_rotation(board_state, stratagy):
+    cur_board_state = board_state
+    for i in range(2):
+        for j in range(4):
+            if cur_board_state in stratagy:
+                pos = stratagy[cur_board_state]  # TODO unrotate
+                return (cur_board_state, stratagy[cur_board_state]), pos
+            cur_board_state = rotate_90_degree(cur_board_state)
+        cur_board_state = mirrorX(cur_board_state)
     return None
 
-def rotate_90_degree(l: tuple[tuple[object]]) -> tuple[tuple[object]]:
+def rotate_90_degree(l):
     return tuple(tuple(x)[::-1] for x in zip(*l))
+
+def mirrorX(l):
+    return tuple(tuple(x)[::-1] for x in l)
 
 def pick_weighted_random_value(d: dict[object, int]) -> object:
     return choices(list(d.keys()), d.values())[0]
@@ -494,23 +510,27 @@ def bool_input(prompt: str) -> None:
     user_input = input(prompt).strip().lower()
     return user_input in ("y", "yes", "true")
 
-def int_input(prompt: str, *, require_positive: bool = False) -> None:
+def input_s(prompt=""):
+    return input(prompt + ": ").strip()
+
+def int_input(prompt: str, *, min = float("-infinity"), max = float("infinity")) -> None:
     def func(x: str):
         try:
             x = int(x)
         except ValueError:
             raise ValueError("input must be number")
-        if require_positive and x <= 0:
-            raise ValueError("input must be positive")
+        if x < min:
+            raise ValueError(f"input must be greater than {min}")
+        if x > max:
+            raise ValueError(f"input must be smaller than {max}")
         return x
 
     return get_valid_input(prompt, func)
 
-def get_valid_input(prompt: str, converter):
-    prompt += ": "
+def get_valid_input(prompt: str, converter, *, input_func=input_s):
     while True:
         try:
-            user_input = converter(input(prompt).strip())
+            user_input = converter(input_func(prompt))
         except ValueError as er:
             print_invalid(er)
         else:
