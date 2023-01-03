@@ -3,6 +3,7 @@
 
 from random import choices
 from time import sleep, time
+from abc import ABC, abstractmethod
 
 color_mode = True
 
@@ -25,16 +26,18 @@ def main() -> None:
     # color_mode = bool_input("Does you console support ASCII color codes if your not sure, \u001b[31mis this red for you\033[0m")
     # print()
 
-    
+    # board = Board(3, 3, 3, 3, 3)
     board = make_board()
     print()
 
-    players = create_players()
-    print()
+    players = [Human_Player("X", "red"), AI_Player("O", "blue")]
+    # players = create_players()
+    # print()
 
-    if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(board, players):
-        AI_Player.train(board, players, iterations=board.size*100000, print_percent_done=True)
+    if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(board, len(players)):
+        AI_Player.train(board, len(players), iterations=board.size*10000, print_percent_done=True)
         print()
+    # AI_Player.train(board, len(players), iterations=10000, print_percent_done=True)
 
     ties_count = 0
 
@@ -51,7 +54,7 @@ def main() -> None:
             print(board)
             print(f"{current_player}'s turn.")
 
-            current_player.take_turn(board, players)
+            current_player.take_turn(board, len(players))
 
             if board.is_winner(current_player):
                 print(board)
@@ -151,11 +154,8 @@ class Board:
         self.min_loc = OFFSET
         self.max_loc = self.size + OFFSET - 1
 
-        self.should_check_horizontal = (peices_to_win_horizontal != None) and (
-            peices_to_win_horizontal <= self.width)
-
+        self.should_check_horizontal = (peices_to_win_horizontal != None) and (peices_to_win_horizontal <= self.width)
         self.should_check_verticle = (peices_to_win_verticle != None) and (peices_to_win_verticle <= self.height)
-
         self.should_check_diagonal = (peices_to_win_diagnal != None) and (peices_to_win_diagnal <= self.width or peices_to_win_diagnal <= self.height)
 
         self.peices_to_win_horizontal = peices_to_win_horizontal
@@ -245,14 +245,11 @@ class Board:
     def get(self, row: int, col: int) -> object:
         return self.board[row][col]
 
-    def valid_set(self, row: int, col: int, val: object) -> None:
-        self.placed += 1
-        self.board[row][col] = val
 
     def set(self, row: int, col: int, val: object) -> None:
         self.board[row][col] = val
 
-    def to_pos(self, loc: int) -> tuple[int, int]:
+    def to_indexs(self, loc: int) -> tuple[int, int]:
         loc -= OFFSET
 
         row = loc // self.width
@@ -261,19 +258,24 @@ class Board:
 
     def to_loc(self, row: int, col: int) -> int:
         return (row*self.width)+col+OFFSET
+    
+    def _place(self, loc: int, val: object) -> None:
+        self.placed += 1
+        row, col = self.to_indexs(loc)
+        self.board[row][col] = val
 
     def place(self, loc: int, player: object) -> None:
-        row, col = self.to_pos(loc)
+        row, col = self.to_indexs(loc)
 
         if not self.is_valid_location(row, col):
             raise ValueError(f"location must be from 1 to {self.size}")
         if not self.is_empty_location(row, col):
             raise ValueError("location is already occupied")
 
-        self.valid_set(row, col, player)
+        self._place(loc, player)
 
     # def __repr__(self) -> str:
-    #     return f"{self.__class__.__name__}({self.board})"
+    #     return f"<{__name__}.{self.__class__.__name__} board={self.board}>"
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.width}, {self.height}, {self.peices_to_win_horizontal}, {self.peices_to_win_verticle}, {self.peices_to_win_diagnal})"
 
@@ -281,26 +283,20 @@ class Board:
         # I'm so sorry future self, but I realised it was possible and this project does not matter so I just did it.
         return "\n" + (("\n" + "┼".join(["─" + ("─" * self.max_cell_size) + "─"] * self.width) + "─" + "\n").join([" " + ((" " + "│" + " ").join([centered_padding(item if item is not None else str(self.to_loc(i, j)), self.max_cell_size) for j, item in enumerate(row)]) + " ") for i, row in enumerate(self.board)])) + "\n"
 
-
-class Player:
+class Player(ABC):
     def __init__(self, char: str, color: str = None) -> None:
         if len(char) != 1:
             raise ValueError("Player character must be one character")
-        if not char.isalpha():
-            raise ValueError("Player character must be a letter")
         self.char = char
 
-        if color is not None:
-            color = color.lower()
-            if color not in colors:
-                possible_colors = list(self.colors.keys())
-                raise ValueError(f"\"{color}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
-            color = colors[color]
-        self.color = color
+        self.color = color and colors[color]
 
         self.wins = 0
 
-
+    @abstractmethod
+    def take_turn(board: Board, player_count: int) -> None:
+        pass
+    
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(char={self.char}, wins={self.wins})"
 
@@ -310,7 +306,7 @@ class Player:
         return self.char
 
 class Human_Player(Player):
-    def take_turn(self, board: Board, players: list["Player"]) -> None:
+    def take_turn(self, board: Board, player_count: int) -> None:
         get_valid_input("Enter where you want to go", lambda loc: board.place(loc, self), input_func=int_input)
 
 class AI_Player(Player):
@@ -321,7 +317,8 @@ class AI_Player(Player):
 
     In the future I am going to make this use a real neural network / use a libary like PyTorch or Tensorflow. For now I want to try and do it with no libaries (except random)
     """
-    MAX_POINT_COUNT = 100000
+    
+    MAX_POINT_COUNT = 100
 
     RAND_START = True
     DELAY = 0.0
@@ -335,12 +332,13 @@ class AI_Player(Player):
         super().__init__(char, color)
 
     @classmethod
-    def needs_training(cls, board: Board, players: list[Player]) -> bool:
-        name = cls.make_game_name(board, players)
+    def needs_training(cls, board: Board, player_count: list[Player]) -> bool:
+        name = cls.make_game_name(board, player_count)
         if name in cls._cached_strategies:
             return False
         try:
-            open(cls.SAVE_FILE_NAME_TEMPLATE % name).close()
+            with open(cls.SAVE_FILE_NAME_TEMPLATE % name, 'r') as file:
+                file.read()
         except FileNotFoundError:
             return True
         except PermissionError:
@@ -350,24 +348,16 @@ class AI_Player(Player):
         
 
     @classmethod
-    def train(cls, board: Board, players: list[Player], iterations: int = 1000000, print_percent_done: bool = False) -> None:
-
+    def train(cls, board: Board, player_count: int, iterations: int = 1000000, print_percent_done: bool = False) -> None:
         board.reset()
         
-        def pick_empty_weighted_random_loc(d: dict[tuple[int, int], int], board: Board) -> tuple[int, int]:
-            d1 = {}
-            for (row, col), points in d.items():
-                if not board.is_empty_location(row, col):
-                    d1[(row, col)] = 0
-                else:
-                    d1[((row, col))] = min(points, cls.MAX_POINT_COUNT)
-            return pick_weighted_random_value(d1)
-
-        board_name = cls.make_game_name(board, players)
+        board_name = cls.make_game_name(board, player_count)
 
         percentage_notifacation_interval = iterations // 100
 
         strategy = {}
+        
+        players = [AI_Player(str(i)) for i in range(player_count)]
 
         if print_percent_done: 
             print("start training")
@@ -383,27 +373,28 @@ class AI_Player(Player):
 
             while playing:
                 current_player = players[turn_count % len(players)]
+                
+                def make_play(board_state):    
+                    options = strategy.get(board_state)
+                    
+                    if options is None:
+                        options = strategy[board_state] = {loc: 1 for loc in range(board.min_loc, board.max_loc+1)}
 
-                board_state = get_relitive_board_state(board, current_player)
-                options = strategy.get(board_state)
-
-                if options is None:
-                    options = strategy[board_state] = {(row, col): 1 for col in range(board.width) for row in range(board.height)}
-
-                pos = pick_empty_weighted_random_loc(options, board)
-                row, col = pos
-
-                board.valid_set(row, col, current_player)
-                players_moves[current_player].append((options, (row, col)))
+                    loc = cls.pick_empty_weighted_random_loc(board, options)
+                    
+                    board._place(loc, current_player)
+                    players_moves[current_player].append((options, loc))
+                    
+                current_player.make_play_any_rotation(board, strategy, make_play)
 
                 if board.is_winner(current_player):
-                    for options, pos in players_moves[current_player]:
-                        options[pos] += (board.size - turn_count)
+                    for options, indexs in players_moves[current_player]:
+                        options[indexs] += (board.size - turn_count)
                     playing = False
                 elif board.is_full():
                     for moves in players_moves.values():
-                        for options, pos in moves:
-                            options[pos] += 1
+                        for options, indexs in moves:
+                            options[indexs] += 1
                     playing = False
 
                 turn_count += 1
@@ -417,10 +408,11 @@ class AI_Player(Player):
         if print_percent_done: print(f"Training process complete. {iterations:,} games played in {int(end-start):,} seconds")
 
         maxed_strategy = {board_state: max(moves, key=moves.get) for board_state, moves in strategy.items()}
+        first_move_strategy = strategy[players[0].get_relitive_board_state(board)]
 
         cls._cached_strategies[board_name] = (
-            {board.to_loc(row, col): points for ((row, col), points) in strategy[get_relitive_board_state(board)].items()},
-            {board_state: (board.to_loc(row, col)) for (board_state, (row, col)) in maxed_strategy.items()}
+            first_move_strategy,
+            maxed_strategy
         )
 
         try:
@@ -430,17 +422,17 @@ class AI_Player(Player):
             print("Can not write strategy to file in this enviroment")         
 
     @classmethod 
-    def make_game_name(cls, board: Board, players: list[Player]) -> str:
-        return f"b({board.width}x{board.height})w({board.peices_to_win_horizontal},{board.peices_to_win_verticle},{board.peices_to_win_diagnal})p({len(players)})"
+    def make_game_name(cls, board: Board, player_count: int) -> str:
+        return f"b({board.width}x{board.height})w({board.peices_to_win_horizontal},{board.peices_to_win_verticle},{board.peices_to_win_diagnal})p({player_count})"
 
-    def take_turn(self, board: Board, players: list[Player]) -> None:
-        board_name = self.make_game_name(board, players)
+    def take_turn(self, board: Board, players_count: int) -> None:
+        board_name = self.make_game_name(board, players_count)
         if board_name not in self._cached_strategies:
             try:
                 with open(self.SAVE_FILE_NAME_TEMPLATE % board_name, "rt") as file:
                     self._cached_strategies[board_name] = eval(file.read())
             except PermissionError as er:
-                print("Can not read strategy from file in this enviroment")
+                print("Can not read strategy from file in this enviroment. AI_Player does not have strategy in cache either.")
             except FileNotFoundError as er:
                 raise ValueError(f"AI_Player has not been trained on {board_name} board.") from er
             except Exception as er:
@@ -451,49 +443,69 @@ class AI_Player(Player):
         
         if self.RAND_START and board.placed == 0:
             loc = pick_weighted_random_value(first_move_options)
+            board.place(loc, self)
         else:
-            loc = strategy.get(get_relitive_board_state(board, self))
+            def make_play(board_state):
+                loc = strategy.get(board_state)
 
-        if loc is None:
-            raise NotImplementedError(f"did not exspore possiblity of board {get_relitive_board_state(board, self)}")
-            # TODO pick random valid choice
+                if loc is None:
+                    # TODO pick random valid choice
+                    raise NotImplementedError(f"AI Player does not know what to do on this board state")
+                
+                board.place(loc, self)
+            self.make_play_any_rotation(board, strategy, make_play, p=True) 
 
-        board.place(loc, self)
         sleep(self.DELAY)
+    
+    def make_play_any_rotation(self, board: Board, stratagy, play_func, p=False):
+        if p: print("{")
+        if p: print(board)
+        placed = False
+        for i in range(2):
+            for j in range(4):
+                if not placed:
+                    board_state = self.get_relitive_board_state(board)
+                    if board_state in stratagy:
+                        if p: print(board)
+                        play_func(board_state)
+                        placed = True
+                board.board = rotate_90_degree(board.board)
+            board.board = mirrorX(board.board)
+        if not placed:
+            play_func(self.get_relitive_board_state(board))
+        if p: print("}")
 
-def get_relitive_board_state(board: Board, player: Player = None) -> tuple[tuple[int]]:
-    mapper = {}
-    if player: mapper[player] = 0
-    new_board = []
-    for row in board.board:
-        new_row = []
-        for item in row:
-            if item:
-                if item not in mapper:
-                    mapper[item] = len(mapper)
-                item = mapper[item]
-            new_row.append(item)
-        new_board.append(tuple(new_row))
+    def get_relitive_board_state(self, board: Board) -> tuple[tuple[int]]:
+        mapper = {self: 0}
+        new_board = []
+        for row in board.board:
+            new_row = []
+            for item in row:
+                if item is not None:
+                    if item not in mapper:
+                        mapper[item] = len(mapper)
+                    item = mapper[item]
+                new_row.append(item)
+            new_board.append(tuple(new_row))
 
-    return tuple(new_board)
+        return tuple(new_board)
 
-# https://nestedsoftware.com/2019/06/15/tic-tac-toe-with-the-minimax-algorithm-5988.123625.html
-def get_state_any_rotation(board_state, stratagy):
-    cur_board_state = board_state
-    for i in range(2):
-        for j in range(4):
-            if cur_board_state in stratagy:
-                pos = stratagy[cur_board_state]  # TODO unrotate
-                return (cur_board_state, stratagy[cur_board_state]), pos
-            cur_board_state = rotate_90_degree(cur_board_state)
-        cur_board_state = mirrorX(cur_board_state)
-    return None
+    @classmethod
+    def pick_empty_weighted_random_loc(cls, board: Board, options: dict[int, int], cap=float("infinity")) -> int:
+        new_stratagy = {}
+        for loc, points in options.items():
+            if not board.is_empty_location(*board.to_indexs(loc)):
+                new_stratagy[loc] = 0
+            else:
+                new_stratagy[loc] = min(points, cls.MAX_POINT_COUNT)
+        return pick_weighted_random_value(new_stratagy)
+
 
 def rotate_90_degree(l):
-    return tuple(tuple(x)[::-1] for x in zip(*l))
+    return type(l)(type(l[0])(x[::-1]) for x in zip(*l))
 
 def mirrorX(l):
-    return tuple(tuple(x)[::-1] for x in l)
+    return type(l)(type(l[0])(x[::-1]) for x in l)
 
 def pick_weighted_random_value(d: dict[object, int]) -> object:
     return choices(list(d.keys()), d.values())[0]
