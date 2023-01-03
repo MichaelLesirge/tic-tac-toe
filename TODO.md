@@ -21,3 +21,4 @@
     - add and delete players
     - change the letter and color of exsiting ones. 
     - When you add new player have it auto choose a letter and corrisponding color and auto focus letter box
+- Allow use to naviagate page with tab and the arrow keys
