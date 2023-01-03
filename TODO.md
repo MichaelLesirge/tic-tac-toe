@@ -2,6 +2,7 @@
 
 ## All games
 - Remove code duplication in win check funtions. 
+- Make diagnal checking better
 
 ## Python
 - Highlight background of winning elements
