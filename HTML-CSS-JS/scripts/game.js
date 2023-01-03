@@ -149,7 +149,6 @@ class Board {
 			let winningArray;
 
 			[isWinner, winningArray] = this.isPlayerWinner(currentPlayer);
-			console.log(isWinner, winningArray);
 
 			if (isWinner) {
 				winningArray.forEach((cell) => cell.highlight());
