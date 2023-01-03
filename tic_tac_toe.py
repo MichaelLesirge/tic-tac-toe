@@ -453,27 +453,23 @@ class AI_Player(Player):
                     raise NotImplementedError(f"AI Player does not know what to do on this board state")
                 
                 board.place(loc, self)
-            self.make_play_any_rotation(board, strategy, make_play, p=True) 
+            self.make_play_any_rotation(board, strategy, make_play) 
 
         sleep(self.DELAY)
     
-    def make_play_any_rotation(self, board: Board, stratagy, play_func, p=False):
-        if p: print("{")
-        if p: print(board)
+    def make_play_any_rotation(self, board: Board, stratagy, play_func):
         placed = False
         for i in range(2):
             for j in range(4):
                 if not placed:
                     board_state = self.get_relitive_board_state(board)
                     if board_state in stratagy:
-                        if p: print(board)
                         play_func(board_state)
                         placed = True
                 board.board = rotate_90_degree(board.board)
             board.board = mirrorX(board.board)
         if not placed:
             play_func(self.get_relitive_board_state(board))
-        if p: print("}")
 
     def get_relitive_board_state(self, board: Board) -> tuple[tuple[int]]:
         mapper = {self: 0}
