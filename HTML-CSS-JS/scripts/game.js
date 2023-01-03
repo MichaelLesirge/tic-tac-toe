@@ -62,9 +62,6 @@ class Cell {
 
 const PLACEHOLDER_CELL = new Cell(document.createElement("div"), null);
 
-	
-}
-
 class Board {
 	constructor(width, height, peicesToWinHorizontal, peicesToWinVertical, peicesToWinDiagonal) {
 		this.width = width;
@@ -72,65 +69,20 @@ class Board {
 
 		this.size = this.width * this.height;
 
-		
-		const allCheckers = {
-			horizontal: this._isPlayerWinnerRowPromise(
-				0,
-				0,
-				this.board.height,
-				this.board.width,
-				(x, y) => this.board.getCell(y, x),
-				peicesToWinHorizontal
-			),
-			verticle: this._isPlayerWinnerRowPromise(
-				0,
-				0,
-				this.board.width,
-				this.board.height,
-				(x, y) => this.board.getCell(x, y),
-				peicesToWinVertical
+		this.peicesToWinHorizontal = peicesToWinHorizontal;
+		this.peicesToWinVertical = peicesToWinVertical;
+		this.peicesToWinDiagonal = peicesToWinDiagonal;
 
-			),
-			topLeftToButtomRight: this._isPlayerWinnerRowPromise(
-				0,
-				this.minPicesesToWin - this.board.height,
-				this.board.height,
-				this.board.width - this.minPicesesToWin + 1,
-				(j, i) => this.board.getCellWithFallback(j + i, j),
-				peicesToWinDiagonal
-			),
-			topRightToButtomLeft: this._isPlayerWinnerRowPromise(
-				0,
-				this.minPicesesToWin - 1,
-				this.board.height,
-				this.board.height + (this.board.width - this.minPicesesToWin),
-				(j, i) => this.board.getCellWithFallback(i - j, j),
-				peicesToWinDiagonal
-				),
-			};
-
-		this.usedWinChecker = [];
-		
-		
-		if (checkVertical) this.usedWinChecker.push(allCheckers.verticle);
-		if (checkHorizontal) this.usedWinChecker.push(allCheckers.horizontal);
-		
-		if (checkDiagnal)
-		this.usedWinChecker.push(
-			allCheckers.topLeftToButtomRight,
-			allCheckers.topRightToButtomLeft
-			);
-
-			this.turnCount = 0;
-			this.gameCount = 0;
+		this.turnCount = 0;
+		this.gameCount = 0;
 		this.currentPlayerIndex = 0;
 		this.isPlaying = true;
-		
+
 		this.isDisplayingCords = false;
-		
+
 		this.boardArray = Array(this.height);
 		this.boardBody = document.querySelector(".board-body");
-		
+
 		// create board on page and in array
 		for (let y = 0; y < this.height; y++) {
 			this.boardArray[y] = Array(this.width);
@@ -138,34 +90,35 @@ class Board {
 			for (let x = 0; x < this.width; x++) {
 				const el = tableRow.insertCell();
 				const cordName = x + OFFSET + "," + (y + OFFSET);
-				
+
 				let cell = new Cell(el, cordName);
 				this.boardArray[y][x] = cell;
 			}
 		}
-		
+
 		this.updateCordsVisablity();
 	}
-	
-	async playerTurn(cell) {
+
+	playerTurn(cell) {
 		if (this.isPlaying) {
 			resetBoardButton.classList.remove("fade-button");
-			
+
 			const currentPlayer = players[this.currentPlayerIndex];
-			
+
 			cell.set(currentPlayer);
 			cell.disable();
-			
+
 			this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length;
 			this.turnCount++;
-			
+
 			displayInfo(players[this.currentPlayerIndex] + "s turn.");
-			
+
 			let isWinner = false;
 			let winningArray;
-			
-			[isWinner, winningArray] = await this.winChecker(currentPlayer);
-			
+
+			[isWinner, winningArray] = this.isPlayerWinner(currentPlayer);
+			console.log(isWinner, winningArray);
+
 			if (isWinner) {
 				winningArray.forEach((cell) => cell.highlight());
 				this.gameOver();
@@ -178,55 +131,104 @@ class Board {
 			}
 		}
 	}
-	
-	async isPlayerWinner(player) {
-		try {
-			return await Promise.any(this.usedWinChecker.map((func) => func(player)));
-		} catch (error) {
-			if (!(error instanceof AggregateError)) throw error;
-		}
-		return [false, undefined];
-	}
-	
-	_isPlayerWinnerRowPromise(innerStart, outerStart, inner, outer, getCell, peicesToWin) {
-		return (player) => {
-			return new Promise((resolve, reject) => {
-				const [isWin, cellArray] = this.isPlayerWinner(
-					player,
-					innerStart,
-					outerStart,
-					inner,
-					outer,
-					getCell,
-					peicesToWin
-					);
-					if (isWin) resolve([isWin, cellArray]);
-					reject([isWin, cellArray]);
-				});
-			};
-	}
 
-	isPossibleToGet(peicesInRow) {
-		return peicesInRow > (this.minPicesesToWin - 1) * players.length;
-	}
-	
-	isPlayerWinner(player, innerStart, outerStart, inner, outer, getCell, peicesToWin) {
-
-		const cellArray = new Array(this.minPicesesToWin);
-		for (let i = outerStart; i < outer; i++) {
-			let count = 0;
-			for (let j = innerStart; j < inner; j++) {
-				const cell = getCell(j, i);
-				if (cell.val === player) {
-					cellArray[count] = cell;
-					count++;
-					if (count >= peicesToWin) return [true, cellArray];
-				} else {
-					count = 0;
+	isPlayerWinner(player) {
+		
+		// check verticle
+		if (this.isPossibleToWin(this.peicesToWinVertical)) {
+			const winningCells = new Array(this.peicesToWinVertical);
+			for (let y = 0; y < this.height; y++) {
+				let count = 0;
+				for (let x = 0; x < this.width; x++) {
+					const cell = this.getCell(x, y);
+					if (cell.val === player) {
+						winningCells[count] = cell;
+						if (++count >= this.peicesToWinVertical) {
+							return [true, winningCells];
+						}
+					} else {
+						count = 0;
+					}
 				}
 			}
 		}
-		return [false, null];
+
+		// check verticle
+		if (this.isPossibleToWin(this.peicesToWinHorizontal)) {
+			const winningCells = new Array(this.peicesToWinHorizontal);
+			for (let x = 0; x < this.width; x++) {
+				let count = 0;
+				for (let y = 0; y < this.height; y++) {
+					const cell = this.getCell(x, y);
+					if (cell.val === player) {
+						winningCells[count] = cell;
+						if (++count >= this.peicesToWinHorizontal) {
+							return [true, winningCells];
+						}
+					} else {
+						count = 0;
+					}
+				}
+			}
+		}
+		
+		if (this.isPossibleToWin(this.peicesToWinDiagonal)) {
+			const isWider = this.width >= this.height;
+
+			const primary = isWider ? this.width : this.height;
+			const secondary = !isWider ? this.width : this.height;
+
+			const winningCellsTL2BR = new Array(this.peicesToWinDiagonal);
+			const winningCellsTR2BL = new Array(this.peicesToWinDiagonal);
+
+			for (let i = this.peicesToWinDiagonal - secondary; i < primary - this.peicesToWinDiagonal + 1; i++) {
+				let countTL2BR = 0;
+				let countTR2BL = 0;
+				for (let j = 0; j < secondary; j++) {
+					// top left to buttom right
+					const xTL2BR = isWider ? j : i + j;
+					const yTL2BR = isWider ? i + j : j;
+
+					// top right to buttom left
+					const xTR2BL = isWider ? j : primary - (i + j) - 1;
+					const yTR2BL = isWider ? primary - (i + j) - 1 : j;
+
+					if (this.isInBoard(xTL2BR, yTL2BR)) {
+						const cell = this.getCell(xTL2BR, yTL2BR);
+						if (cell.val === player) {
+							winningCellsTL2BR[countTL2BR] = cell;
+							if (++countTL2BR >= this.peicesToWinDiagonal) {
+								return [true, winningCellsTL2BR];
+							}
+						} else {
+							countTL2BR = 0;
+						}
+					}
+
+					if (this.isInBoard(xTR2BL, yTR2BL)) {
+						const cell = this.getCell(xTR2BL, yTR2BL);
+						if (cell.val === player) {
+							winningCellsTR2BL[countTR2BL] = cell;
+							if (++countTR2BL >= this.peicesToWinDiagonal) {
+								return [true, winningCellsTR2BL];
+							}
+						} else {
+							countTR2BL = 0;
+						}
+					}
+				}
+			}
+		}
+
+		return [false, undefined];
+	}
+
+	isPossibleToWin(peicesToWin) {
+		return this.turnCount > (peicesToWin - 1) * players.length;
+	}
+
+	isInBoard(x, y) {
+		return x > -1 && x < this.width && y > -1 && y < this.height;
 	}
 
 	newGame() {
@@ -261,11 +263,7 @@ class Board {
 	}
 
 	isOverflowing() {
-		return (
-			this.getCell(0, 0).el.getBoundingClientRect().left < 0 ||
-			this.getCell(this.width - 1, 0).el.getBoundingClientRect().right >
-				(window.innerWidth || document.documentElement.clientWidth)
-		);
+		return this.getCell(0, 0).el.getBoundingClientRect().left < 0 || this.getCell(this.width - 1, 0).el.getBoundingClientRect().right > (window.innerWidth || document.documentElement.clientWidth);
 	}
 
 	toggleCords() {
@@ -297,17 +295,6 @@ class Board {
 	getCell(x, y) {
 		return this.boardArray[y][x];
 	}
-
-	getCellWithFallback(x, y) {
-		let out;
-		try {
-			out = this.getCell(x, y);
-		} catch (error) {
-			return PLACEHOLDER_CELL;
-		}
-
-		return out || PLACEHOLDER_CELL;
-	}
 }
 
 const params = new URLSearchParams(location.search);
@@ -321,13 +308,7 @@ function validNumber(num, min, max, fallback = undefined) {
 }
 
 function makeBoard() {
-	function getUpdateValidNumberParam(
-		name,
-		min,
-		max,
-		fallback = undefined,
-		toLargeMessage = () => ""
-	) {
+	function getUpdateValidNumberParam(name, min, max, fallback = undefined, toLargeMessage = () => "") {
 		const num = getNumberParam(name);
 
 		if (num > max) {
@@ -359,13 +340,7 @@ function makeBoard() {
 	const oldParems = params.toString();
 
 	const getUpdateValidSizeParam = (name) =>
-		getUpdateValidNumberParam(
-			name,
-			MIN_SIZE,
-			SUGGESTED_MAX_SIZE,
-			DEFAULT_SIZE,
-			(name, num, max) => `Board ${name} of ${num} is to larger than recomend max of ${max}`
-		);
+		getUpdateValidNumberParam(name, MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE, (name, num, max) => `Board ${name} of ${num} is to larger than recomend max of ${max}`);
 
 	const width = getUpdateValidSizeParam("width");
 	const height = getUpdateValidSizeParam("height");
@@ -376,8 +351,7 @@ function makeBoard() {
 		"win-condition",
 		MIN_SIZE,
 		Math.max(width, height),
-		(name, num, max) =>
-			`Impossible to get ${num} in a row with current board sizes of ${boardSizes}`
+		(name, num, max) => `Impossible to get ${num} in a row with current board sizes of ${boardSizes}`
 	);
 
 	const newParms = params.toString();
@@ -389,7 +363,7 @@ function makeBoard() {
 
 	document.querySelector("title").innerText += ` (${boardSizes})`;
 
-	return new Board(width, height, winRowLength);
+	return new Board(width, height, ...(winRowLength ? [winRowLength, winRowLength, winRowLength] : [width, height, width === height ? width : undefined]));
 }
 
 const board = makeBoard();
@@ -426,7 +400,6 @@ window.onresize = fixOverflow;
 	const maxScaleVal = 500;
 
 	{
-
 		const zoomScaleDisplay = document.getElementById("zoom-scale-display");
 
 		const startingScale = parseInt(board.getCssVar("starting-zoom-scale"));
@@ -484,15 +457,13 @@ window.onresize = fixOverflow;
 			});
 		}
 
-		
 		setZoomScale(zoomScale);
-	
+
 		addHeldEventListener(zoomInBtn, () => changeZoomScale(zoomScaleChangeAmount));
 		addHeldEventListener(zoomOutBtn, () => changeZoomScale(-zoomScaleChangeAmount));
 	}
-};
+}
 
 window.onbeforeunload = () => {
-	if (board.isMidGame())
-		return `Are you sure you want to leave? All game progges will be lossed.`;
+	if (board.isMidGame()) return `Are you sure you want to leave? All game progges will be lossed.`;
 };
