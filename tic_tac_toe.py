@@ -26,18 +26,15 @@ def main() -> None:
     # color_mode = bool_input("Does you console support ASCII color codes if your not sure, \u001b[31mis this red for you\033[0m")
     # print()
 
-    # board = Board(3, 3, 3, 3, 3)
     board = make_board()
     print()
 
-    # players = [Human_Player("X", "red"), AI_Player("O", "blue")]
     players = create_players()
     print()
 
     if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(board, len(players)):
-        AI_Player.train(board, len(players), iterations=board.size*10000, print_percent_done=True)
+        AI_Player.train(board, len(players), iterations=board.size*20000, print_percent_done=True)
         print()
-    # AI_Player.train(board, len(players), iterations=10000, print_percent_done=True)
 
     ties_count = 0
 
@@ -110,7 +107,7 @@ def create_players() -> list["Player"]:
             players.append(new_player)
     else:
         players.append(Human_Player("X", "red"))
-        players.append(Human_Player("O", "blue"))
+        players.append(AI_Player("O", "blue"))
     return players
 
 
@@ -353,7 +350,7 @@ class AI_Player(Player):
         
         board_name = cls.make_game_name(board, player_count)
 
-        percentage_notifacation_interval = iterations // 100
+        percentage_notifacation_interval = iterations / 100
 
         strategy = {}
         
@@ -399,8 +396,8 @@ class AI_Player(Player):
 
                 turn_count += 1
             
-            if print_percent_done and (i % percentage_notifacation_interval == 0):
-                print(f"{(i // percentage_notifacation_interval)}% Complete. Game {i:,} of {iterations:,}\r", end="")
+            if print_percent_done and (i % percentage_notifacation_interval == 0) or percentage_notifacation_interval < 2:
+                print(f"{format(i / percentage_notifacation_interval, '.1f').rstrip('0').rstrip('.')}% Complete. Game {i:,} of {iterations:,}\r", end="")
             board.reset()
 
         end = time()
