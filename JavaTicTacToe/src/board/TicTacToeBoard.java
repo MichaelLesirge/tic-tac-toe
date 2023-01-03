@@ -46,9 +46,7 @@ public class TicTacToeBoard extends Board<Player> {
         super(width, height);
 
         this.shouldCheckHorizontal = peicesToWinHorizontal != null && peicesToWinHorizontal <= this.width;
-
         this.shouldCheckVertical = peicesToWinVertical != null && peicesToWinVertical <= this.height;
-
         this.shouldCheckDiagonal = peicesToWinDiagonal != null && (peicesToWinDiagonal <= this.width || peicesToWinDiagonal <= this.height);
          
         this.peicesToWinHorizontal = peicesToWinHorizontal;

@@ -62,165 +62,75 @@ class Cell {
 
 const PLACEHOLDER_CELL = new Cell(document.createElement("div"), null);
 
-class WinChecker {
-	constructor(board, piecesToWin) {
-		this.board = board;
+	
+}
 
-		let checkVertical, checkHorizontal, checkDiagnal;
-		if (piecesToWin === undefined) {
-			this.winCheckFunc = this.isPlayerWinnerAcross;
+class Board {
+	constructor(width, height, peicesToWinHorizontal, peicesToWinVertical, peicesToWinDiagonal) {
+		this.width = width;
+		this.height = height;
 
-			this.minPicesesToWin = Math.min(this.board.width, this.board.height);
+		this.size = this.width * this.height;
 
-			checkVertical = true;
-			checkHorizontal = true;
-
-			checkDiagnal = this.board.width === this.board.height;
-		} else {
-			this.winCheckFunc = this.isPlayerWinnerCount;
-
-			this.minPicesesToWin = piecesToWin;
-
-			checkVertical = this.minPicesesToWin <= this.board.height;
-			checkHorizontal = this.minPicesesToWin <= this.board.width;
-
-			checkDiagnal = checkVertical && checkHorizontal;
-		}
+		
 		const allCheckers = {
-			verticle: this._isPlayerWinnerRowPromise(
-				0,
-				0,
-				this.board.width,
-				this.board.height,
-				(x, y) => this.board.getCell(x, y)
-			),
 			horizontal: this._isPlayerWinnerRowPromise(
 				0,
 				0,
 				this.board.height,
 				this.board.width,
-				(x, y) => this.board.getCell(y, x)
+				(x, y) => this.board.getCell(y, x),
+				peicesToWinHorizontal
+			),
+			verticle: this._isPlayerWinnerRowPromise(
+				0,
+				0,
+				this.board.width,
+				this.board.height,
+				(x, y) => this.board.getCell(x, y),
+				peicesToWinVertical
+
 			),
 			topLeftToButtomRight: this._isPlayerWinnerRowPromise(
 				0,
 				this.minPicesesToWin - this.board.height,
 				this.board.height,
 				this.board.width - this.minPicesesToWin + 1,
-				(j, i) => this.board.getCellWithFallback(j + i, j)
+				(j, i) => this.board.getCellWithFallback(j + i, j),
+				peicesToWinDiagonal
 			),
 			topRightToButtomLeft: this._isPlayerWinnerRowPromise(
 				0,
 				this.minPicesesToWin - 1,
 				this.board.height,
 				this.board.height + (this.board.width - this.minPicesesToWin),
-				(j, i) => this.board.getCellWithFallback(i - j, j)
-			),
-		};
+				(j, i) => this.board.getCellWithFallback(i - j, j),
+				peicesToWinDiagonal
+				),
+			};
 
 		this.usedWinChecker = [];
-
-		this.winCheckForWinAfter = (this.minPicesesToWin - 1) * players.length;
-
+		
+		
 		if (checkVertical) this.usedWinChecker.push(allCheckers.verticle);
 		if (checkHorizontal) this.usedWinChecker.push(allCheckers.horizontal);
-
+		
 		if (checkDiagnal)
-			this.usedWinChecker.push(
-				allCheckers.topLeftToButtomRight,
-				allCheckers.topRightToButtomLeft
+		this.usedWinChecker.push(
+			allCheckers.topLeftToButtomRight,
+			allCheckers.topRightToButtomLeft
 			);
-	}
 
-	async isPlayerWinner(player) {
-		let [isWinner, winningArray] = [false, undefined];
-		if (this.isPossibleToWin()) {
-			try {
-				[isWinner, winningArray] = await Promise.any(
-					this.usedWinChecker.map((func) => func(player))
-				);
-			} catch (error) {
-				if (!(error instanceof AggregateError)) throw error;
-			}
-		}
-		return [isWinner, winningArray];
-	}
-
-	_isPlayerWinnerRowPromise(innerStart, outerStart, inner, outer, getCell) {
-		return (player) => {
-			return new Promise((resolve, reject) => {
-				const [isWin, cellArray] = this.winCheckFunc(
-					player,
-					innerStart,
-					outerStart,
-					inner,
-					outer,
-					getCell
-				);
-				if (isWin) resolve([isWin, cellArray]);
-				reject([isWin, cellArray]);
-			});
-		};
-	}
-
-	isPossibleToWin() {
-		return this.board.turnCount > this.winCheckForWinAfter;
-	}
-
-	isPlayerWinnerAcross(player, innerStart, outerStart, inner, outer, getCell) {
-		const cellArray = new Array(inner);
-		for (let i = outerStart; i < outer; i++) {
-			let isWin = true;
-			for (let j = innerStart; j < inner; j++) {
-				const cell = getCell(j, i);
-				cellArray[j] = cell;
-				if (cell.val !== player) {
-					isWin = false;
-					break;
-				}
-			}
-			if (isWin) return [isWin, cellArray];
-		}
-		return [false, undefined];
-	}
-
-	isPlayerWinnerCount(player, innerStart, outerStart, inner, outer, getCell) {
-		const cellArray = new Array(this.minPicesesToWin);
-		for (let i = outerStart; i < outer; i++) {
-			let count = 0;
-			for (let j = innerStart; j < inner; j++) {
-				const cell = getCell(j, i);
-				if (cell.val === player) {
-					cellArray[count] = cell;
-					count++;
-					if (count >= this.minPicesesToWin) return [true, cellArray];
-				} else {
-					count = 0;
-				}
-			}
-		}
-		return [false, null];
-	}
-}
-
-class Board {
-	constructor(width, height, piecesToWin) {
-		this.width = width;
-		this.height = height;
-
-		this.size = this.width * this.height;
-
-		this.turnCount = 0;
-		this.gameCount = 0;
+			this.turnCount = 0;
+			this.gameCount = 0;
 		this.currentPlayerIndex = 0;
 		this.isPlaying = true;
-
+		
 		this.isDisplayingCords = false;
-
-		this.usedWinChecker = [];
-
+		
 		this.boardArray = Array(this.height);
 		this.boardBody = document.querySelector(".board-body");
-
+		
 		// create board on page and in array
 		for (let y = 0; y < this.height; y++) {
 			this.boardArray[y] = Array(this.width);
@@ -228,35 +138,34 @@ class Board {
 			for (let x = 0; x < this.width; x++) {
 				const el = tableRow.insertCell();
 				const cordName = x + OFFSET + "," + (y + OFFSET);
-
+				
 				let cell = new Cell(el, cordName);
 				this.boardArray[y][x] = cell;
 			}
 		}
-
-		this.winChecker = new WinChecker(this, piecesToWin);
+		
 		this.updateCordsVisablity();
 	}
-
+	
 	async playerTurn(cell) {
 		if (this.isPlaying) {
 			resetBoardButton.classList.remove("fade-button");
-
+			
 			const currentPlayer = players[this.currentPlayerIndex];
-
+			
 			cell.set(currentPlayer);
 			cell.disable();
-
+			
 			this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length;
 			this.turnCount++;
-
+			
 			displayInfo(players[this.currentPlayerIndex] + "s turn.");
-
+			
 			let isWinner = false;
 			let winningArray;
-
-			[isWinner, winningArray] = await this.winChecker.isPlayerWinner(currentPlayer);
-
+			
+			[isWinner, winningArray] = await this.winChecker(currentPlayer);
+			
 			if (isWinner) {
 				winningArray.forEach((cell) => cell.highlight());
 				this.gameOver();
@@ -268,6 +177,56 @@ class Board {
 				displayInfoPulse();
 			}
 		}
+	}
+	
+	async isPlayerWinner(player) {
+		try {
+			return await Promise.any(this.usedWinChecker.map((func) => func(player)));
+		} catch (error) {
+			if (!(error instanceof AggregateError)) throw error;
+		}
+		return [false, undefined];
+	}
+	
+	_isPlayerWinnerRowPromise(innerStart, outerStart, inner, outer, getCell, peicesToWin) {
+		return (player) => {
+			return new Promise((resolve, reject) => {
+				const [isWin, cellArray] = this.isPlayerWinner(
+					player,
+					innerStart,
+					outerStart,
+					inner,
+					outer,
+					getCell,
+					peicesToWin
+					);
+					if (isWin) resolve([isWin, cellArray]);
+					reject([isWin, cellArray]);
+				});
+			};
+	}
+
+	isPossibleToGet(peicesInRow) {
+		return peicesInRow > (this.minPicesesToWin - 1) * players.length;
+	}
+	
+	isPlayerWinner(player, innerStart, outerStart, inner, outer, getCell, peicesToWin) {
+
+		const cellArray = new Array(this.minPicesesToWin);
+		for (let i = outerStart; i < outer; i++) {
+			let count = 0;
+			for (let j = innerStart; j < inner; j++) {
+				const cell = getCell(j, i);
+				if (cell.val === player) {
+					cellArray[count] = cell;
+					count++;
+					if (count >= peicesToWin) return [true, cellArray];
+				} else {
+					count = 0;
+				}
+			}
+		}
+		return [false, null];
 	}
 
 	newGame() {
