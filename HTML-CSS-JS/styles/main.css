@@ -45,6 +45,8 @@ body {
 
 	color: whitesmoke;
 	background-color: rgb(2, 0, 36);
+
+	z-index: 2;
 }
 
 .nav-section {

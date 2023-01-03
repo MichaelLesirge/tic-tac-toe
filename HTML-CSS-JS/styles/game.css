@@ -24,6 +24,8 @@
 }
 
 .board-table td {
+	box-sizing: border-box;
+
 	width: var(--zoom-scale);
 	height: var(--zoom-scale);
 	min-width: var(--zoom-scale);
@@ -35,10 +37,20 @@
 	font-size: var(--zoom-scale);
 	text-align: center;
 	font-family: monospace;
+
+	line-height: 0.7rem;
+	margin: 0;
+	padding: 0;
 }
 
-.board-table td:hover:not(.disabled) {
-	background-color: hsl(0, 0%, 85%);
+.board-table td:focus,
+.board-table:not(:has(td:focus)) td:hover:not(.disabled) {
+	filter: brightness(85%);
+	outline: none;
+}
+
+.board-table td:focus.disabled {
+	filter: brightness(89%);
 }
 
 .disabled {
@@ -46,7 +58,7 @@
 }
 
 .highlighted {
-	color: green !important;
+	background-color: rgb(168, 248, 168) !important;
 }
 
 .cords {

@@ -25,27 +25,59 @@ const OFFSET = 1;
 class Cell {
 	constructor(el, name) {
 		this.el = el;
+		this.el.addEventListener("keydown", (event) => {
+			let selectedEl;
+			switch (event.key) {
+				case " ":
+				case "Enter":
+					this.el.click();
+					selectedEl = this.el;
+					break;
+				case "ArrowUp":
+					selectedEl = this.el.parentElement?.previousElementSibling?.children[this.el.cellIndex];
+					break;
+				case "ArrowDown":
+					selectedEl = this.el.parentElement?.nextElementSibling?.children[this.el.cellIndex];
+					break;
+				case "ArrowRight":
+					selectedEl = this.el.nextElementSibling;
+					break;
+				case "ArrowLeft":
+					selectedEl = this.el.previousElementSibling;
+					break;
+			}
+			if (selectedEl) {
+				// make funtion that selects and unselects element
+				if (this.disabled) this.el.removeAttribute("tabIndex");
+				selectedEl.setAttribute("tabIndex", 0);
+				selectedEl.focus();
+			}
+		});
 		this.name = name;
-
+		
 		this.reset();
 	}
-
+	
 	set(text) {
 		this.val = this.el.innerText = text;
 	}
-
+	
+	reset() {
+		this.disabled = false;
+		this.set("");
+		this.el.classList.remove("disabled", "highlighted");
+		this.el.setAttribute("tabIndex", 0);
+	}
+	
 	disable() {
+		this.disabled = true;
 		this.el.onclick = () => {};
 		this.el.classList.add("disabled");
+		this.el.removeAttribute("tabIndex");
 	}
 
 	highlight() {
 		this.el.classList.add("highlighted");
-	}
-
-	reset() {
-		this.set("");
-		this.el.classList.remove("disabled", "highlighted");
 	}
 
 	setOnClick(onclickFunc) {
@@ -133,7 +165,6 @@ class Board {
 	}
 
 	isPlayerWinner(player) {
-		
 		// check verticle
 		if (this.isPossibleToWin(this.peicesToWinVertical)) {
 			const winningCells = new Array(this.peicesToWinVertical);
@@ -171,7 +202,7 @@ class Board {
 				}
 			}
 		}
-		
+
 		if (this.isPossibleToWin(this.peicesToWinDiagonal)) {
 			const isWider = this.width >= this.height;
 
@@ -345,13 +376,13 @@ function makeBoard() {
 	const width = getUpdateValidSizeParam("width");
 	const height = getUpdateValidSizeParam("height");
 
-	const boardSizes = `${width}x${height}`;
+	const boardTitle = `${width}x${height}`;
 
 	const winRowLength = getUpdateValidNumberParamIfExists(
 		"win-condition",
 		MIN_SIZE,
 		Math.max(width, height),
-		(name, num, max) => `Impossible to get ${num} in a row with current board sizes of ${boardSizes}`
+		(name, num, max) => `Impossible to get ${num} in a row with current board sizes of ${boardTitle}`
 	);
 
 	const newParms = params.toString();
@@ -360,13 +391,12 @@ function makeBoard() {
 		newURL.search = newParms;
 		history.pushState({}, null, newURL);
 	}
-
-	document.querySelector("title").innerText += ` (${boardSizes})`;
-
-	return new Board(width, height, ...(winRowLength ? [winRowLength, winRowLength, winRowLength] : [width, height, width === height ? width : undefined]));
+	
+	return [new Board(width, height, ...(winRowLength ? [winRowLength, winRowLength, winRowLength] : [width, height, width === height ? width : undefined])), boardTitle];
 }
 
-const board = makeBoard();
+const [board, boardTitle] = makeBoard();
+document.querySelector("head title").innerText += ` (${boardTitle})`;
 board.newGame();
 
 // nav buttons
@@ -404,7 +434,7 @@ window.onresize = fixOverflow;
 
 		const startingScale = parseInt(board.getCssVar("starting-zoom-scale"));
 
-		let zoomScale = localStorage.getItem("zoomScale");
+		let zoomScale = localStorage.getItem(`z-${boardTitle}`);
 		if (zoomScale === null) {
 			zoomScale = parseInt(board.getCssVar("zoom-scale"));
 		}
@@ -420,7 +450,7 @@ window.onresize = fixOverflow;
 			zoomScaleDisplay.innerText = 100 - startingScale + zoomScale;
 
 			fixOverflow();
-			localStorage.setItem("zoomScale", zoomScale);
+			localStorage.setItem(`z-${boardTitle}`, zoomScale);
 
 			board.setCssVar("zoom-scale", x + "vmin");
 
