@@ -2,7 +2,7 @@
 Every time I learn a new programming language well enough I try to create a version of tic-tac-toe with it. Every time I try and do it slightly differently. 
 
 ## How to play games without download
-[Open Web Game (HTML, CSS, JavaScrip)](https://rawcdn.githack.com/michael-lesirge/tic-tac-toe/ae71967e44bd12761cd2f743d6e88fa8d9ff8c0b/HTML-CSS-JS/index.html).
+[Open Web Game (HTML, CSS, JavaScrip)](https://raw.githack.com/michael-lesirge/tic-tac-toe/main/HTML-CSS-JS/game.html?width=3&height=3).
 
 [Run Python game](https://www.programiz.com/python-programming/online-compiler/) (tic-tac-toe.py).  
 [Run C++ game](https://www.programiz.com/cpp-programming/online-compiler/) (tic-tac-toe.cpp).  
