@@ -30,9 +30,9 @@ def main() -> None:
     board = make_board()
     print()
 
-    players = [Human_Player("X", "red"), AI_Player("O", "blue")]
-    # players = create_players()
-    # print()
+    # players = [Human_Player("X", "red"), AI_Player("O", "blue")]
+    players = create_players()
+    print()
 
     if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(board, len(players)):
         AI_Player.train(board, len(players), iterations=board.size*10000, print_percent_done=True)
