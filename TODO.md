@@ -23,3 +23,9 @@
     - change the letter and color of exsiting ones. 
     - When you add new player have it auto choose a letter and corrisponding color and auto focus letter box
 - Show faint current player peice on hover/fucus to make it easer to see current turn
+
+## Future Games/Proggarming Languages 
+- TypeScrips
+- Go
+- C#
+- Rust (Maybe)
