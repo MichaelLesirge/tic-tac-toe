@@ -29,3 +29,4 @@
 - Go
 - C#
 - Rust (Maybe)
+- New JavaScript game but with framework / rewrite exsisting one with framework (probably React, maybe Svelte)
