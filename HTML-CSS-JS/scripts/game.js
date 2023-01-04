@@ -214,7 +214,7 @@ class Board {
 			for (let i = this.peicesToWinDiagonal - secondary; i < primary - this.peicesToWinDiagonal + 1; i++) {
 				let countTL2BR = 0;
 				let countTR2BL = 0;
-				for (let j = 0; j < secondary; j++) {
+				for (let j = Math.max(0, -i); j < Math.min(secondary, primary-i); j++) {
 					// top left to buttom right
 					const xTL2BR = isWider ? j : i + j;
 					const yTL2BR = isWider ? i + j : j;
@@ -223,28 +223,24 @@ class Board {
 					const xTR2BL = isWider ? j : primary - (i + j) - 1;
 					const yTR2BL = isWider ? primary - (i + j) - 1 : j;
 
-					if (this.isInBoard(xTL2BR, yTL2BR)) {
-						const cell = this.getCell(xTL2BR, yTL2BR);
-						if (cell.val === player) {
-							winningCellsTL2BR[countTL2BR] = cell;
-							if (++countTL2BR >= this.peicesToWinDiagonal) {
-								return [true, winningCellsTL2BR];
-							}
-						} else {
-							countTL2BR = 0;
+					const cellTL2BR = this.getCell(xTL2BR, yTL2BR);
+					if (cellTL2BR.val === player) {
+						winningCellsTL2BR[countTL2BR] = cellTL2BR;
+						if (++countTL2BR >= this.peicesToWinDiagonal) {
+							return [true, winningCellsTL2BR];
 						}
+					} else {
+						countTL2BR = 0;
 					}
 
-					if (this.isInBoard(xTR2BL, yTR2BL)) {
-						const cell = this.getCell(xTR2BL, yTR2BL);
-						if (cell.val === player) {
-							winningCellsTR2BL[countTR2BL] = cell;
-							if (++countTR2BL >= this.peicesToWinDiagonal) {
-								return [true, winningCellsTR2BL];
-							}
-						} else {
-							countTR2BL = 0;
+					const cellTR2BL = this.getCell(xTR2BL, yTR2BL);
+					if (cellTR2BL.val === player) {
+						winningCellsTR2BL[countTR2BL] = cellTR2BL;
+						if (++countTR2BL >= this.peicesToWinDiagonal) {
+							return [true, winningCellsTR2BL];
 						}
+					} else {
+						countTR2BL = 0;
 					}
 				}
 			}

@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 
 color_mode = True
 
-colors = {
+STR_COLOR_CODES = {
     "red": "\u001b[31m",
     "blue": "\u001b[34m",
     "green": "\u001b[32m",
@@ -16,6 +16,8 @@ colors = {
     "cyan": "\u001b[36m",
     "white": "\u001b[37m",
 }
+STR_BOLD_CODE = "\033[1m"
+STR_RESET_CODE = "\033[0m"
 
 OFFSET = 1
 
@@ -26,11 +28,17 @@ def main() -> None:
     # color_mode = bool_input("Does you console support ASCII color codes if your not sure, \u001b[31mis this red for you\033[0m")
     # print()
 
-    board = make_board()
+    board = make_tic_tac_toe_board()
     print()
+    # board = Board(
+    #     width=3, height=3,
+    #     peices_to_win_horizontal=3, peices_to_win_verticle=3, peices_to_win_diagnal=3,
+    # )
 
-    players = create_players()
+    players = make_players()
     print()
+    # players = [Human_Player("X", "red"), Human_Player("O", "blue")]
+    # players = [AI_Player("A", "green"), AI_Player("B", "cyan"), Human_Player("C", "blue")]
 
     if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(board, len(players)):
         AI_Player.train(board, len(players), iterations=board.size*20000, print_percent_done=True)
@@ -78,7 +86,7 @@ def main() -> None:
     print("Good Bye!")
 
 
-def make_board() -> "Board":
+def make_tic_tac_toe_board() -> "Board":
     if bool_input("Do you want a custom board"):
         message = "Enter the %s of the board"
         width, height = int_input(message % "width", min=1), int_input(message % "height", min=1)
@@ -91,19 +99,18 @@ def make_board() -> "Board":
         peices_to_win = int_input("Enter peices to win", min=1)
         peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = peices_to_win, peices_to_win, peices_to_win
     else:
-        peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = width, height, (
-            width if width == height else None)
+        peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = width, height, (width if width == height else None)
 
     return Board(width, height, peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal)
 
 
-def create_players() -> list["Player"]:
+def make_players() -> list["Player"]:
     players = []
     if bool_input("Do you want a custom players"):
         for i in range(1, int_input("Enter the number of players", min=1) + 1):
             print()
             print(f"Player {i}")
-            new_player = create_player()
+            new_player = make_player()
             players.append(new_player)
     else:
         players.append(Human_Player("X", "red"))
@@ -111,7 +118,7 @@ def create_players() -> list["Player"]:
     return players
 
 
-def create_player() -> "Player":
+def make_player() -> "Player":
     def valid_letter(x: str) -> str:
         if len(x) != 1:
             raise ValueError("Player character must be one character")
@@ -121,8 +128,8 @@ def create_player() -> "Player":
 
     def valid_color(x: str) -> str:
         x = x.lower()
-        if x not in colors:
-            possible_colors = list(colors.keys())
+        if x not in STR_COLOR_CODES:
+            possible_colors = list(STR_COLOR_CODES.keys())
             raise ValueError(f"\"{x}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
         return x
 
@@ -208,7 +215,7 @@ class Board:
             for i in range(self.peices_to_win_diagnal - secondary, primary - self.peices_to_win_diagnal + 1):
                 countTL2BR = 0
                 countTR2BL = 0
-                for j in range(secondary):
+                for j in range(max(0, -i), min(secondary, primary-i)):
                     # top left to buttom right
                     rowTL2BR = j if isWider else i + j
                     colTL2BR = i + j if isWider else j
@@ -217,21 +224,17 @@ class Board:
                     rowTR2BL = j if isWider else primary - (i + j) - 1
                     colTR2BL = primary - (i + j) - 1 if isWider else j
 
-                    # print(f'({i}, {j}) ->  tl2br:({rowTL2BR}, {colTL2BR}), tr2bl:({rowTR2BL}, {colTR2BL})')
+                    if self.get(rowTL2BR, colTL2BR) == player:
+                        countTL2BR += 1
+                        win_chances[2] = max(countTL2BR / self.peices_to_win_diagnal, win_chances[2])
+                    else:
+                        countTL2BR = 0
 
-                    if self.is_valid_location(rowTL2BR, colTL2BR):
-                        if self.get(rowTL2BR, colTL2BR) == player:
-                            countTL2BR += 1
-                            win_chances[2] = max(countTL2BR / self.peices_to_win_diagnal, win_chances[2])
-                        else:
-                            countTL2BR = 0
-
-                    if self.is_valid_location(rowTR2BL, colTR2BL):
-                        if self.get(rowTR2BL, colTR2BL) == player:
-                            countTR2BL += 1
-                            win_chances[3] = max(countTR2BL / self.peices_to_win_diagnal, win_chances[3])
-                        else:
-                            countTR2BL = 0
+                    if self.get(rowTR2BL, colTR2BL) == player:
+                        countTR2BL += 1
+                        win_chances[3] = max(countTR2BL / self.peices_to_win_diagnal, win_chances[3])
+                    else:
+                        countTR2BL = 0
 
         return win_chances
 
@@ -286,7 +289,7 @@ class Player(ABC):
             raise ValueError("Player character must be one character")
         self.char = char
 
-        self.color = color and colors[color]
+        self.color = color and STR_COLOR_CODES[color]
 
         self.wins = 0
 
@@ -299,7 +302,7 @@ class Player(ABC):
 
     def __str__(self) -> str:
         if color_mode and self.color:
-            return self.color + "\033[1m" + self.char + "\033[0m"
+            return self.color + STR_BOLD_CODE + self.char + STR_RESET_CODE
         return self.char
 
 class Human_Player(Player):
