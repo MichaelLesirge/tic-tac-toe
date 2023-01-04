@@ -9,16 +9,18 @@
 
 #define PRINT(x) std::cout << x
 #define PRINTLN(x) std::cout << x << "\n"
+#define ERROR(x) std::cout << x
+#define ERRORLN(x) std::cerr << x << "\n"
 
 using String = std::string;
 
 class Board
 {
+public:
+    static const size_t SIDE_SIZE = 3;
+    static const size_t TOTAL_SIZE = SIDE_SIZE * SIDE_SIZE;
 private:
-    static const size_t SIZE = 3;
-    static const size_t TOTAL_SIZE = SIZE * SIZE;
-
-    char board[SIZE][SIZE];
+    char board[SIDE_SIZE][SIDE_SIZE];
 
     static const char FILLER = '-';
 
@@ -47,9 +49,9 @@ public:
     void reset()
     {
         placed = 0;
-        for (size_t i = 0; i < SIZE; i++)
+        for (size_t i = 0; i < SIDE_SIZE; i++)
         {
-            for (size_t j = 0; j < SIZE; j++)
+            for (size_t j = 0; j < SIDE_SIZE; j++)
             {
                 set(i, j, '\0');
             }
@@ -66,18 +68,18 @@ public:
         size_t vCount = 0;
         size_t dlrCount = 0;
         size_t drlCount = 0;
-        for (size_t i = 0; i < SIZE; i++)
+        for (size_t i = 0; i < SIDE_SIZE; i++)
         {   
             incIfEqual(i, i, player, dlrCount);
-            incIfEqual(i, SIZE-i-1, player, drlCount);
-            for (size_t j = 0; j < SIZE; j++)
+            incIfEqual(i, SIDE_SIZE-i-1, player, drlCount);
+            for (size_t j = 0; j < SIDE_SIZE; j++)
             {
                 incIfEqual(i, j, player, hCount);
                 incIfEqual(j, i, player, vCount);
             }
         }
-        PRINTLN(hCount << ", " << vCount << ", " << dlrCount << ", " << drlCount);
-        return hCount >= SIZE || vCount >= SIZE || dlrCount >= SIZE || drlCount >= SIZE;
+        // PRINTLN(hCount << ", " << vCount << ", " << dlrCount << ", " << drlCount);
+        return hCount >= SIDE_SIZE || vCount >= SIDE_SIZE || dlrCount >= SIDE_SIZE || drlCount >= SIDE_SIZE;
         
     }
 
@@ -99,9 +101,9 @@ public:
     const String toString() const
     {
         String out = "";
-        for (size_t i = 0; i < SIZE; i++)
+        for (size_t i = 0; i < SIDE_SIZE; i++)
         {
-            for (size_t j = 0; j < SIZE; j++)
+            for (size_t j = 0; j < SIDE_SIZE; j++)
             {
                 out.push_back(get(i, j) == '\0' ? FILLER : get(i, j));
                 out.push_back(' ');
@@ -114,17 +116,17 @@ public:
 };
 
 const std::map<String, size_t> verticalInputMapper = {
-    {"top", 0},
-    {"center", 1},
-    {"middle", 1},
-    {"buttom", 2},
+    {"top", 1},
+    {"center", (Board::SIDE_SIZE / 2)+1},
+    {"middle", (Board::SIDE_SIZE / 2)+1},
+    {"buttom", Board::SIDE_SIZE},
 };
 
 const std::map<String, size_t> horizontalInputMapper = {
-    {"left", 0},
-    {"center", 1},
-    {"middle", 1},
-    {"right", 2},
+    {"left", 1},
+    {"center", (Board::SIDE_SIZE / 2)+1},
+    {"middle", (Board::SIDE_SIZE / 2)+1},
+    {"right", Board::SIDE_SIZE},
 };
 
 void getPosInput(const String &s, size_t &choiceX, size_t &choiceY)
@@ -139,8 +141,16 @@ void getPosInput(const String &s, size_t &choiceX, size_t &choiceY)
         choiceY = verticalInputMapper.find(verticlePos)->second;
     }
     else
-    {
-        throw std::invalid_argument("Verticle postion (first value) must be \"top\", \"center\", or \"buttom\"");
+    {   
+        try
+        {
+            choiceY = std::stoi(verticlePos);
+        }
+        catch(const std::invalid_argument& e)
+        {
+            throw std::invalid_argument("Verticle postion (first value) must be a number or \"top\", \"center\", or \"buttom\"");;
+        }
+        
     }
 
     if (horizontalInputMapper.count(horizontalPos))
@@ -149,8 +159,15 @@ void getPosInput(const String &s, size_t &choiceX, size_t &choiceY)
     }
     else
     {
-        throw std::invalid_argument("Horizontal postion (second value) must be \"left\", \"center\", or \"right\"");
+        try {
+            choiceX = std::stoi(horizontalPos);
+        }
+        catch (std::invalid_argument& e) {
+            throw std::invalid_argument("Horizontal postion (second value) must be a number or \"left\", \"center\", or \"right\"");
+        }
     }
+    choiceX--;
+    choiceY--;
 }
 
 int main()
@@ -191,19 +208,25 @@ int main()
                     exit(0);
                 }
 
-                try
-                {
-                    size_t choiceX;
-                    size_t choiceY;
-                    getPosInput(choice, choiceX, choiceY); // store x and y pos in choiceX and choiceY
-                    board.placeCell(choiceX, choiceY, currentPlayer); // placeCell current player at choice X, Y
+                size_t choiceX;
+                size_t choiceY;
 
-                    hasGotValidInput = true;
+                try {
+                    getPosInput(choice, choiceX, choiceY); // store x and y pos in choiceX and choiceY
+
+                    if (choiceX >= Board::SIDE_SIZE) {
+                        throw std::invalid_argument("X position must be between 1 and " + std::to_string(Board::SIDE_SIZE));
+                    }
+                    if (choiceY >= Board::SIDE_SIZE) {
+                        throw std::invalid_argument("Y position must be between 1 and " +std::to_string(Board::SIDE_SIZE));
+                    }
+                    board.placeCell(choiceX, choiceY, currentPlayer); // placeCell current player at choice X, Y
                 }
-                catch (const std::invalid_argument &ex)
-                {
-                    PRINTLN(ex.what());
+                catch (std::invalid_argument& e) {
+                    ERRORLN(e.what());
                 }
+
+                hasGotValidInput = true;
             }
 
             if (board.isFull()) {
