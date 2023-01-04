@@ -1,4 +1,4 @@
-import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE, setNavContainer } from "./utils.js";
+import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./utils.js";
 
 // sorry for this mess of a proggram, I was learning JavaScript as I went.
 
@@ -413,7 +413,6 @@ function fixOverflow() {
 		boardContainer.classList.add("centered-container");
 		bodyStyle.overflowX = "hidden";
 	}
-	setNavContainer();
 }
 
 fixOverflow();

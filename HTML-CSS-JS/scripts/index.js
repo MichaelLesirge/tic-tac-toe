@@ -1,6 +1,4 @@
-import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE, setNavContainer } from "./utils.js";
-
-setNavContainer();
+import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./utils.js";
 
 const boardSizeInputs = document.querySelectorAll("input.board-size");
 const maxInputLen = SUGGESTED_MAX_SIZE.toString().length;

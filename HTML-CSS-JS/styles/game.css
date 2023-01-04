@@ -9,7 +9,7 @@
 	display: flex;
 	flex-direction: row;
 
-	margin: 1rem 0;
+	margin-bottom: 1rem;
 }
 
 .board-container .padding {
@@ -68,83 +68,3 @@
 	display: var(--cords-visibility);
 }
 
-.fade-button {
-	opacity: 85%;
-}
-
-#info {
-	margin: 0;
-	padding: 0;
-	color: white;
-
-	border-radius: 50%;
-}
-
-#info.win {
-	animation: pulse-animation-win 2s ease-out;
-}
-
-#info.tie {
-	animation: pulse-animation-tie 1.5s ease-out;
-}
-
-@keyframes pulse-animation-tie {
-	0% {
-		box-shadow: 0 0 0 0px rgba(200, 200, 200, 0.2);
-		background: rgba(200, 200, 200, 0.2);
-	}
-	100% {
-		box-shadow: 0 0 0 20px rgba(200, 200, 200, 0);
-	}
-}
-@keyframes pulse-animation-win {
-	0% {
-		box-shadow: 0 0 0 0px rgba(0, 128, 0, 0.7);
-		background: rgba(0, 128, 0, 0.7);
-	}
-	100% {
-		box-shadow: 0 0 0 20px rgba(0, 128, 0, 0);
-	}
-}
-
-.zoom-control {
-	font-size: 0.8rem;
-	margin-top: 0.2rem;
-}
-
-.zoom-btn {
-	width: min-content !important;
-	margin: 0 0.2em;
-	color: white;
-	background-color: #ffffff1d;
-}
-
-.zoom-btn[disabled] {
-	color: gray;
-	opacity: 75%;
-	cursor: default !important;
-}
-
-.zoom-btn:hover:not(.zoom-btn:hover[disabled]),
-.zoom-btn:focus:not(.zoom-btn:focus[disabled]) {
-	background-color: #ffffff30;
-}
-
-.zoom-btn:active:not(.zoom-btn:active[disabled]) {
-	background-color: #ffffff6c;
-}
-
-#zoom-in {
-	cursor: zoom-in;
-}
-#zoom-out {
-	cursor: zoom-out;
-}
-
-@media (max-width: 900px) {
-	.nav-section:last-of-type {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-	}
-}
