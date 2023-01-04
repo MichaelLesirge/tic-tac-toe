@@ -1,4 +1,4 @@
-import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./utils.js";
+import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./consts";
 
 const boardSizeInputs = document.querySelectorAll("input.board-size");
 const maxInputLen = SUGGESTED_MAX_SIZE.toString().length;

@@ -1,4 +1,4 @@
-import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./utils.js";
+import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./consts";
 
 // sorry for this mess of a proggram, I was learning JavaScript as I went.
 
