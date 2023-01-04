@@ -1,5 +1,5 @@
 # Tic-tac-toe in all the programming languages I learn.
-Every time I learn a new programming language well enough I try to create a version of tic-tac-toe with it. Every time I try and do it slightly differently. 
+Every time I learn a new programming language well enough I try to create a overcomplicated version of tic-tac-toe using it. Every time I try and do it slightly differently. 
 
 ## How to play games without download
 [Open Web Game (HTML, CSS, JavaScrip)](https://raw.githack.com/michael-lesirge/tic-tac-toe/main/HTML-CSS-JS/game.html?width=3&height=3).
