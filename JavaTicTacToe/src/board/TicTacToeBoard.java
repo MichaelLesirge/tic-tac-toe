@@ -60,6 +60,7 @@ public class TicTacToeBoard extends Board<Player> {
         return super.isFull();
     }
 
+    // TODO reduce code duplication
     public boolean isPlayerWinner(Player player) {
         // check horizontal
         if (this.shouldCheckHorizontal) {
@@ -115,8 +116,9 @@ public class TicTacToeBoard extends Board<Player> {
                     final int rowTR2BL = isWider ? j : primary-(i+j)-1;
                     final int colTR2BL = isWider ? primary-(i+j)-1 : j;
 
-                    // System.out.println(String.format("(%s, %s) ->  tl2br:(%s, %s), tr2bl:(%s, %s)", i, j, rowTL2BR, colTL2BR, rowTR2BL, colTR2BL));
-
+                    System.out.print(String.format("(%s, %s) -> ", i, j));
+                    
+                    System.out.print(String.format("tl2br(%s, %s)", rowTL2BR, colTL2BR));
                     if (this.isInBoard(rowTL2BR, colTL2BR)) {
                         if (this.get(rowTL2BR, colTL2BR) == player) {
                             if (++countTL2BR >= this.peicesToWinDiagonal) {
@@ -127,7 +129,13 @@ public class TicTacToeBoard extends Board<Player> {
                             countTL2BR = 0;
                         }
                     }
+                    else {
+                        System.out.print("x") ;
+                    }
                     
+                    System.out.print(", ");
+                    
+                    System.out.print(String.format("tr2bl(%s, %s)",  rowTR2BL, colTR2BL));
                     if (this.isInBoard(rowTR2BL, colTR2BL)) {
                         if (this.get(rowTR2BL, colTR2BL) == player) {
                             if (++countTR2BL >= this.peicesToWinDiagonal) {
@@ -138,6 +146,10 @@ public class TicTacToeBoard extends Board<Player> {
                             countTR2BL = 0;
                         }
                     }
+                    else {
+                        System.out.print("x") ;
+                    }
+                    System.out.print("\n");
                 }
             }
         }
@@ -145,8 +157,8 @@ public class TicTacToeBoard extends Board<Player> {
         return false;
     }
 
-    // @Override
-    // public String toString(int row, int col) {
-    //     return super.toString(row, col) + " " + "(" + row + ", " + col +  ")";
-    // }
+    @Override
+    public String toString(int row, int col) {
+        return super.toString(row, col) + " " + "(" + row + ", " + col +  ")";
+    }
 }
