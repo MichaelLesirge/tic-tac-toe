@@ -6,112 +6,105 @@ import java.util.Scanner;
 
 public class Game {
     public static void main(String[] args) {
-        // final Scanner scanner = new Scanner(System.in);
+        final Scanner scanner = new Scanner(System.in);
 
-        // TicTacToeBoard board = null;
+        TicTacToeBoard board = null;
 
-        // final Player[] players = {
-        //         new Player('X', Player.Colors.RED),
-        //         new Player('O', Player.Colors.BLUE),
-        // };
+        final Player[] players = {
+                new Player('X', Player.Colors.RED),
+                new Player('O', Player.Colors.BLUE),
+        };
 
-        TicTacToeBoard board = new TicTacToeBoard(3, 3, 2);
-        System.out.println(board);
-        System.out.println();
-
-        board.isPlayerWinner(new Player('a'));
-        return;
-
-        // while (board == null) {
-        //     final int width = getValidInt("Enter board width", scanner);
+        while (board == null) {
+            final int width = getValidInt("Enter board width", scanner);
             
-        //     if (width > 30) {
-        //         System.out.println("\u001B[33mWarning: Board width might be to big for console size. Line overflow may make board appear distorted.\u001B[0m");
-        //     }
+            if (width > 30) {
+                System.out.println("\u001B[33mWarning: Board width might be to big for console size. Line overflow may make board appear distorted.\u001B[0m");
+            }
 
-        //     final int height = getValidInt("Enter board height", scanner);
+            final int height = getValidInt("Enter board height", scanner);
 
 
-        //     final boolean customWinCondition = askYesOrNo("Add custom amount to win", scanner);
+            final boolean customWinCondition = askYesOrNo("Add custom amount to win", scanner);
 
-        //     try {
-        //         if (customWinCondition) {
-        //             final int customWinAmount = getValidInt("Enter peices needed to win", scanner);
-        //             board = new TicTacToeBoard(width, height, customWinAmount);
-        //         }
-        //         else {
-        //             board = new TicTacToeBoard(width, height);
-        //         }
-        //     } catch (IllegalArgumentException e) {
-        //         System.out.println(e.getMessage());
-        //     }
-        // }
+            try {
+                if (customWinCondition) {
+                    final int customWinAmount = getValidInt("Enter peices needed to win", scanner);
+                    board = new TicTacToeBoard(width, height, customWinAmount);
+                }
+                else {
+                    board = new TicTacToeBoard(width, height);
+                }
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
+            }
+        }
 
-        // int ties = 0;
+        int ties = 0;
 
-        // boolean keepPlaying = true;
-        // while (keepPlaying) {
+        boolean keepPlaying = true;
+        while (keepPlaying) {
 
-        //     int turnCount = 0;
-        //     board.reset();
+            int turnCount = 0;
+            board.reset();
 
-        //     boolean gameover = false;
+            boolean gameover = false;
 
-        //     while (!gameover) {
-        //         Player currentPlayer = players[turnCount % players.length];
+            while (!gameover) {
+                Player currentPlayer = players[turnCount % players.length];
 
-        //         System.out.println("\n" + board + "\n");
+                System.out.println("\n" + board + "\n");
 
-        //         System.out.println(String.format("Turn %s, %ss go.", turnCount + 1, currentPlayer));
+                System.out.println(String.format("Turn %s, %ss go.", turnCount + 1, currentPlayer));
 
-        //         boolean needsValidLoc = true;
-        //         while (needsValidLoc) {
-        //             int loc = getValidInt("Where do you want to go", scanner);
-        //             try {
-        //                 board.setTile(loc, currentPlayer);
-        //                 needsValidLoc = false;
-        //             } catch (IllegalArgumentException e) {
-        //                 System.out.println(e.getMessage());
-        //             }
-        //         }
+                boolean needsValidLoc = true;
+                while (needsValidLoc) {
+                    int loc = getValidInt("Where do you want to go", scanner);
+                    try {
+                        board.setTile(loc, currentPlayer);
+                        needsValidLoc = false;
+                    } catch (IllegalArgumentException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
 
-        //         final boolean isCurrentPlayerWinner = board.isPlayerWinner(currentPlayer);
-        //         final boolean isTie = board.isTie();
+                final boolean isCurrentPlayerWinner = board.isPlayerWinner(currentPlayer);
+                final boolean isTie = board.isTie();
 
-        //         if (isCurrentPlayerWinner || isTie) {
+                if (isCurrentPlayerWinner || isTie) {
 
-        //             System.out.println("\n" + board + "\n");
+                    System.out.println("\n" + board + "\n");
 
-        //             gameover = true;
+                    gameover = true;
 
-        //             if (isCurrentPlayerWinner) {
-        //                 System.out.println(String.format("Player %s wins!", currentPlayer));
-        //                 currentPlayer.addWin();
-        //             } else if (isTie) {
-        //                 System.out.println("It's a tie!");
-        //                 ties++;
-        //             }
-        //         }
+                    if (isCurrentPlayerWinner) {
+                        System.out.println(String.format("Player %s wins!", currentPlayer));
+                        currentPlayer.addWin();
+                    } else if (isTie) {
+                        System.out.println("It's a tie!");
+                        ties++;
+                    }
+                }
 
-        //         turnCount++;
-        //     }
+                turnCount++;
+            }
 
-        //     System.out.println();
+            System.out.println();
 
-        //     final String scoreFormat = "%s: %s\n";
-        //     System.out.println("---Scores---");
-        //     for (Player player : players) {
-        //         System.out.printf(scoreFormat, player, player.getWinCount());
-        //     }
-        //     System.out.printf(scoreFormat, "Ties", ties);
+            final String scoreFormat = "%s: %s\n";
+            System.out.println("---Scores---");
+            for (Player player : players) {
+                System.out.printf(scoreFormat, player, player.getWinCount());
+            }
+            System.out.printf(scoreFormat, "Ties", ties);
 
-        //     System.out.println();
+            System.out.println();
 
-        //     keepPlaying = askYesOrNo("Play again", scanner);
-        // }
+            keepPlaying = askYesOrNo("Play again", scanner);
+        }
 
-        // System.out.println("Goodbye!");
-        // scanner.close();
+        System.out.println("Goodbye!");
+        scanner.close();
     }
 
     private static int getValidInt(final String prompt, Scanner scanner) {
