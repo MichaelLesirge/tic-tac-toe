@@ -10,10 +10,6 @@
 - make centered_padding func remove color for you and remove char len check for Player class 
 - make take turn not need to know number of players, just have it figure it out and use any plan less that that
 
-## C++
-- Allow user to input number for where they want to go
-- make top, middle and buttom relitive (maybe even allow "buttom + 1")
-
 ## JavaScript
 - Add game over popup with players scores and and option to start a new game or leave
 - add colors to players and make .highlighted change background instead or animate it
