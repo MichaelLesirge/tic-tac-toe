@@ -106,8 +106,9 @@ public class TicTacToeBoard extends Board<Player> {
             for (int i = this.peicesToWinDiagonal-secondary; i < primary - this.peicesToWinDiagonal + 1; i++) {
                 int countTL2BR = 0;
                 int countTR2BL = 0;
-                for (int j = 0; j < secondary; j++) {
-                    
+                for (int j = Math.max(0, -i); j < Math.min(secondary, primary-i); j++) {
+                    // good when 0 <= i+j < primary
+
                     // top left to buttom right
                     final int rowTL2BR = isWider ? j : i+j;
                     final int colTL2BR = isWider ? i+j : j;
@@ -116,9 +117,9 @@ public class TicTacToeBoard extends Board<Player> {
                     final int rowTR2BL = isWider ? j : primary-(i+j)-1;
                     final int colTR2BL = isWider ? primary-(i+j)-1 : j;
 
-                    System.out.print(String.format("(%s, %s) -> ", i, j));
+                    // System.out.print(String.format("(%s, %s) -> ", i, j));
                     
-                    System.out.print(String.format("tl2br(%s, %s)", rowTL2BR, colTL2BR));
+                    // System.out.print(String.format("tl2br(%s, %s)", rowTL2BR, colTL2BR));
                     if (this.isInBoard(rowTL2BR, colTL2BR)) {
                         if (this.get(rowTL2BR, colTL2BR) == player) {
                             if (++countTL2BR >= this.peicesToWinDiagonal) {
@@ -129,13 +130,12 @@ public class TicTacToeBoard extends Board<Player> {
                             countTL2BR = 0;
                         }
                     }
-                    else {
-                        System.out.print("x") ;
-                    }
+                    // else {
+                    //     System.out.print("x") ;
+                    // }  
+                    // System.out.print(", ");
                     
-                    System.out.print(", ");
-                    
-                    System.out.print(String.format("tr2bl(%s, %s)",  rowTR2BL, colTR2BL));
+                    // System.out.print(String.format("tr2bl(%s, %s)",  rowTR2BL, colTR2BL));
                     if (this.isInBoard(rowTR2BL, colTR2BL)) {
                         if (this.get(rowTR2BL, colTR2BL) == player) {
                             if (++countTR2BL >= this.peicesToWinDiagonal) {
@@ -146,10 +146,10 @@ public class TicTacToeBoard extends Board<Player> {
                             countTR2BL = 0;
                         }
                     }
-                    else {
-                        System.out.print("x") ;
-                    }
-                    System.out.print("\n");
+                    // else {
+                    //     System.out.print("x") ;
+                    // }
+                    // System.out.print("\n");
                 }
             }
         }
