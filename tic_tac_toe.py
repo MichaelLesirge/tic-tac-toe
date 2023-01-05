@@ -317,12 +317,14 @@ class AI_Player(Player):
     MAX_POINT_COUNT = 100
 
     RAND_START = True
+    RAND_START_BEST_MUTLPLIER = 2
+    
     DELAY = 0.0
 
     SAVE_FILE_NAME_TEMPLATE = "strategy-%s.txt"
 
     # {"board name": ({location for first turn: location score, ...}, {(board state): best_move, ...}), ...}
-    _cached_strategies: dict[str, tuple[dict[int, int], tuple[tuple[int]]: int]] = {}
+    _cached_strategies: dict[str, dict[tuple[tuple[int]], dict[int, int]]] = {}
 
     def __init__(self, char: str, color: str = None) -> None:
         super().__init__(char, color)
@@ -403,21 +405,11 @@ class AI_Player(Player):
         
         if print_percent_done: print(f"Training process complete. {iterations:,} games played in {int(end-start):,} seconds")
 
-        cls.save_stratagy_maxed(strategy, board, board_name)
+        cls.save_strategy(strategy, board, board_name)
 
     @classmethod
-    def save_stratagy_maxed(cls, strategy, board, board_name):
-        dummy = AI_Player(" ")
-        
-        maxed_strategy = {board_state: max(moves, key=moves.get) for board_state, moves in strategy.items()}
-        first_move_strategy = strategy[dummy.get_relitive_board_state(board)]
-        
-        first_move_strategy[max(first_move_strategy, key=first_move_strategy.get)] *= 2
-
-        cls._cached_strategies[board_name] = (
-            first_move_strategy,
-            maxed_strategy
-        )
+    def save_strategy(cls, strategy, board, board_name):
+        cls._cached_strategies[board_name] = strategy
 
         try:
             with open(cls.SAVE_FILE_NAME_TEMPLATE % board_name, "wt") as file:
@@ -444,21 +436,24 @@ class AI_Player(Player):
                 raise ValueError(f"Invalid file contents: {er}") from er
         
         # have more random first move to make game less repitive 
-        first_move_options, strategy = self._cached_strategies[board_name]
+        strategy = self._cached_strategies[board_name]
         
-        if self.RAND_START and board.placed == 0:
-            loc = pick_weighted_random_value(first_move_options)
+        def make_play(board_state):
+            options = strategy.get(board_state)  
+            
+            if options is None:
+                # TODO pick random valid choice
+                raise NotImplementedError(f"AI Player does not know what to do on this board state")
+            
+            if self.RAND_START and board.placed == 0:
+                mod_options = options.copy()
+                mod_options[max(mod_options, key=mod_options.get)] *= self.RAND_START_BEST_MUTLPLIER
+                loc = pick_weighted_random_value(mod_options)
+            else:
+                loc = max(options, key=options.get)
+            
             board.place(loc, self)
-        else:
-            def make_play(board_state):
-                loc = strategy.get(board_state)
-
-                if loc is None:
-                    # TODO pick random valid choice
-                    raise NotImplementedError(f"AI Player does not know what to do on this board state")
-                
-                board.place(loc, self)
-            self.make_play_any_rotation(board, strategy, make_play) 
+        self.make_play_any_rotation(board, strategy, make_play) 
 
         sleep(self.DELAY)
     
