@@ -13,7 +13,7 @@
 - Decrease coupling
 - make centered_padding func remove color for you and remove char len check for Player class 
 - make take turn not need to know number of players, just have it figure it out and use any plan less that that
-- have maxing and stuff occur in place
+- rewrite AI player to use row, col indexs instead of locs
 
 ## JavaScript
 - Add game over popup with players scores and and option to start a new game or leave
