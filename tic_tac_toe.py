@@ -70,7 +70,7 @@ def main() -> None:
                 print(f"Player {current_player} wins!")
                 current_player.wins += 1
                 in_game = False
-            elif board.is_full():
+            elif board.is_tie():
                 print(board)
                 print("It's a tie!")
                 ties_count += 1
@@ -186,7 +186,7 @@ class Board:
     def is_empty_location(self, row: int, col: int) -> bool:
         return self.get(row, col) is None
 
-    def is_full(self) -> bool:
+    def is_tie(self) -> bool:
         return self.placed >= self.size
 
     def is_winner(self, player: "Player") -> list[int, int, int, int]:
@@ -387,7 +387,7 @@ class AI_Player(Player):
                     for options, indexs in players_moves[current_player]:
                         options[indexs] += (board.size - turn_count)
                     playing = False
-                elif board.is_full():
+                elif board.is_tie():
                     for moves in players_moves.values():
                         for options, indexs in moves:
                             options[indexs] += 1
