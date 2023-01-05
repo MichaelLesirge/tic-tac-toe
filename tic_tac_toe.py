@@ -19,7 +19,7 @@ STR_RESET_CODE = "\033[0m"
 
 OFFSET = 1
 
-CYCLE_FIRST_PLAYER = False
+CYCLE_FIRST_PLAYER = True
 
 color_mode = True
 
@@ -39,7 +39,7 @@ def main() -> None:
 
     players = make_players()
     print()
-    # players = [Human_Player("X", STR_COLOR_CODES["red"]), Human_Player("O", STR_COLOR_CODES["blue"])]
+    # players = [Human_Player("X", STR_COLOR_CODES["red"]), AI_Player("O", STR_COLOR_CODES["blue"])]
     # players = [AI_Player("A", STR_COLOR_CODES["green"]), AI_Player("B", STR_COLOR_CODES["cyan"]), Human_Player("C", STR_COLOR_CODES["blue"])]
 
     game = Game(board, players)
@@ -47,6 +47,7 @@ def main() -> None:
     if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(game):
         AI_Player.train(game, iterations=board.size*2000, print_percent_done=True)
         print()
+    # AI_Player.timed_train(game, train_time=60*3, print_percent_done=True)
     
     ties_count = 0
 
@@ -158,12 +159,11 @@ class Game:
                 winner = current_player
             
         self.game_count += 1
-        
+
         for player in self.players:
             if winner is player: player.win(self, turn_count)       
             elif winner is None: player.tie(self, turn_count)    
             else: player.lose(self, turn_count)
-        
         return winner
 
     def __repr__(self) -> str:
@@ -407,6 +407,27 @@ class AI_Player(Player):
         end = time()
         
         if print_percent_done: print(f"Training process complete. {iterations:,} games played in {int(end-start):,} seconds")
+        
+    @classmethod
+    def timed_train(cls, game: Game, train_time: int = 60, print_percent_done: bool = False) -> None:
+        
+        game.board.reset()
+        
+        players = [AI_Player(player.char, player.color) for player in game.players]
+        board = Board(game.board.width, game.board.height, game.board.peices_to_win_horizontal,  game.board.peices_to_win_verticle,  game.board.peices_to_win_diagnal)
+        
+        bot_game = Game(board, players)
+
+        end_at = time() + train_time
+ 
+        if print_percent_done:  print("start training")
+        
+        while time() < end_at:
+            bot_game.play(random=True)     
+            board.reset()
+        
+        if print_percent_done: print(f"Training process complete. {bot_game.game_count:,} games played in {train_time:,} seconds")
+        
     
     def take_turn(self, game: Game, *, random=False) -> None:
         strategy = self.strategies.setdefault(str(game), {})
