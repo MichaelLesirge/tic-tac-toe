@@ -7,7 +7,6 @@ from abc import ABC, abstractmethod
 
 CYCLE_FIRST_PLAYER = True
 
-color_mode = True
 
 STR_COLOR_CODES = {
     "red": "\u001b[31m",
@@ -22,6 +21,8 @@ STR_BOLD_CODE = "\033[1m"
 STR_RESET_CODE = "\033[0m"
 
 OFFSET = 1
+
+color_mode = True
 
 def main() -> None:
     print("Welcome to tic-tac-toe with Python!")
@@ -39,7 +40,7 @@ def main() -> None:
 
     players = make_players()
     print()
-    players = [Human_Player("X", "red"), Human_Player("O", "blue")]
+    # players = [Human_Player("X", "red"), Human_Player("O", "blue")]
     # players = [AI_Player("A", "green"), AI_Player("B", "cyan"), Human_Player("C", "blue")]
 
     if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(board, len(players)):
@@ -241,7 +242,6 @@ class Board:
     def get(self, row: int, col: int) -> object:
         return self.board[row][col]
 
-
     def set(self, row: int, col: int, val: object) -> None:
         self.board[row][col] = val
 
@@ -403,8 +403,16 @@ class AI_Player(Player):
         
         if print_percent_done: print(f"Training process complete. {iterations:,} games played in {int(end-start):,} seconds")
 
+        cls.save_stratagy_maxed(strategy, board, board_name)
+
+    @classmethod
+    def save_stratagy_maxed(cls, strategy, board, board_name):
+        dummy = AI_Player(" ")
+        
         maxed_strategy = {board_state: max(moves, key=moves.get) for board_state, moves in strategy.items()}
-        first_move_strategy = strategy[players[0].get_relitive_board_state(board)]
+        first_move_strategy = strategy[dummy.get_relitive_board_state(board)]
+        
+        first_move_strategy[max(first_move_strategy, key=first_move_strategy.get)] *= 2
 
         cls._cached_strategies[board_name] = (
             first_move_strategy,
@@ -416,7 +424,8 @@ class AI_Player(Player):
                 file.write(str(cls._cached_strategies[board_name]).replace(" ", ""))
         except PermissionError as er:
             print("Can not write strategy to file in this enviroment")         
-
+        
+    
     @classmethod 
     def make_game_name(cls, board: Board, player_count: int) -> str:
         return f"b({board.width}x{board.height})w({board.peices_to_win_horizontal},{board.peices_to_win_verticle},{board.peices_to_win_diagnal})p({player_count})"
