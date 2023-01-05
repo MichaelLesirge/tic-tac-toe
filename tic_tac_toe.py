@@ -5,6 +5,8 @@ from random import choices
 from time import sleep, time
 from abc import ABC, abstractmethod
 
+CYCLE_FIRST_PLAYER = True
+
 color_mode = True
 
 STR_COLOR_CODES = {
@@ -37,7 +39,7 @@ def main() -> None:
 
     players = make_players()
     print()
-    # players = [Human_Player("X", "red"), Human_Player("O", "blue")]
+    players = [Human_Player("X", "red"), Human_Player("O", "blue")]
     # players = [AI_Player("A", "green"), AI_Player("B", "cyan"), Human_Player("C", "blue")]
 
     if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(board, len(players)):
@@ -55,7 +57,8 @@ def main() -> None:
 
         in_game = True
         while in_game:
-            current_player = players[board.placed % len(players)]
+            current_player = players[(board.placed + (game_count * CYCLE_FIRST_PLAYER)) % len(players)]
+            
             print(board)
             print(f"{current_player}'s turn.")
 
@@ -185,15 +188,14 @@ class Board:
     def is_full(self) -> bool:
         return self.placed >= self.size
 
-    def win_percents(self, player: "Player") -> list[int, int, int, int]:
-        win_chances = [0, 0, 0, 0]
+    def is_winner(self, player: "Player") -> list[int, int, int, int]:
         if self.should_check_horizontal:
             for row in range(self.height):
                 count = 0
                 for col in range(self.width):
                     if self.get(row, col) == player:
                         count += 1
-                        win_chances[0] = max(count / self.peices_to_win_horizontal, win_chances[0])
+                        if count >= self.peices_to_win_horizontal: return True
                     else:
                         count = 0
 
@@ -203,7 +205,7 @@ class Board:
                 for row in range(self.height):
                     if self.get(row, col) == player:
                         count += 1
-                        win_chances[1] = max(count / self.peices_to_win_verticle, win_chances[1])
+                        if count >= self.peices_to_win_verticle: return True
                     else:
                         count = 0
 
@@ -226,21 +228,15 @@ class Board:
 
                     if self.get(rowTL2BR, colTL2BR) == player:
                         countTL2BR += 1
-                        win_chances[2] = max(countTL2BR / self.peices_to_win_diagnal, win_chances[2])
+                        if countTL2BR >= self.peices_to_win_diagnal: return True
                     else:
                         countTL2BR = 0
 
                     if self.get(rowTR2BL, colTR2BL) == player:
                         countTR2BL += 1
-                        win_chances[3] = max(countTR2BL / self.peices_to_win_diagnal, win_chances[3])
+                        if countTR2BL >= self.peices_to_win_diagnal: return True
                     else:
                         countTR2BL = 0
-
-        return win_chances
-
-    def is_winner(self, player: object) -> bool:
-        chances = self.win_percents(player)
-        return 1 in chances
 
     def get(self, row: int, col: int) -> object:
         return self.board[row][col]
