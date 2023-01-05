@@ -2,7 +2,11 @@
 
 ## All games
 - Remove code duplication in win check funtions. 
-- Make diagnal checking better
+- Make diagnal checking better (idk how)
+
+## Java
+- Make board have playing / not playing
+- detect tie/winner in place
 
 ## Python
 - Highlight background of winning elements
