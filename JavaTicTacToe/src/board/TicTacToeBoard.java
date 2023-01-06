@@ -157,8 +157,8 @@ public class TicTacToeBoard extends Board<Player> {
         return false;
     }
 
-    @Override
-    public String toString(int row, int col) {
-        return super.toString(row, col) + " " + "(" + row + ", " + col +  ")";
-    }
+    // @Override
+    // public String toString(int row, int col) {
+    //     return super.toString(row, col) + " " + "(" + row + ", " + col +  ")";
+    // }
 }
