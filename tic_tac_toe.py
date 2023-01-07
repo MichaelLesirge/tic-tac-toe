@@ -45,13 +45,13 @@ def main() -> None:
 
     game = Game(board, players)
 
-    # AI_Player.pull_stratagy(game)
-    # if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(game):
-    #     AI_Player.train(game, iterations=board.size * 2000, should_print_percent_done=True)
-    #     print()
-    # AI_Player.save_stratagy(game)
+    AI_Player.pull_stratagy(game)
+    if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(game):
+        AI_Player.train(game, iterations=board.size * 2000, should_print_percent_done=True)
+        print()
+    AI_Player.save_stratagy(game)
 
-    AI_Player.timed_train(game, train_time=1)
+    # AI_Player.timed_train(game, train_time=1)
 
     ties_count = 0
 
@@ -496,8 +496,6 @@ class AI_Player(Player):
         if should_print_percent_done:
             print()
             print(f"Training process complete. {bot_game.game_count:,} games played in {seconds_to_time(train_time)}.")
-        
-        print(bot_game.game_count)
 
     def take_turn(self, game: Game, *, training_mode=False) -> None:
         strategy = self.strategies.setdefault(str(game), {})
