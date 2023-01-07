@@ -23,6 +23,7 @@ CYCLE_FIRST_PLAYER = True
 
 color_mode = True
 
+
 def main() -> None:
     print("Welcome to tic-tac-toe with Python!")
     print()
@@ -44,11 +45,14 @@ def main() -> None:
 
     game = Game(board, players)
 
+    AI_Player.pull_stratagy(game)    
     if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(game):
-        AI_Player.train(game, iterations=board.size*2000, print_percent_done=True)
+        AI_Player.train(game, iterations=board.size * 2000, print_percent_done=True)
         print()
-    # AI_Player.timed_train(game, train_time=60*3, print_percent_done=True)
+    AI_Player.save_stratagy(game)    
     
+    # AI_Player.timed_train(game, train_time=60*3, print_percent_done=True)
+
     ties_count = 0
 
     game_count = 0
@@ -57,11 +61,11 @@ def main() -> None:
     while playing:
         board.reset()
         print(f"Round {game_count+1}")
-        
+
         winner = game.play(cycle_first_player=CYCLE_FIRST_PLAYER)
-        
+
         print(game.board)
-        
+
         if winner:
             print(f"Player {winner} wins!")
         else:
@@ -123,7 +127,8 @@ def make_player() -> "Player":
         x = x.lower()
         if x not in STR_COLOR_CODES:
             possible_colors = list(STR_COLOR_CODES.keys())
-            raise ValueError(f"\"{x}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
+            raise ValueError(
+                f"\"{x}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
         return STR_COLOR_CODES[x]
 
     make_ai = bool_input("Bot")
@@ -138,41 +143,46 @@ def make_player() -> "Player":
 
     return player_type(letter, color)
 
+
 class Game:
     def __init__(self, board: "Board", players: list["Player"]) -> None:
         self.board = board
         self.players = players
-        
+
         self.game_count = 0
-    
+
     def play(self, *, cycle_first_player: bool = False, **kwargs):
         winner = None
         turn_count = 0
-        
+
         while not (winner or self.board.is_tie()):
             turn_count += 1
-            current_player = self.players[(self.board.placed + (self.game_count * cycle_first_player)) % len(self.players)]
+            current_player = self.players[(
+                self.board.placed + (self.game_count * cycle_first_player)) % len(self.players)]
 
             current_player.take_turn(self, **kwargs)
 
             if self.board.is_winner(current_player):
                 winner = current_player
-            
+
         self.game_count += 1
 
         for player in self.players:
-            if winner is player: player.win(self, turn_count)       
-            elif winner is None: player.tie(self, turn_count)    
-            else: player.lose(self, turn_count)
+            if winner is player:
+                player.win(self, turn_count)
+            elif winner is None:
+                player.tie(self, turn_count)
+            else:
+                player.lose(self, turn_count)
         return winner
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({repr(self.board), {repr(self.players)}})"
-    
+
     def __str__(self) -> str:
         return f"b({self.board.width}x{self.board.height})w({self.board.peices_to_win_horizontal},{self.board.peices_to_win_verticle},{self.board.peices_to_win_diagnal})p({len(self.players)})"
 
-    
+
 class Board:
     DEFAULT_SIZE = 3
 
@@ -185,9 +195,12 @@ class Board:
         self.min_loc = OFFSET
         self.max_loc = self.size + OFFSET - 1
 
-        self.should_check_horizontal = (peices_to_win_horizontal != None) and (peices_to_win_horizontal <= self.width)
-        self.should_check_verticle = (peices_to_win_verticle != None) and (peices_to_win_verticle <= self.height)
-        self.should_check_diagonal = (peices_to_win_diagnal != None) and (peices_to_win_diagnal <= self.width or peices_to_win_diagnal <= self.height)
+        self.should_check_horizontal = (peices_to_win_horizontal != None) and (
+            peices_to_win_horizontal <= self.width)
+        self.should_check_verticle = (peices_to_win_verticle != None) and (
+            peices_to_win_verticle <= self.height)
+        self.should_check_diagonal = (peices_to_win_diagnal != None) and (
+            peices_to_win_diagnal <= self.width or peices_to_win_diagnal <= self.height)
 
         self.peices_to_win_horizontal = peices_to_win_horizontal
         self.peices_to_win_verticle = peices_to_win_verticle
@@ -201,7 +214,8 @@ class Board:
 
     def reset(self) -> None:
         self.placed = 0
-        self.board = [[None for col in range(self.width)] for row in range(self.height)]
+        self.board = [[None for col in range(self.width)]
+                      for row in range(self.height)]
 
     def is_valid_location(self, row: int, col: int) -> bool:
         return (-1 < row < self.height) and (-1 < col < self.width)
@@ -219,7 +233,8 @@ class Board:
                 for col in range(self.width):
                     if self.get(row, col) == player:
                         count += 1
-                        if count >= self.peices_to_win_horizontal: return True
+                        if count >= self.peices_to_win_horizontal:
+                            return True
                     else:
                         count = 0
 
@@ -229,7 +244,8 @@ class Board:
                 for row in range(self.height):
                     if self.get(row, col) == player:
                         count += 1
-                        if count >= self.peices_to_win_verticle: return True
+                        if count >= self.peices_to_win_verticle:
+                            return True
                     else:
                         count = 0
 
@@ -252,13 +268,15 @@ class Board:
 
                     if self.get(rowTL2BR, colTL2BR) == player:
                         countTL2BR += 1
-                        if countTL2BR >= self.peices_to_win_diagnal: return True
+                        if countTL2BR >= self.peices_to_win_diagnal:
+                            return True
                     else:
                         countTL2BR = 0
 
                     if self.get(rowTR2BL, colTR2BL) == player:
                         countTR2BL += 1
-                        if countTR2BL >= self.peices_to_win_diagnal: return True
+                        if countTR2BL >= self.peices_to_win_diagnal:
+                            return True
                     else:
                         countTR2BL = 0
 
@@ -277,7 +295,7 @@ class Board:
 
     def to_loc(self, row: int, col: int) -> int:
         return (row*self.width)+col+OFFSET
-    
+
     def _place(self, loc: int, val: object) -> None:
         self.placed += 1
         row, col = self.to_indexs(loc)
@@ -302,6 +320,7 @@ class Board:
         # I'm so sorry future self, but I realised it was possible and this project does not matter so I just did it.
         return "\n" + (("\n" + "┼".join(["─" + ("─" * self.max_cell_size) + "─"] * self.width) + "─" + "\n").join([" " + ((" " + "│" + " ").join([centered_padding(item if item is not None else str(self.to_loc(i, j)), self.max_cell_size) for j, item in enumerate(row)]) + " ") for i, row in enumerate(self.board)])) + "\n"
 
+
 class Player(ABC):
     def __init__(self, char: str, color: str = None) -> None:
         if len(char) != 1:
@@ -320,24 +339,24 @@ class Player(ABC):
 
     def win(self, game: Game, turns: int) -> None:
         self.wins += 1
-        
+
     def lose(self, game: Game, turns: int) -> None:
         self.losses += 1
-        
+
     def tie(self, game: Game, turns: int) -> None:
         self.ties += 1
-    
+
     @property
     def win_loss_ratio(self) -> int:
         # counting ties as half a win and loss
-        tie_amount = self.ties / 2 
+        tie_amount = self.ties / 2
         return (self.wins + tie_amount) / (self.losses + tie_amount)
 
     @property
     def score(self) -> int:
         # calculate overall score like in soccer
         return (self.wins * 3) + self.ties
-    
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(char={self.char}, wins={self.wins})"
 
@@ -346,16 +365,17 @@ class Player(ABC):
             return self.color + STR_BOLD_CODE + self.char + STR_RESET_CODE
         return self.char
 
+
 class Human_Player(Player):
     def take_turn(self, game: Game) -> None:
         print(game.board)
         print(f"Player {self}'s turn")
-        
+
         def make_play(loc):
             game.board.place(loc, self)
-            
+
         get_valid_input("Enter where you want to go", make_play, input_func=int_input)
-    
+
 
 class AI_Player(Player):
     """
@@ -365,7 +385,7 @@ class AI_Player(Player):
 
     In the future I am going to make this use a real neural network / use a libary like PyTorch or Tensorflow. For now I want to try and do it with no libaries (except random)
     """
-    
+
     RAND_START = True
 
     SAVE_FILE_NAME_TEMPLATE = "strategy-%s.txt"
@@ -381,92 +401,138 @@ class AI_Player(Player):
         return str(game) not in cls.strategies
 
     @classmethod
-    def train(cls, game: Game, iterations: int = 1000000, print_percent_done: bool = False) -> None:
-        percentage_notifacation_interval = iterations / 100
+    def pull_stratagy(cls, game: Game) -> bool:
+        game_name = str(game)
+        try:
+            with open(cls.SAVE_FILE_NAME_TEMPLATE % game_name, "r") as file:
+                # Who is this Jason fellow?
+                strategy = eval(file.read())
+        except (FileNotFoundError, PermissionError) as er:
+            return False
+        except Exception as er:
+            raise ValueError(f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_name}'") from er 
         
+        sum_dicts(cls.strategies.get(game_name, {}), [strategy])
+        return True
+
+    @classmethod
+    def save_stratagy(cls, game: Game) -> bool:
+        game_name = str(game)
+        try:
+            with open(cls.SAVE_FILE_NAME_TEMPLATE % game_name, "w") as file:
+                # Who is this Jason fellow?
+                file.write(str(cls.strategies.get(game_name, {})).replace(" ", ""))
+        except (PermissionError) as er:
+            return False
+        
+        return True
+        
+    @classmethod
+    def train(cls, game: Game, iterations: int = 1000000, print_percent_done: bool = False, print_every_cycle: bool = False) -> None:
+
         game.board.reset()
-        
-        players = [AI_Player(player.char, player.color) for player in game.players]
-        board = Board(game.board.width, game.board.height, game.board.peices_to_win_horizontal,  game.board.peices_to_win_verticle,  game.board.peices_to_win_diagnal)
-        
+
+        players = [AI_Player(player.char, player.color)
+                   for player in game.players]
+        board = Board(game.board.width, game.board.height, game.board.peices_to_win_horizontal,
+                      game.board.peices_to_win_verticle,  game.board.peices_to_win_diagnal)
+
         bot_game = Game(board, players)
 
-        if print_percent_done: 
+        if print_percent_done:
             print("start training")
-            print(f"0% Complete. Game 0 of {iterations:,}\r", end="")
+            print(f"0% Complete. Game 0 of {iterations:,})\r", end="")
 
         start = time()
 
         for i in range(1, iterations+1):
-            bot_game.play(random=True)
-            
-            if print_percent_done and (i % percentage_notifacation_interval == 0) or percentage_notifacation_interval < 2:
-                print(f"{format(i / percentage_notifacation_interval, '.1f').rstrip('0').rstrip('.')}% Complete. Game {i:,} of {iterations:,}\r", end="")
+            bot_game.play(training_mode=True)
             board.reset()
+
+            if print_percent_done:
+                amount_done = i / iterations
+                if print_every_cycle or amount_done.is_integer():
+                    print(f"{int(amount_done):,%}% Complete. Game {i:,} of {iterations:,}\r", end="")
 
         end = time()
         
-        if print_percent_done: print(f"Training process complete. {iterations:,} games played in {int(end-start):,} seconds")
-        
+        if print_percent_done:
+            print(end="")
+            print(f"Training process complete. {iterations:,} games played in {int(end-start):,} seconds")
+
     @classmethod
-    def timed_train(cls, game: Game, train_time: int = 60, print_percent_done: bool = False) -> None:
-        
+    def timed_train(cls, game: Game, train_time: int = 60, print_percent_done: bool = False, print_every_cycle: bool = False) -> None:
+
         game.board.reset()
-        
-        players = [AI_Player(player.char, player.color) for player in game.players]
-        board = Board(game.board.width, game.board.height, game.board.peices_to_win_horizontal,  game.board.peices_to_win_verticle,  game.board.peices_to_win_diagnal)
-        
+
+        players = [AI_Player(player.char, player.color)
+                   for player in game.players]
+        board = Board(game.board.width, game.board.height,
+                      game.board.peices_to_win_horizontal, game.board.peices_to_win_verticle,  game.board.peices_to_win_diagnal)
+
         bot_game = Game(board, players)
 
-        end_at = time() + train_time
- 
-        if print_percent_done:  print("start training")
-        
-        while time() < end_at:
-            bot_game.play(random=True)     
+        end_time = time() + train_time - 1
+
+        if print_percent_done:
+            print("start training")
+            print(f"0% Complete. 0 games played in 0 seconds \r", end="")
+
+        cur_time = time()
+        while cur_time < end_time:
+            cur_time = time()
+            
+            if print_percent_done:
+                amount_done = cur_time / end_time
+                if print_every_cycle or amount_done.is_integer():
+                    
+            
+            bot_game.play(training_mode=True)
             board.reset()
-        
-        if print_percent_done: print(f"Training process complete. {bot_game.game_count:,} games played in {train_time:,} seconds")
-        
-    
-    def take_turn(self, game: Game, *, random=False) -> None:
+            
+
+        if print_percent_done:
+            print(end="")
+            print(f"Training process complete. {bot_game.game_count:,} games played in {train_time:,} seconds")
+
+    def take_turn(self, game: Game, *, training_mode=False) -> None:
         strategy = self.strategies.setdefault(str(game), {})
-        
+
         def make_play(board: Board, board_state: tuple[tuple[int]]):
-            options = strategy.get(board_state) # would use set defualt here but than I would have to always make fallback
+            # would use set defualt here but than I would have to always make fallback
+            options = strategy.get(board_state)
             if options is None:
                 options = strategy[board_state] = {loc: int(board.is_empty_location(*board.to_indexs(loc))) for loc in range(board.min_loc, board.max_loc+1)}
-            
-            if random or (self.RAND_START and board.placed == 0):
+
+            if training_mode or (self.RAND_START and board.placed == 0):
                 loc = pick_weighted_random_value(options)
             else:
-                loc = max(options, key=options.get)           
-            
+                loc = max(options, key=options.get)
+
             self.recent_plays.append((options, loc))
             board._place(loc, self)
-            
-        self.make_play_any_rotation(game.board, strategy, make_play) 
-        
+
+        self.make_play_any_rotation(game.board, strategy, make_play)
+
     def win(self, game: Game, turns: int) -> None:
         super().win(game, turns)
         for option, loc in self.recent_plays:
             option[loc] += (game.board.size - turns) + 1
         self.recent_plays.clear()
-        
+
     def lose(self, game: Game, turns: int) -> None:
         super().lose(game, turns)
         for option, loc in self.recent_plays:
-            if option[loc] > 100:
+            if option[loc] > 1:
                 option[loc] -= 1
         self.recent_plays.clear()
-        
+
     def tie(self, game: Game, turns: int) -> None:
         super().tie(game, turns)
         for option, loc in self.recent_plays:
             option[loc] += 1
         self.recent_plays.clear()
-        
-    
+
     def make_play_any_rotation(self, board: Board, stratagy, play_func):
         # spin the board to fit than keep spinning it back to orginal
         placed = False
@@ -502,11 +568,14 @@ class AI_Player(Player):
 def rotate_90_degree(l):
     return type(l)(type(l[0])(x[::-1]) for x in zip(*l))
 
+
 def mirrorX(l):
     return type(l)(type(l[0])(x[::-1]) for x in l)
 
+
 def pick_weighted_random_value(d: dict[object, int]) -> object:
     return choices(list(d.keys()), d.values())[0]
+
 
 def centered_padding(val: str | Player, amount: int, *, buffer: str = " ") -> str:
     amount -= 1 if isinstance(val, Player) else len(val)
@@ -515,14 +584,22 @@ def centered_padding(val: str | Player, amount: int, *, buffer: str = " ") -> st
     return (buffer * (side_amount + extra)) + str(val) + (buffer * side_amount)
 
 
+def sum_dicts(starting_dict: dict[object: int], dicts: list[dict[object: int]]) -> None:
+    for d in dicts:
+        for key, value in dicts:
+            starting_dict[key] = value + d.get(key, 0)
+
+
 def bool_input(prompt: str) -> None:
-    user_input = input_s(prompt +  " (y/n)").lower()
+    user_input = input_s(prompt + " (y/n)").lower()
     return user_input in ("y", "yes", "true")
+
 
 def input_s(prompt=""):
     return input(prompt + ": ").strip()
 
-def int_input(prompt: str, *, min = float("-infinity"), max = float("infinity"), default = None) -> None:
+
+def int_input(prompt: str, *, min=float("-infinity"), max=float("infinity"), default=None) -> None:
     def func(x: str):
         try:
             x = int(x if x != "" else default)
@@ -535,6 +612,7 @@ def int_input(prompt: str, *, min = float("-infinity"), max = float("infinity"),
         return x
 
     return get_valid_input(prompt, func)
+
 
 def get_valid_input(prompt: str, converter, *, input_func=input_s):
     while True:
