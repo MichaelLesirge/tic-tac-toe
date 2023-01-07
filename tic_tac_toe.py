@@ -45,11 +45,12 @@ def main() -> None:
 
     game = Game(board, players)
 
-    AI_Player.pull_stratagy(game)
     if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(game):
-        AI_Player.train(game, iterations=board.size * 2000, should_print_percent_done=True)
-        print()
-    AI_Player.save_stratagy(game)
+        found_saved_strategy = AI_Player.pull_stratagy(game)
+        if not found_saved_strategy:
+            AI_Player.train(game, iterations=board.size * 2000, should_print_percent_done=True)
+            AI_Player.save_stratagy(game)
+            print()
 
     # AI_Player.timed_train(game, train_time=1)
 
