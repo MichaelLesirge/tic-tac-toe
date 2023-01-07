@@ -45,9 +45,12 @@ def main() -> None:
 
     game = Game(board, players)
 
+    AI_Player.pull_stratagy(game)    
     if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(game):
         AI_Player.train(game, iterations=board.size * 2000, print_percent_done=True)
         print()
+    AI_Player.save_stratagy(game)    
+    
     # AI_Player.timed_train(game, train_time=60*3, print_percent_done=True)
 
     ties_count = 0
@@ -398,8 +401,34 @@ class AI_Player(Player):
         return str(game) not in cls.strategies
 
     @classmethod
-    def train(cls, game: Game, iterations: int = 1000000, print_percent_done: bool = False) -> None:
-        percentage_notifacation_interval = iterations / 100
+    def pull_stratagy(cls, game: Game) -> bool:
+        game_name = str(game)
+        try:
+            with open(cls.SAVE_FILE_NAME_TEMPLATE % game_name, "r") as file:
+                # Who is this Jason fellow?
+                strategy = eval(file.read())
+        except (FileNotFoundError, PermissionError) as er:
+            return False
+        except Exception as er:
+            raise ValueError(f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_name}'") from er 
+        
+        sum_dicts(cls.strategies.get(game_name, {}), [strategy])
+        return True
+
+    @classmethod
+    def save_stratagy(cls, game: Game) -> bool:
+        game_name = str(game)
+        try:
+            with open(cls.SAVE_FILE_NAME_TEMPLATE % game_name, "w") as file:
+                # Who is this Jason fellow?
+                file.write(str(cls.strategies.get(game_name, {})).replace(" ", ""))
+        except (PermissionError) as er:
+            return False
+        
+        return True
+        
+    @classmethod
+    def train(cls, game: Game, iterations: int = 1000000, print_percent_done: bool = False, print_every_cycle: bool = False) -> None:
 
         game.board.reset()
 
@@ -412,23 +441,27 @@ class AI_Player(Player):
 
         if print_percent_done:
             print("start training")
-            print(f"0% Complete. Game 0 of {iterations:,}\r", end="")
+            print(f"0% Complete. Game 0 of {iterations:,})\r", end="")
 
         start = time()
 
         for i in range(1, iterations+1):
-            bot_game.play(random=True)
-
-            if print_percent_done and (i % percentage_notifacation_interval == 0) or percentage_notifacation_interval < 2:
-                print(f"{format(i / percentage_notifacation_interval, '.1f').rstrip('0').rstrip('.')}% Complete. Game {i:,} of {iterations:,}\r", end="")
+            bot_game.play(training_mode=True)
             board.reset()
 
-        end = time()
+            if print_percent_done:
+                amount_done = i / iterations
+                if print_every_cycle or amount_done.is_integer():
+                    print(f"{int(amount_done):,%}% Complete. Game {i:,} of {iterations:,}\r", end="")
 
-        if print_percent_done: print(f"Training process complete. {iterations:,} games played in {int(end-start):,} seconds")
+        end = time()
+        
+        if print_percent_done:
+            print(end="")
+            print(f"Training process complete. {iterations:,} games played in {int(end-start):,} seconds")
 
     @classmethod
-    def timed_train(cls, game: Game, train_time: int = 60, print_percent_done: bool = False) -> None:
+    def timed_train(cls, game: Game, train_time: int = 60, print_percent_done: bool = False, print_every_cycle: bool = False) -> None:
 
         game.board.reset()
 
@@ -439,17 +472,30 @@ class AI_Player(Player):
 
         bot_game = Game(board, players)
 
-        end_at = time() + train_time
+        end_time = time() + train_time - 1
 
-        if print_percent_done: print("start training")
+        if print_percent_done:
+            print("start training")
+            print(f"0% Complete. 0 games played in 0 seconds \r", end="")
 
-        while time() < end_at:
-            bot_game.play(random=True)
+        cur_time = time()
+        while cur_time < end_time:
+            cur_time = time()
+            
+            if print_percent_done:
+                amount_done = cur_time / end_time
+                if print_every_cycle or amount_done.is_integer():
+                    
+            
+            bot_game.play(training_mode=True)
             board.reset()
+            
 
-        if print_percent_done: print(f"Training process complete. {bot_game.game_count:,} games played in {train_time:,} seconds")
+        if print_percent_done:
+            print(end="")
+            print(f"Training process complete. {bot_game.game_count:,} games played in {train_time:,} seconds")
 
-    def take_turn(self, game: Game, *, random=False) -> None:
+    def take_turn(self, game: Game, *, training_mode=False) -> None:
         strategy = self.strategies.setdefault(str(game), {})
 
         def make_play(board: Board, board_state: tuple[tuple[int]]):
@@ -458,7 +504,7 @@ class AI_Player(Player):
             if options is None:
                 options = strategy[board_state] = {loc: int(board.is_empty_location(*board.to_indexs(loc))) for loc in range(board.min_loc, board.max_loc+1)}
 
-            if random or (self.RAND_START and board.placed == 0):
+            if training_mode or (self.RAND_START and board.placed == 0):
                 loc = pick_weighted_random_value(options)
             else:
                 loc = max(options, key=options.get)
@@ -477,7 +523,7 @@ class AI_Player(Player):
     def lose(self, game: Game, turns: int) -> None:
         super().lose(game, turns)
         for option, loc in self.recent_plays:
-            if option[loc] > 100:
+            if option[loc] > 1:
                 option[loc] -= 1
         self.recent_plays.clear()
 
@@ -538,12 +584,10 @@ def centered_padding(val: str | Player, amount: int, *, buffer: str = " ") -> st
     return (buffer * (side_amount + extra)) + str(val) + (buffer * side_amount)
 
 
-def sum_dicts(*dicts: dict[object: int]) -> dict[object: int]:
-    summed_dict = {}
+def sum_dicts(starting_dict: dict[object: int], dicts: list[dict[object: int]]) -> None:
     for d in dicts:
         for key, value in dicts:
-            summed_dict[key] = value + d.get(key, 0)
-    return summed_dict
+            starting_dict[key] = value + d.get(key, 0)
 
 
 def bool_input(prompt: str) -> None:
