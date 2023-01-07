@@ -45,13 +45,13 @@ def main() -> None:
 
     game = Game(board, players)
 
-    AI_Player.pull_stratagy(game)    
-    if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(game):
-        AI_Player.train(game, iterations=board.size * 2000, print_percent_done=True)
-        print()
-    AI_Player.save_stratagy(game)    
-    
-    # AI_Player.timed_train(game, train_time=60*3, print_percent_done=True)
+    # AI_Player.pull_stratagy(game)
+    # if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(game):
+    #     AI_Player.train(game, iterations=board.size * 2000, should_print_percent_done=True)
+    #     print()
+    # AI_Player.save_stratagy(game)
+
+    AI_Player.timed_train(game, train_time=1)
 
     ties_count = 0
 
@@ -227,6 +227,7 @@ class Board:
         return self.placed >= self.size
 
     def is_winner(self, player: "Player") -> list[int, int, int, int]:
+        # fix code duplcation here
         if self.should_check_horizontal:
             for row in range(self.height):
                 count = 0
@@ -410,9 +411,10 @@ class AI_Player(Player):
         except (FileNotFoundError, PermissionError) as er:
             return False
         except Exception as er:
-            raise ValueError(f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_name}'") from er 
-        
-        sum_dicts(cls.strategies.get(game_name, {}), [strategy])
+            raise ValueError(f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_name}'") from er
+
+        for board_state, options in strategy.items():
+            cls.strategies[board_state] = sum_dicts(options, start=cls.strategies.get(board_state, {}))
         return True
 
     @classmethod
@@ -424,14 +426,11 @@ class AI_Player(Player):
                 file.write(str(cls.strategies.get(game_name, {})).replace(" ", ""))
         except (PermissionError) as er:
             return False
-        
+
         return True
-        
+
     @classmethod
-    def train(cls, game: Game, iterations: int = 1000000, print_percent_done: bool = False, print_every_cycle: bool = False) -> None:
-
-        game.board.reset()
-
+    def train(cls, game: Game, iterations: int = 1000000, should_print_percent_done: bool = False, print_new_percent_change_amount: int = 1) -> None:
         players = [AI_Player(player.char, player.color)
                    for player in game.players]
         board = Board(game.board.width, game.board.height, game.board.peices_to_win_horizontal,
@@ -439,61 +438,66 @@ class AI_Player(Player):
 
         bot_game = Game(board, players)
 
-        if print_percent_done:
-            print("start training")
-            print(f"0% Complete. Game 0 of {iterations:,})\r", end="")
+        if should_print_percent_done:
+            print("Start training.")
+            print(f"0% Complete. Game 0 of {iterations:,}\r", end="")
 
+        last_percent_done = 0
+        
         start = time()
-
         for i in range(1, iterations+1):
             bot_game.play(training_mode=True)
             board.reset()
 
-            if print_percent_done:
-                amount_done = i / iterations
-                if print_every_cycle or amount_done.is_integer():
-                    print(f"{int(amount_done):,%}% Complete. Game {i:,} of {iterations:,}\r", end="")
-
+            if should_print_percent_done:
+                percent_done = int((i / iterations) * 100)
+                if percent_done >= last_percent_done + print_new_percent_change_amount:
+                    print(f"{percent_done}% Complete. Game {i:,} of {iterations:,}.\r", end="")
+                    last_percent_done = percent_done
+                    
         end = time()
-        
-        if print_percent_done:
-            print(end="")
-            print(f"Training process complete. {iterations:,} games played in {int(end-start):,} seconds")
 
+        if should_print_percent_done:
+            print()
+            game_time = end-start
+            print(f"Training process complete. {iterations:,} games played in {seconds_to_time(int(game_time))}.")
+    
     @classmethod
-    def timed_train(cls, game: Game, train_time: int = 60, print_percent_done: bool = False, print_every_cycle: bool = False) -> None:
-
-        game.board.reset()
-
+    def timed_train(cls, game: Game, train_time: int = 60, should_print_percent_done: bool = False, print_new_percent_change_amount: int = 1) -> None:
         players = [AI_Player(player.char, player.color)
                    for player in game.players]
         board = Board(game.board.width, game.board.height,
                       game.board.peices_to_win_horizontal, game.board.peices_to_win_verticle,  game.board.peices_to_win_diagnal)
 
         bot_game = Game(board, players)
+        if should_print_percent_done:
+            print("Start training.")
+            print(f"0% Complete. 0 games played.\r", end="")
 
-        end_time = time() + train_time - 1
+        last_percent_done = 0
+        
+        start_time = time()
+        end_time = start_time + train_time
 
-        if print_percent_done:
-            print("start training")
-            print(f"0% Complete. 0 games played in 0 seconds \r", end="")
-
-        cur_time = time()
+        cur_time = start_time
         while cur_time < end_time:
             cur_time = time()
-            
-            if print_percent_done:
-                amount_done = cur_time / end_time
-                if print_every_cycle or amount_done.is_integer():
-                    
-            
+
+            if should_print_percent_done:
+                percent_done = int(((cur_time - start_time) / (end_time - start_time)) * 100)
+                if percent_done >= last_percent_done + print_new_percent_change_amount:
+                   print(f"{percent_done}% Complete. {bot_game.game_count:,} games played.\r", end="")
+                   last_percent_done = percent_done
+
             bot_game.play(training_mode=True)
             board.reset()
-            
 
-        if print_percent_done:
-            print(end="")
-            print(f"Training process complete. {bot_game.game_count:,} games played in {train_time:,} seconds")
+
+        if should_print_percent_done:
+            print()
+            print(f"Training process complete. {bot_game.game_count:,} games played in {seconds_to_time(train_time)}.")
+        
+        print(bot_game.game_count)
 
     def take_turn(self, game: Game, *, training_mode=False) -> None:
         strategy = self.strategies.setdefault(str(game), {})
@@ -565,6 +569,12 @@ class AI_Player(Player):
         return tuple(new_board)
 
 
+def seconds_to_time(seconds: int) -> str:
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    return f"{hours:d}:{minutes:02d}:{seconds:02d}"
+
+
 def rotate_90_degree(l):
     return type(l)(type(l[0])(x[::-1]) for x in zip(*l))
 
@@ -584,11 +594,12 @@ def centered_padding(val: str | Player, amount: int, *, buffer: str = " ") -> st
     return (buffer * (side_amount + extra)) + str(val) + (buffer * side_amount)
 
 
-def sum_dicts(starting_dict: dict[object: int], dicts: list[dict[object: int]]) -> None:
+def sum_dicts(*dicts: dict[object, int], start=None) -> dict[object, int]:
+    if start is None: start = {}
     for d in dicts:
-        for key, value in dicts:
-            starting_dict[key] = value + d.get(key, 0)
-
+        for key, value in d.items():
+            start[key] = value + d.get(key, 0)
+    return start
 
 def bool_input(prompt: str) -> None:
     user_input = input_s(prompt + " (y/n)").lower()
@@ -599,10 +610,10 @@ def input_s(prompt=""):
     return input(prompt + ": ").strip()
 
 
-def int_input(prompt: str, *, min=float("-infinity"), max=float("infinity"), default=None) -> None:
+def int_input(prompt: str, *, min=float("-infinity"), max=float("infinity")) -> None:
     def func(x: str):
         try:
-            x = int(x if x != "" else default)
+            x = int(x)
         except ValueError:
             raise ValueError("input must be number")
         if x < min:
