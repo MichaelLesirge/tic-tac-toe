@@ -54,8 +54,6 @@ def main() -> None:
 
     # AI_Player.timed_train(game, train_time=1)
 
-    ties_count = 0
-
     game_count = 0
 
     playing = True
@@ -74,7 +72,7 @@ def main() -> None:
 
         print()
 
-        print(f"Ties: {ties_count}")
+        print(f"Ties: {game.tie_count}")
         for player in players:
             print(f"{player}: {player.wins}")
         print()
@@ -151,6 +149,8 @@ class Game:
         self.players = players
 
         self.game_count = 0
+        
+        self.tie_count = 0
 
     def play(self, *, cycle_first_player: bool = False, **kwargs):
         winner = None
@@ -168,13 +168,18 @@ class Game:
 
         self.game_count += 1
 
+        is_tie = winner is None
+        
+        if is_tie: self.tie_count += 1
+    
         for player in self.players:
-            if winner is player:
+            if player is winner:
                 player.win(self, turn_count)
-            elif winner is None:
+            elif is_tie:
                 player.tie(self, turn_count)
             else:
                 player.lose(self, turn_count)
+
         return winner
 
     def __repr__(self) -> str:
@@ -408,14 +413,15 @@ class AI_Player(Player):
         try:
             with open(cls.SAVE_FILE_NAME_TEMPLATE % game_name, "r") as file:
                 # Who is this Jason fellow?
-                strategy = eval(file.read())
+                pulled_strategy = eval(file.read())
         except (FileNotFoundError, PermissionError) as er:
             return False
         except Exception as er:
             raise ValueError(f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_name}'") from er
 
-        for board_state, options in strategy.items():
-            cls.strategies[board_state] = sum_dicts(options, start=cls.strategies.get(board_state, {}))
+        strategy = cls.strategies[game_name] = {}
+        for board_state, options in pulled_strategy.items():
+           strategy[board_state] = sum_dicts(options, start=cls.strategies.get(board_state, {}))
         return True
 
     @classmethod
