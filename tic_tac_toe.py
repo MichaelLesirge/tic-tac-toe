@@ -40,7 +40,8 @@ def main() -> None:
 
     players = make_players()
     print()
-    # players = [Human_Player("X", STR_COLOR_CODES["red"]), AI_Player("O", STR_COLOR_CODES["blue"])]
+    # players = [Human_Player("X", STR_COLOR_CODES["red"])]
+    # players = [Human_Player("X", STR_COLOR_CODES["red"]), Human_Player("O", STR_COLOR_CODES["blue"])]
     # players = [AI_Player("A", STR_COLOR_CODES["green"]), AI_Player("B", STR_COLOR_CODES["cyan"]), Human_Player("C", STR_COLOR_CODES["blue"])]
 
     game = Game(board, players)
@@ -200,6 +201,8 @@ class Board:
 
         self.min_loc = OFFSET
         self.max_loc = self.size + OFFSET - 1
+        
+        self.max_cell_len = len(str(self.max_loc))
 
         self.should_check_horizontal = (peices_to_win_horizontal != None) and (
             peices_to_win_horizontal <= self.width)
@@ -212,7 +215,6 @@ class Board:
         self.peices_to_win_verticle = peices_to_win_verticle
         self.peices_to_win_diagnal = peices_to_win_diagnal
 
-        self.max_cell_size = len(str(self.size))
 
         self.placed: int
         self.board: list[list[object]]
@@ -310,7 +312,9 @@ class Board:
 
     def place(self, loc: int, player: object) -> None:
         row, col = self.to_indexs(loc)
-
+        
+        self.max_cell_len = max(get_colorless_len(str(player)), self.max_cell_len)
+        
         if not self.is_valid_location(row, col):
             raise ValueError(f"location must be from 1 to {self.size}")
         if not self.is_empty_location(row, col):
@@ -325,13 +329,11 @@ class Board:
 
     def __str__(self) -> str:
         # I'm so sorry future self, but I realised it was possible and this project does not matter so I just did it.
-        return "\n" + (("\n" + "┼".join(["─" + ("─" * self.max_cell_size) + "─"] * self.width) + "─" + "\n").join([" " + ((" " + "│" + " ").join([centered_padding(item if item is not None else str(self.to_loc(i, j)), self.max_cell_size) for j, item in enumerate(row)]) + " ") for i, row in enumerate(self.board)])) + "\n"
+        return "\n" + (("\n" + "┼".join(["─" + ("─" * self.max_cell_len) + "─"] * self.width) + "─" + "\n").join([" " + ((" " + "│" + " ").join([centered_padding(str(item if item else self.to_loc(i, j)), self.max_cell_len) for j, item in enumerate(row)]) + " ") for i, row in enumerate(self.board)])) + "\n"
 
 
 class Player(ABC):
     def __init__(self, char: str, color: str = None) -> None:
-        if len(char) != 1:
-            raise ValueError("Player character must be one character")
         self.char = char
 
         self.color = color
@@ -591,12 +593,17 @@ def mirrorX(l):
 def pick_weighted_random_value(d: dict[object, int]) -> object:
     return choices(list(d.keys()), d.values())[0]
 
+def get_colorless_len(s: str) -> int:
+    for color_code in list(STR_COLOR_CODES.values()) + [STR_BOLD_CODE, STR_RESET_CODE]:
+        s = s.replace(color_code, "")
+    return len(s)
 
-def centered_padding(val: str | Player, amount: int, *, buffer: str = " ") -> str:
-    amount -= 1 if isinstance(val, Player) else len(val)
+def centered_padding(s: str, amount: int, *, buffer: str = " ") -> str:
+    # cant you .center
+    amount -= get_colorless_len(s)
 
     side_amount, extra = divmod(amount, 2)
-    return (buffer * (side_amount + extra)) + str(val) + (buffer * side_amount)
+    return (buffer * (side_amount + extra)) + str(s) + (buffer * side_amount)
 
 
 def sum_dicts(*dicts: dict[object, int], start=None) -> dict[object, int]:
