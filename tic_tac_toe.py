@@ -468,7 +468,6 @@ class AI_Player(Player):
             print()
             game_time = end-start
             print(f"Training process complete. {iterations:,} games played in {seconds_to_time(int(game_time))}.")
-            print("\a")
     
     @classmethod
     def timed_train(cls, game: Game, train_time: int = 60, should_print_percent_done: bool = False, print_new_percent_change_amount: int = 1) -> None:
@@ -504,7 +503,6 @@ class AI_Player(Player):
         if should_print_percent_done:
             print()
             print(f"Training process complete. {bot_game.game_count:,} games played in {seconds_to_time(train_time)}.")
-            print("\a")
 
     def take_turn(self, game: Game, *, training_mode=False) -> None:
         strategy = self.strategies.setdefault(str(game), {})
