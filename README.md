@@ -4,7 +4,7 @@ Every time I learn a new programming language well enough I try to create a over
 ## How to play games without download
 [Open Web Game (HTML, CSS, JavaScrip)](https://raw.githack.com/michael-lesirge/tic-tac-toe/main/HTML-CSS-JS/).
 
-[Run Python game online](https://www.programiz.com/python-programming/online-compiler/) (tic-tac-toe.py).  
+[Run Python game online](https://www.programiz.com/python-programming/online-compiler/) (tic-tac-toe.py). This game is much better when played on your own computer though.  
 [Run C++ game online](https://www.programiz.com/cpp-programming/online-compiler/) (tic-tac-toe.cpp).  
 Just copy and paste it into the main file and hit run. This only works with the 1 file games.
 
