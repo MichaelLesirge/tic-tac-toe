@@ -12,6 +12,7 @@
 - Highlight background of winning elements
 - rewrite AI player to use row, col indexs instead of locs
 - Decrease coupling
+- make save and pull return and recieve stratagy
 
 ## JavaScript
 - Add game over popup with players scores and and option to start a new game or leave
