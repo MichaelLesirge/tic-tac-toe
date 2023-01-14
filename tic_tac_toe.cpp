@@ -9,7 +9,7 @@
 
 #define PRINT(x) std::cout << x
 #define PRINTLN(x) std::cout << x << "\n"
-#define ERROR(x) std::cout << x
+#define ERROR(x) std::cerr << x
 #define ERRORLN(x) std::cerr << x << "\n"
 
 using String = std::string;
