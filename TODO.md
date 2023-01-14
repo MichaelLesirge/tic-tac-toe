@@ -5,15 +5,13 @@
 - Make diagnal checking better (idk how)
 
 ## Java
-- Make board have playing / not playing
-- detect tie/winner in place
+- Make board have playing / not playing state
+- detect tie/winner in place()
 
 ## Python
 - Highlight background of winning elements
-- Decrease coupling
-- make centered_padding func remove color for you and remove char len check for Player class 
-- make take turn not need to know number of players, just have it figure it out and use any plan less that that
 - rewrite AI player to use row, col indexs instead of locs
+- Decrease coupling
 
 ## JavaScript
 - Add game over popup with players scores and and option to start a new game or leave
@@ -24,10 +22,11 @@
     - change the letter and color of exsiting ones. 
     - When you add new player have it auto choose a letter and corrisponding color and auto focus letter box
 - Show faint current player peice on hover/fucus to make it easer to see current turn
+- Allow user to drag in any direction to create board in remove peices by clicked delete on them in board creation
 
 ## Future Games/Proggarming Languages 
 - TypeScrips
 - Go
 - C#
 - Rust (Maybe)
-- New JavaScript game but with framework / rewrite exsisting one with framework (probably React, maybe Svelte)
+- New JavaScript game but with framework / rewrite exsisting one with framework (probably React, maybe Svelte. I don't know much about that stuff yet)
