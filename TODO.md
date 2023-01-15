@@ -11,6 +11,11 @@
 ## Python
 - Highlight background of winning elements
 - Make a GUI
+- make save and pull return and recieve stratagy and make cache more like local, this may allow multiprossing for training
+- Make AI Players have 2 states, training and playing
+- make locs only for human player use and have AI use (row, col)
+- decrease overall coupling
+
 
 ## JavaScript
 - Add game over popup with players scores and and option to start a new game or leave
