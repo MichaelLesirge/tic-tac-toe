@@ -17,9 +17,13 @@ STR_COLOR_CODES = {
 STR_BOLD_CODE = "\033[1m"
 STR_RESET_CODE = "\033[0m"
 
-OFFSET = 1
+STR_ENCHANSER_CODES = list(STR_COLOR_CODES.values()) + [STR_BOLD_CODE, STR_RESET_CODE]
+
+OFFSET_FOR_HUMANS = 1
 
 CYCLE_FIRST_PLAYER = True
+AI_PLAYER_RAND_START = True
+
 
 color_mode = True
 
@@ -49,18 +53,16 @@ def main() -> None:
     if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(game):
         found_saved_strategy = AI_Player.pull_stratagy(game)
         if not found_saved_strategy:
-            AI_Player.train(game, iterations=board.size * 2000, should_print_percent_done=True)
+            AI_Player.train(game, iterations=board.size * 1000, should_print_percent_done=True)
             AI_Player.save_stratagy(game)
             print()
 
-    # AI_Player.timed_train(game, train_time=1)
-
-    game_count = 0
+    # AI_Player.timed_train(game, train_time_seconds=1, should_print_percent_done=True)
 
     playing = True
     while playing:
         board.reset()
-        print(f"Round {game_count+1}")
+        print(f"Round {game.game_count+OFFSET_FOR_HUMANS}")
 
         winner = game.play(cycle_first_player=CYCLE_FIRST_PLAYER)
 
@@ -153,7 +155,7 @@ class Game:
         
         self.tie_count = 0
 
-    def play(self, *, cycle_first_player: bool = False, **kwargs):
+    def play(self, *, cycle_first_player: bool = False):
         winner = None
         turn_count = 0
 
@@ -162,7 +164,7 @@ class Game:
             current_player = self.players[(
                 self.board.placed + (self.game_count * cycle_first_player)) % len(self.players)]
 
-            current_player.take_turn(self, **kwargs)
+            current_player.take_turn(self)
 
             if self.board.is_winner(current_player):
                 winner = current_player
@@ -199,8 +201,8 @@ class Board:
 
         self.size = self.width * self.height
 
-        self.min_loc = OFFSET
-        self.max_loc = self.size + OFFSET - 1
+        self.min_loc = OFFSET_FOR_HUMANS
+        self.max_loc = self.size + OFFSET_FOR_HUMANS - 1
         
         self.max_cell_len = len(str(self.max_loc))
 
@@ -296,18 +298,17 @@ class Board:
         self.board[row][col] = val
 
     def to_indexs(self, loc: int) -> tuple[int, int]:
-        loc -= OFFSET
+        loc -= OFFSET_FOR_HUMANS
 
         row = loc // self.width
         col = loc - (self.width * row)
         return row, col
 
     def to_loc(self, row: int, col: int) -> int:
-        return (row*self.width)+col+OFFSET
+        return (row*self.width)+col+OFFSET_FOR_HUMANS
 
-    def _place(self, loc: int, val: object) -> None:
+    def _place(self, row: int, col: int, val: object) -> None:
         self.placed += 1
-        row, col = self.to_indexs(loc)
         self.board[row][col] = val
 
     def place(self, loc: int, player: object) -> None:
@@ -316,11 +317,11 @@ class Board:
         self.max_cell_len = max(get_colorless_len(str(player)), self.max_cell_len)
         
         if not self.is_valid_location(row, col):
-            raise ValueError(f"location must be from 1 to {self.size}")
+            raise ValueError(f"location must be from {self.min_loc} to {self.max_loc}")
         if not self.is_empty_location(row, col):
             raise ValueError("location is already occupied")
 
-        self._place(loc, player)
+        self._place(row, col, player)
 
     # def __repr__(self) -> str:
     #     return f"<{__name__}.{self.__class__.__name__} board={self.board}>"
@@ -395,15 +396,14 @@ class AI_Player(Player):
     In the future I am going to make this use a real neural network / use a libary like PyTorch or Tensorflow. For now I want to try and do it with no libaries (except random)
     """
 
-    RAND_START = True
-
     SAVE_FILE_NAME_TEMPLATE = "strategy-%s.txt"
 
     strategies: dict[str, dict[tuple[tuple[int]], dict[int, int]]] = {}
 
-    def __init__(self, char: str, color: str = None) -> None:
+    def __init__(self, char: str, color: str = None, *, start_in_training_mode: bool = False) -> None:
         super().__init__(char, color)
         self.recent_plays = []
+        self.in_training_mode = start_in_training_mode
 
     @classmethod
     def needs_training(cls, game: Game) -> bool:
@@ -440,7 +440,7 @@ class AI_Player(Player):
 
     @classmethod
     def train(cls, game: Game, iterations: int = 1000000, should_print_percent_done: bool = False, print_new_percent_change_amount: int = 1) -> None:
-        players = [AI_Player(player.char, player.color)
+        players = [AI_Player(player.char, player.color, start_in_training_mode=True)
                    for player in game.players]
         board = Board(game.board.width, game.board.height, game.board.peices_to_win_horizontal,
                       game.board.peices_to_win_verticle,  game.board.peices_to_win_diagnal)
@@ -455,8 +455,8 @@ class AI_Player(Player):
         
         start = time()
         for i in range(1, iterations+1):
-            bot_game.play(training_mode=True)
-            board.reset()
+            bot_game.play()
+            bot_game.board.reset()
 
             if should_print_percent_done:
                 percent_done = int((i / iterations) * 100)
@@ -472,8 +472,8 @@ class AI_Player(Player):
             print(f"Training process complete. {iterations:,} games played in {seconds_to_time(int(game_time))}.")
     
     @classmethod
-    def timed_train(cls, game: Game, train_time: int = 60, should_print_percent_done: bool = False, print_new_percent_change_amount: int = 1) -> None:
-        players = [AI_Player(player.char, player.color)
+    def timed_train(cls, game: Game, train_time_seconds: int = 60, should_print_percent_done: bool = False, print_new_percent_change_amount: int = 1) -> None:
+        players = [AI_Player(player.char, player.color, start_in_training_mode=True)
                    for player in game.players]
         board = Board(game.board.width, game.board.height,
                       game.board.peices_to_win_horizontal, game.board.peices_to_win_verticle,  game.board.peices_to_win_diagnal)
@@ -486,7 +486,7 @@ class AI_Player(Player):
         last_percent_done = 0
         
         start_time = time()
-        end_time = start_time + train_time
+        end_time = start_time + train_time_seconds
 
         cur_time = start_time
         while cur_time < end_time:
@@ -498,50 +498,53 @@ class AI_Player(Player):
                    print(f"{percent_done}% Complete. {bot_game.game_count:,} games played.\r", end="")
                    last_percent_done = percent_done
 
-            bot_game.play(training_mode=True)
-            board.reset()
+            bot_game.play()
+            bot_game.board.reset()
 
 
         if should_print_percent_done:
             print()
-            print(f"Training process complete. {bot_game.game_count:,} games played in {seconds_to_time(train_time)}.")
+            print(f"Training process complete. {bot_game.game_count:,} games played in {seconds_to_time(train_time_seconds)}.")
 
-    def take_turn(self, game: Game, *, training_mode=False) -> None:
+    def take_turn(self, game: Game) -> None:
         strategy = self.strategies.setdefault(str(game), {})
 
-        def make_play(board: Board, board_state: tuple[tuple[int]]):
+        def make_play(board, board_state):
             # would use set defualt here but than I would have to always make fallback
             options = strategy.get(board_state)
             if options is None:
-                options = strategy[board_state] = {loc: int(board.is_empty_location(*board.to_indexs(loc))) for loc in range(board.min_loc, board.max_loc+1)}
+                options = strategy[board_state] = {(row, col): int(board.is_empty_location(row, col)) for col in range(board.width) for row in range(board.height)}
 
-            if training_mode or (self.RAND_START and board.placed == 0):
-                loc = pick_weighted_random_value(options)
+            if self.in_training_mode or (AI_PLAYER_RAND_START and board.placed == 0):
+                row, col = pick_weighted_random_value(options)
             else:
-                loc = max(options, key=options.get)
+                row, col = max(options, key=options.get)
 
-            self.recent_plays.append((options, loc))
-            board._place(loc, self)
+            self.recent_plays.append((options, (row, col)))
+            board._place(row, col, self)
 
         self.make_play_any_rotation(game.board, strategy, make_play)
 
     def win(self, game: Game, turns: int) -> None:
         super().win(game, turns)
-        for option, loc in self.recent_plays:
-            option[loc] += (game.board.size - turns) + 1
+        if self.in_training_mode:
+            for option, loc in self.recent_plays:
+                option[loc] += (game.board.size - turns) + 1
         self.recent_plays.clear()
 
     def lose(self, game: Game, turns: int) -> None:
         super().lose(game, turns)
-        for option, loc in self.recent_plays:
-            if option[loc] > 1:
-                option[loc] -= 1
+        if self.in_training_mode:
+            for option, loc in self.recent_plays:
+                if option[loc] > 1:
+                    option[loc] -= 1
         self.recent_plays.clear()
 
     def tie(self, game: Game, turns: int) -> None:
         super().tie(game, turns)
-        for option, loc in self.recent_plays:
-            option[loc] += 1
+        if self.in_training_mode:
+            for option, loc in self.recent_plays:
+                option[loc] += 1
         self.recent_plays.clear()
 
     def make_play_any_rotation(self, board: Board, stratagy, play_func):
@@ -581,20 +584,17 @@ def seconds_to_time(seconds: int) -> str:
     hours, minutes = divmod(minutes, 60)
     return f"{hours:d}:{minutes:02d}:{seconds:02d}"
 
-
 def rotate_90_degree(l):
     return type(l)(type(l[0])(x[::-1]) for x in zip(*l))
 
-
 def mirrorX(l):
     return type(l)(type(l[0])(x[::-1]) for x in l)
-
 
 def pick_weighted_random_value(d: dict[object, int]) -> object:
     return choices(list(d.keys()), d.values())[0]
 
 def get_colorless_len(s: str) -> int:
-    for color_code in list(STR_COLOR_CODES.values()) + [STR_BOLD_CODE, STR_RESET_CODE]:
+    for color_code in STR_ENCHANSER_CODES:
         s = s.replace(color_code, "")
     return len(s)
 
@@ -604,7 +604,6 @@ def centered_padding(s: str, amount: int, *, buffer: str = " ") -> str:
 
     side_amount, extra = divmod(amount, 2)
     return (buffer * (side_amount + extra)) + str(s) + (buffer * side_amount)
-
 
 def sum_dicts(*dicts: dict[object, int], start=None) -> dict[object, int]:
     if start is None: start = {}
