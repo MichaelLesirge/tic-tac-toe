@@ -25,6 +25,8 @@ const OFFSET = 1;
 class Cell {
 	constructor(el, name) {
 		this.el = el;
+		el.setAttribute("cords", "(" + name + ")")
+
 		this.el.addEventListener("keydown", (event) => {
 			let selectedEl;
 			switch (event.key) {
@@ -83,16 +85,7 @@ class Cell {
 	setOnClick(onclickFunc) {
 		this.el.onclick = onclickFunc;
 	}
-
-	addCords() {
-		const cords = document.createElement("span");
-		cords.classList.add("cords");
-		cords.innerText = "(" + this.name + ")";
-		this.el.appendChild(cords);
-	}
 }
-
-const PLACEHOLDER_CELL = new Cell(document.createElement("div"), null);
 
 class Board {
 	constructor(width, height, peicesToWinHorizontal, peicesToWinVertical, peicesToWinDiagonal) {
@@ -136,20 +129,16 @@ class Board {
 			resetBoardButton.classList.remove("fade-button");
 
 			const currentPlayer = players[this.currentPlayerIndex];
-
+			
 			cell.set(currentPlayer);
 			cell.disable();
-
-			this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length;
-			this.turnCount++;
-
-			displayInfo(players[this.currentPlayerIndex] + "s turn.");
-
+			
+			
 			let isWinner = false;
 			let winningArray;
-
+			
 			[isWinner, winningArray] = this.isPlayerWinner(currentPlayer);
-
+			
 			if (isWinner) {
 				winningArray.forEach((cell) => cell.highlight());
 				this.gameOver();
@@ -159,6 +148,15 @@ class Board {
 				this.gameOver();
 				displayInfo("Tie!");
 				displayInfoPulse();
+			}
+			else {
+				this.turnCount++;
+	
+				this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length;
+				
+				const nextPlayer = players[this.currentPlayerIndex];
+				displayInfo(nextPlayer + "s turn.");
+				this.forEach((cell) => cell.el.setAttribute("next-player", nextPlayer))
 			}
 		}
 	}
@@ -249,6 +247,21 @@ class Board {
 		return [false, undefined];
 	}
 
+	newGame() {
+		this.isPlaying = true;
+		this.currentPlayerIndex = this.gameCount % players.length;
+
+		displayInfo(`Starting with ${players[this.currentPlayerIndex]}s.`);
+		this.forEach((cell) => cell.el.setAttribute("next-player", players[this.currentPlayerIndex]))
+
+		this.turnCount = 1;
+
+		this.reset();
+		resetBoardButton.classList.add("fade-button");
+
+		this.gameCount++;
+	}
+
 	isPossibleToWin(peicesToWin) {
 		return this.turnCount > (peicesToWin - 1) * players.length;
 	}
@@ -257,17 +270,11 @@ class Board {
 		return x > -1 && x < this.width && y > -1 && y < this.height;
 	}
 
-	newGame() {
-		this.isPlaying = true;
-		this.currentPlayerIndex = this.gameCount % players.length;
-		displayInfo(`Starting with ${players[this.currentPlayerIndex]}s.`);
-		this.turnCount = 0;
-
-		this.reset();
-		resetBoardButton.classList.add("fade-button");
-
-		this.gameCount++;
+	
+	isInBoard(x, y) {
+		return x > -1 && x < this.width && y > -1 && y < this.height;
 	}
+
 
 	gameOver() {
 		this.isPlaying = false;
@@ -277,7 +284,6 @@ class Board {
 	reset() {
 		this.forEach((cell) => {
 			cell.reset();
-			cell.addCords(1);
 			cell.setOnClick(() => {
 				this.playerTurn(cell);
 			});

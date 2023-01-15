@@ -20,7 +20,6 @@
     - add and delete players
     - change the letter and color of exsiting ones. 
     - When you add new player have it auto choose a letter and corrisponding color and auto focus letter box
-- Show faint current player peice on hover/fucus to make it easer to see current turn
 - Allow user to drag in any direction to create board in remove peices by clicked delete on them in board creation
 
 ## Future Games/Proggarming Languages 
