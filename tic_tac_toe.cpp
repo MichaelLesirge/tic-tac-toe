@@ -14,6 +14,8 @@
 
 using String = std::string;
 
+const int OFFSET_FOR_HUMANS = 1;
+
 class Board
 {
 public:
@@ -166,8 +168,8 @@ void getPosInput(const String &s, size_t &choiceX, size_t &choiceY)
             throw std::invalid_argument("Horizontal postion (second value) must be a number or \"left\", \"center\", or \"right\"");
         }
     }
-    choiceX--;
-    choiceY--;
+    choiceX -= OFFSET_FOR_HUMANS;
+    choiceY -= OFFSET_FOR_HUMANS;
 }
 
 int main()
@@ -190,11 +192,13 @@ int main()
         bool playing = true;
         while (playing)
         {
-            PRINTLN("\n" + board.toString() + "\n");
+            char currentPlayer = players[turnCount % playerCount];
+
+            PRINTLN("\n" << currentPlayer << " turn.");
+            PRINTLN("\n" << board.toString() << "\n");
 
             bool hasGotValidInput = false;
 
-            char currentPlayer = players[turnCount % playerCount];
 
             while (!hasGotValidInput)
             {   
@@ -204,7 +208,7 @@ int main()
 
                 if (choice == "QUIT")
                 {
-                    PRINTLN("Good Bye! :(");
+                    PRINTLN("Good Bye!");
                     exit(0);
                 }
 
@@ -215,15 +219,16 @@ int main()
                     getPosInput(choice, choiceX, choiceY); // store x and y pos in choiceX and choiceY
 
                     if (choiceX >= Board::SIDE_SIZE) {
-                        throw std::invalid_argument("X position must be between 1 and " + std::to_string(Board::SIDE_SIZE));
+                        throw std::invalid_argument("X position must be between " + std::to_string(OFFSET_FOR_HUMANS) + " and " + std::to_string(Board::SIDE_SIZE));
                     }
                     if (choiceY >= Board::SIDE_SIZE) {
-                        throw std::invalid_argument("Y position must be between 1 and " +std::to_string(Board::SIDE_SIZE));
+                        throw std::invalid_argument("Y position must be between " + std::to_string(OFFSET_FOR_HUMANS) + " and " + std::to_string(Board::SIDE_SIZE));
                     }
                     board.placeCell(choiceX, choiceY, currentPlayer); // placeCell current player at choice X, Y
                 }
                 catch (std::invalid_argument& e) {
                     ERRORLN(e.what());
+                    continue;
                 }
 
                 hasGotValidInput = true;

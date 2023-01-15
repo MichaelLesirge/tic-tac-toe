@@ -6,7 +6,7 @@
 
 ## Java
 - Make board have playing / not playing state
-- detect tie/winner in place()
+- detect tie/winner in place() and change state
 
 ## Python
 - Highlight background of winning elements
