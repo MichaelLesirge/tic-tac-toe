@@ -47,10 +47,10 @@ def main() -> None:
     game = Game(board, players)
 
     if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(game):
-        found_saved_strategy = AI_Player.pull_strategy(game)
+        found_saved_strategy = AI_Player.pull_stratagy(game)
         if not found_saved_strategy:
             AI_Player.train(game, iterations=board.size * 2000, should_print_percent_done=True)
-            AI_Player._save_strategy(game)
+            AI_Player.save_stratagy(game)
             print()
 
     # AI_Player.timed_train(game, train_time=1)
@@ -399,68 +399,44 @@ class AI_Player(Player):
 
     SAVE_FILE_NAME_TEMPLATE = "strategy-%s.txt"
 
-    _cached_strategies: dict[str, dict[tuple[tuple[int]], dict[int, int]]] = {}
+    strategies: dict[str, dict[tuple[tuple[int]], dict[int, int]]] = {}
 
     def __init__(self, char: str, color: str = None) -> None:
         super().__init__(char, color)
         self.recent_plays = []
 
     @classmethod
-    def pull_strategy(cls, game: Game) -> bool:
-        game_name = str(game)
-        
-        strategy = cls._cached_strategies.get(game, {})
-    
-    @classmethod
-    def get_strategy(cls, game_name: str) -> dict | None:
-        return cls._get_cached_strategy(game_name) or cls._get_saved_strategy_from_file(game_name)
-    
-    @classmethod
-    def set_strategy(cls, game_name: str, strategy: dict) -> None:
-        cls._set_chache_strategy(game_name, strategy)
-        cls._set_strategy_to_file(game_name, strategy)
-    
-    @classmethod
-    def merge_stratagy(cls, game_name: str, strategy: dict) -> None:
+    def needs_training(cls, game: Game) -> bool:
+        return str(game) not in cls.strategies
 
     @classmethod
-    def _get_cached_strategy(cls, game_name: str) -> dict | None:
-        return cls._cached_strategies.get(game_name)
-    
-    @classmethod
-    def _get_saved_strategy_from_file(cls, game_name: str) -> dict | None:
+    def pull_stratagy(cls, game: Game) -> bool:
+        game_name = str(game)
         try:
             with open(cls.SAVE_FILE_NAME_TEMPLATE % game_name, "r") as file:
                 # Who is this Jason fellow?
                 pulled_strategy = eval(file.read())
         except (FileNotFoundError, PermissionError) as er:
-            return None
+            return False
         except Exception as er:
             raise ValueError(f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_name}'") from er
 
-        return pulled_strategy
+        strategy = cls.strategies[game_name] = {}
+        for board_state, options in pulled_strategy.items():
+           strategy[board_state] = sum_dicts(options, start=cls.strategies.get(board_state, {}))
+        return True
 
     @classmethod
-    def _set_chache_strategy(cls, game_name: str, new_stratagy: dict):
-        cls._cached_strategies[game_name] = new_stratagy
-    
-    @classmethod
-    def _set_strategy_to_file(cls, game_name: str, new_strategy: dict) -> bool:
+    def save_stratagy(cls, game: Game) -> bool:
+        game_name = str(game)
         try:
             with open(cls.SAVE_FILE_NAME_TEMPLATE % game_name, "w") as file:
                 # Who is this Jason fellow?
-                file.write(str(new_strategy).replace(" ", ""))
+                file.write(str(cls.strategies.get(game_name, {})).replace(" ", ""))
         except (PermissionError) as er:
             return False
 
         return True
-    
-    @classmethod
-    def conbine_strategies(cls, game_name, *new_strategy: dict, start=None):
-        strategy = start or {}
-        for board_state, options in new_strategy:
-            strategy[board_state] = sum_dicts(options, start=strategy.get(board_state, {}))
-        return strategy
 
     @classmethod
     def train(cls, game: Game, iterations: int = 1000000, should_print_percent_done: bool = False, print_new_percent_change_amount: int = 1) -> None:
@@ -531,7 +507,7 @@ class AI_Player(Player):
             print(f"Training process complete. {bot_game.game_count:,} games played in {seconds_to_time(train_time)}.")
 
     def take_turn(self, game: Game, *, training_mode=False) -> None:
-        strategy = self._cached_strategies.setdefault(str(game), {})
+        strategy = self.strategies.setdefault(str(game), {})
 
         def make_play(board: Board, board_state: tuple[tuple[int]]):
             # would use set defualt here but than I would have to always make fallback
@@ -568,14 +544,14 @@ class AI_Player(Player):
             option[loc] += 1
         self.recent_plays.clear()
 
-    def make_play_any_rotation(self, board: Board, strategy, play_func):
+    def make_play_any_rotation(self, board: Board, stratagy, play_func):
         # spin the board to fit than keep spinning it back to orginal
         placed = False
         for i in range(2):
             for j in range(4):
                 if not placed:
                     board_state = self.get_relitive_board_state(board)
-                    if board_state in strategy:
+                    if board_state in stratagy:
                         play_func(board, board_state)
                         placed = True
                 board.board = rotate_90_degree(board.board)
