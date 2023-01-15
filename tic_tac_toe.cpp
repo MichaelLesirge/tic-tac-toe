@@ -21,6 +21,7 @@ class Board
 public:
     static const size_t SIDE_SIZE = 3;
     static const size_t TOTAL_SIZE = SIDE_SIZE * SIDE_SIZE;
+
 private:
     char board[SIDE_SIZE][SIDE_SIZE];
 
@@ -38,8 +39,9 @@ private:
         return board[i][j];
     }
 
-    void incIfEqual(size_t i, size_t j, char val, size_t& counter) {
-        if (get(i, j) == val) counter++;
+    void incIfEqual(size_t i, size_t j, char val, size_t &counter)
+    {
+        counter += get(i, j) == val;
     }
 
 public:
@@ -65,15 +67,16 @@ public:
         return placed >= TOTAL_SIZE;
     }
 
-    bool isPlayerWinner(char player) {
+    bool isPlayerWinner(char player)
+    {
         size_t hCount = 0;
         size_t vCount = 0;
         size_t dlrCount = 0;
         size_t drlCount = 0;
         for (size_t i = 0; i < SIDE_SIZE; i++)
-        {   
+        {
             incIfEqual(i, i, player, dlrCount);
-            incIfEqual(i, SIDE_SIZE-i-1, player, drlCount);
+            incIfEqual(i, SIDE_SIZE - i - 1, player, drlCount);
             for (size_t j = 0; j < SIDE_SIZE; j++)
             {
                 incIfEqual(i, j, player, hCount);
@@ -82,7 +85,6 @@ public:
         }
         // PRINTLN(hCount << ", " << vCount << ", " << dlrCount << ", " << drlCount);
         return hCount >= SIDE_SIZE || vCount >= SIDE_SIZE || dlrCount >= SIDE_SIZE || drlCount >= SIDE_SIZE;
-        
     }
 
     void placeCell(size_t x, size_t y, char val)
@@ -113,21 +115,21 @@ public:
             out.push_back('\n');
         }
 
-        return out.erase(out.length()-1);
+        return out.erase(out.length() - 1);
     }
 };
 
 const std::map<String, size_t> verticalInputMapper = {
     {"top", 1},
-    {"center", (Board::SIDE_SIZE / 2)+1},
-    {"middle", (Board::SIDE_SIZE / 2)+1},
+    {"center", (Board::SIDE_SIZE / 2) + 1},
+    {"middle", (Board::SIDE_SIZE / 2) + 1},
     {"buttom", Board::SIDE_SIZE},
 };
 
 const std::map<String, size_t> horizontalInputMapper = {
     {"left", 1},
-    {"center", (Board::SIDE_SIZE / 2)+1},
-    {"middle", (Board::SIDE_SIZE / 2)+1},
+    {"center", (Board::SIDE_SIZE / 2) + 1},
+    {"middle", (Board::SIDE_SIZE / 2) + 1},
     {"right", Board::SIDE_SIZE},
 };
 
@@ -143,16 +145,16 @@ void getPosInput(const String &s, size_t &choiceX, size_t &choiceY)
         choiceY = verticalInputMapper.find(verticlePos)->second;
     }
     else
-    {   
+    {
         try
         {
             choiceY = std::stoi(verticlePos);
         }
-        catch(const std::invalid_argument& e)
+        catch (const std::invalid_argument &e)
         {
-            throw std::invalid_argument("Verticle postion (first value) must be a number or \"top\", \"center\", or \"buttom\"");;
+            throw std::invalid_argument("Verticle postion (first value) must be a number or \"top\", \"center\", or \"buttom\"");
+            ;
         }
-        
     }
 
     if (horizontalInputMapper.count(horizontalPos))
@@ -161,10 +163,12 @@ void getPosInput(const String &s, size_t &choiceX, size_t &choiceY)
     }
     else
     {
-        try {
+        try
+        {
             choiceX = std::stoi(horizontalPos);
         }
-        catch (std::invalid_argument& e) {
+        catch (std::invalid_argument &e)
+        {
             throw std::invalid_argument("Horizontal postion (second value) must be a number or \"left\", \"center\", or \"right\"");
         }
     }
@@ -199,9 +203,8 @@ int main()
 
             bool hasGotValidInput = false;
 
-
             while (!hasGotValidInput)
-            {   
+            {
                 String choice;
                 PRINT("Where do you want to go: ");
                 std::getline(std::cin, choice);
@@ -215,18 +218,22 @@ int main()
                 size_t choiceX;
                 size_t choiceY;
 
-                try {
+                try
+                {
                     getPosInput(choice, choiceX, choiceY); // store x and y pos in choiceX and choiceY
 
-                    if (choiceX >= Board::SIDE_SIZE) {
+                    if (choiceX >= Board::SIDE_SIZE)
+                    {
                         throw std::invalid_argument("X position must be between " + std::to_string(OFFSET_FOR_HUMANS) + " and " + std::to_string(Board::SIDE_SIZE));
                     }
-                    if (choiceY >= Board::SIDE_SIZE) {
+                    if (choiceY >= Board::SIDE_SIZE)
+                    {
                         throw std::invalid_argument("Y position must be between " + std::to_string(OFFSET_FOR_HUMANS) + " and " + std::to_string(Board::SIDE_SIZE));
                     }
                     board.placeCell(choiceX, choiceY, currentPlayer); // placeCell current player at choice X, Y
                 }
-                catch (std::invalid_argument& e) {
+                catch (std::invalid_argument &e)
+                {
                     ERRORLN(e.what());
                     continue;
                 }
@@ -234,19 +241,22 @@ int main()
                 hasGotValidInput = true;
             }
 
-            if (board.isFull()) {
-                PRINTLN("Its a tie");
+            if (board.isFull())
+            {
+                PRINTLN("\n" << board.toString() << "\n");
+                PRINTLN("Its a tie" << "\n");
                 playing = false;
             }
-            else if (board.isPlayerWinner(currentPlayer)) {
-                PRINTLN("Player " << currentPlayer << " wins!");
+            else if (board.isPlayerWinner(currentPlayer))
+            {
+                PRINTLN("\n" << board.toString() << "\n");
+                PRINTLN("Player " << currentPlayer << " wins!" << "\n");
                 playing = false;
             }
 
             turnCount++;
         }
 
-        PRINTLN("\n" + board.toString() + "\n");
 
         String wantsToPlayAgain;
 
