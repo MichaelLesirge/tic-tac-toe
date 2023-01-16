@@ -50,11 +50,11 @@ def main() -> None:
 
     game = Game(board, players)
 
-    if any(isinstance(player, AI_Player) for player in players) and AI_Player.needs_training(game):
-        found_saved_strategy = AI_Player.pull_stratagy(game)
-        if not found_saved_strategy:
-            AI_Player.train(game, iterations=board.size * 1000, should_print_percent_done=True)
-            AI_Player.save_stratagy(game)
+    if any(isinstance(player, AI_Player) for player in players):
+        strategy = AI_Player.pull_stratagy(game.id)
+        if strategy is None:
+            AI_Player.train(game, iterations=board.size * 2000, should_print_percent_done=True,print_new_percent_change_amount=1)
+            AI_Player.push_local_stratagy(game.id)
             print()
 
     # AI_Player.timed_train(game, train_time_seconds=1, should_print_percent_done=True)
@@ -154,6 +154,8 @@ class Game:
         self.game_count = 0
         
         self.tie_count = 0
+        
+        self.id = f"{self.board.width}_{self.board.height}_{self.board.peices_to_win_horizontal}_{self.board.peices_to_win_verticle}_{self.board.peices_to_win_diagnal}_{len(self.players)}"
 
     def play(self, *, cycle_first_player: bool = False):
         winner = None
@@ -187,10 +189,6 @@ class Game:
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({repr(self.board), {repr(self.players)}})"
-
-    def __str__(self) -> str:
-        return f"b({self.board.width}x{self.board.height})w({self.board.peices_to_win_horizontal},{self.board.peices_to_win_verticle},{self.board.peices_to_win_diagnal})p({len(self.players)})"
-
 
 class Board:
     DEFAULT_SIZE = 3
@@ -396,9 +394,9 @@ class AI_Player(Player):
     In the future I am going to make this use a real neural network / use a libary like PyTorch or Tensorflow. For now I want to try and do it with no libaries (except random)
     """
 
-    SAVE_FILE_NAME_TEMPLATE = "strategy-%s.txt"
+    SAVE_FILE_NAME_TEMPLATE = "strategy_%s.txt"
 
-    strategies: dict[str, dict[tuple[tuple[int]], dict[int, int]]] = {}
+    local_strategies: dict[str, dict[tuple[tuple[int]], dict[tuple[int, int], int]]] = {}
 
     def __init__(self, char: str, color: str = None, *, start_in_training_mode: bool = False) -> None:
         super().__init__(char, color)
@@ -406,33 +404,24 @@ class AI_Player(Player):
         self.in_training_mode = start_in_training_mode
 
     @classmethod
-    def needs_training(cls, game: Game) -> bool:
-        return str(game) not in cls.strategies
-
-    @classmethod
-    def pull_stratagy(cls, game: Game) -> bool:
-        game_name = str(game)
+    def pull_stratagy(cls, game_id: str) -> dict | None:
         try:
-            with open(cls.SAVE_FILE_NAME_TEMPLATE % game_name, "r") as file:
-                # Who is this Jason fellow?
+            with open(cls.SAVE_FILE_NAME_TEMPLATE % game_id, "r") as file:
+                # pulled_strategy = json.load(file)
                 pulled_strategy = eval(file.read())
         except (FileNotFoundError, PermissionError) as er:
-            return False
+            return None
         except Exception as er:
-            raise ValueError(f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_name}'") from er
-
-        strategy = cls.strategies[game_name] = {}
-        for board_state, options in pulled_strategy.items():
-           strategy[board_state] = sum_dicts(options, start=cls.strategies.get(board_state, {}))
-        return True
+            raise ValueError(f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_id}'") from er
+        return pulled_strategy
 
     @classmethod
-    def save_stratagy(cls, game: Game) -> bool:
-        game_name = str(game)
+    def push_local_stratagy(cls, game_id: str) -> bool:
         try:
-            with open(cls.SAVE_FILE_NAME_TEMPLATE % game_name, "w") as file:
-                # Who is this Jason fellow?
-                file.write(str(cls.strategies.get(game_name, {})).replace(" ", ""))
+            with open(cls.SAVE_FILE_NAME_TEMPLATE % game_id, "w") as file:
+                # can't store to json because tuples as dict keys is not allowed
+                # json.dump(cls.local_strategies[game_id], file)
+                file.write(str(cls.local_strategies[game_id]))
         except (PermissionError) as er:
             return False
 
@@ -449,7 +438,7 @@ class AI_Player(Player):
 
         if should_print_percent_done:
             print("Start training.")
-            print(f"0% Complete. Game 0 of {iterations:,}\r", end="")
+            print(f"0% Complete. Game 0 of {iterations:,}\n", end="")
 
         last_percent_done = 0
         
@@ -459,17 +448,17 @@ class AI_Player(Player):
             bot_game.board.reset()
 
             if should_print_percent_done:
-                percent_done = int((i / iterations) * 100)
+                percent_done = (i / iterations) * 100
                 if percent_done >= last_percent_done + print_new_percent_change_amount:
-                    print(f"{percent_done}% Complete. Game {i:,} of {iterations:,}.\r", end="")
+                    print(f"{int(percent_done)}% Complete. Game {i:,} of {iterations:,}.\n", end="")
                     last_percent_done = percent_done
                     
         end = time()
 
         if should_print_percent_done:
+            print(f"100% Complete. Game {i:,} of {iterations:,}.\n", end="")
             print()
-            game_time = end-start
-            print(f"Training process complete. {iterations:,} games played in {seconds_to_time(int(game_time))}.")
+            print(f"Training process complete. {iterations:,} games played in {seconds_to_time(int(end-start))}.")
     
     @classmethod
     def timed_train(cls, game: Game, train_time_seconds: int = 60, should_print_percent_done: bool = False, print_new_percent_change_amount: int = 1) -> None:
@@ -493,9 +482,9 @@ class AI_Player(Player):
             cur_time = time()
 
             if should_print_percent_done:
-                percent_done = int(((cur_time - start_time) / (end_time - start_time)) * 100)
+                percent_done = ((cur_time - start_time) / (end_time - start_time)) * 100
                 if percent_done >= last_percent_done + print_new_percent_change_amount:
-                   print(f"{percent_done}% Complete. {bot_game.game_count:,} games played.\r", end="")
+                   print(f"{int(percent_done)}% Complete. {bot_game.game_count:,} games played.\n", end="")
                    last_percent_done = percent_done
 
             bot_game.play()
@@ -503,11 +492,12 @@ class AI_Player(Player):
 
 
         if should_print_percent_done:
+            print(f"100% Complete. {bot_game.game_count:,} games played.\n", end="")
             print()
             print(f"Training process complete. {bot_game.game_count:,} games played in {seconds_to_time(train_time_seconds)}.")
 
     def take_turn(self, game: Game) -> None:
-        strategy = self.strategies.setdefault(str(game), {})
+        strategy = self.local_strategies.setdefault(game.id, {})
 
         def make_play(board, board_state):
             # would use set defualt here but than I would have to always make fallback
