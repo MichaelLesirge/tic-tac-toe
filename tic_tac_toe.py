@@ -17,8 +17,7 @@ STR_COLOR_CODES = {
 STR_BOLD_CODE = "\033[1m"
 STR_RESET_CODE = "\033[0m"
 
-STR_ENCHANSER_CODES = list(STR_COLOR_CODES.values()) + \
-    [STR_BOLD_CODE, STR_RESET_CODE]
+STR_ENCHANSER_CODES = list(STR_COLOR_CODES.values()) + [STR_BOLD_CODE, STR_RESET_CODE]
 
 OFFSET_FOR_HUMANS = 1
 
@@ -26,14 +25,14 @@ CYCLE_FIRST_PLAYER = True
 AI_PLAYER_RAND_START = True
 
 
-color_is_allowed = True
+should_use_colors = True
 
 
 def main() -> None:
     print("Welcome to tic-tac-toe with Python!")
     print()
 
-    # color_mode = bool_input("Does you console support ASCII color codes if your not sure, \u001b[31mis this red for you\033[0m")
+    # should_use_colors = bool_input("Does you console support ASCII color codes if your not sure, \u001b[31mis this red for you\033[0m")
     # print()
 
     board = make_tic_tac_toe_board()
@@ -139,7 +138,7 @@ def make_player() -> "Player":
     letter = get_valid_input("Letter", get_valid_letter)
 
     color = None
-    if color_is_allowed:
+    if should_use_colors:
         color = get_valid_input("Color", get_valid_color)
 
     player_type = AI_Player if make_ai else Human_Player
@@ -373,7 +372,7 @@ class Player(ABC):
         return f"{self.__class__.__name__}(char={self.char}, wins={self.wins})"
 
     def __str__(self) -> str:
-        if color_is_allowed and self.color:
+        if should_use_colors and self.color:
             return self.color + STR_BOLD_CODE + self.char + STR_RESET_CODE
         return self.char
 
