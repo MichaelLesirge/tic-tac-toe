@@ -133,7 +133,6 @@ class Board {
 			cell.set(currentPlayer);
 			cell.disable();
 			
-			
 			let isWinner = false;
 			let winningArray;
 			
@@ -291,7 +290,8 @@ class Board {
 	}
 
 	isMidGame() {
-		return board.isPlaying && board.turnCount != 0;
+		console.log(board.isPlaying, board.turnCount)
+		return board.isPlaying && board.turnCount != 1;
 	}
 
 	isOverflowing() {
