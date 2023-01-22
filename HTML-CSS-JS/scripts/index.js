@@ -21,16 +21,17 @@ sizeInputs.forEach((input) => {
 		}
 	});
 	
-	input.addEventListener("input", updateWinCondtionSettings);
+	input.addEventListener("input", updateWinCondtionInputSettings);
 });
 
 boardSizeInputs.forEach((input) => {
 	input.setAttribute("value", DEFAULT_SIZE);
 });
 
-updateWinCondtionSettings()
+form.addEventListener("reset", () => setTimeout(updateWinCondtionInputSettings, 0))
+updateWinCondtionInputSettings()
 
-function updateWinCondtionSettings() {
+function updateWinCondtionInputSettings() {
 	const maxPossibleWinCondition = getMaxInput(boardSizeInputs);
 	winConditionInput.setAttribute("max", maxPossibleWinCondition);
 
