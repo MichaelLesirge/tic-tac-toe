@@ -26,7 +26,7 @@
 					<a href="index.html">Create Board</a>
 					<a href="game.html">Default Game</a>
 				</div>
-				<div class="nav-section nav-centered" id="board-buttons" style="opacity: 0;" aria-hidden=True>
+				<div class="nav-section nav-centered" id="board-buttons" style="opacity: 0;" aria-hidden=true>
 					<div class="nav-centered">
 						<button id="reset-button">New Game</button>
 						<button id="toggle-cords">Toggle Cords</button>
@@ -53,11 +53,11 @@
 						<div class="form-group">
 							<div class="input-group">
 								<label for="width">Width</label>
-								<input value="3" class="size board-size" type="number" name="width" id="width" required="true" />
+								<input value="3" class="size board-size" autocomplete="off" type="number" name="width" id="width" required="true" />
 							</div>
 							<div class="input-group">
 								<label for="height">Height</label>
-								<input value="3" class="size board-size" type="number" name="height" id="height" required="true" />
+								<input value="3" class="size board-size" autocomplete="off" type="number" name="height" id="height" required="true" />
 							</div>
 						</div>
 					</div>
@@ -68,7 +68,7 @@
 							<div>
 								<div class="input-group">
 									<label for="win-condition">Win By Getting</label>
-									<input class="size" type="number" name="win-condition" id="win-condition" placeholder="Across" />
+									<input class="size" autocomplete="off" type="number" name="win-condition" id="win-condition" placeholder="Across" />
 								</div>
 								<legend id="explanation"></legend>
 							</div>
