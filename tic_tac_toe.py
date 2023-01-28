@@ -439,7 +439,7 @@ class AI_Player(Player):
 
         if should_print_percent_done:
             print("Start training.")
-            print(f"0% Complete. Game 0 of {iterations:,}\n", end="")
+            print(f"0% Complete. Game 0 of {iterations:,}\r", end="")
 
         last_percent_done = 0
 
@@ -451,13 +451,13 @@ class AI_Player(Player):
             if should_print_percent_done:
                 percent_done = (i / iterations) * 100
                 if percent_done >= last_percent_done + print_new_percent_change_amount:
-                    print(f"{int(percent_done)}% Complete. Game {i:,} of {iterations:,}.\n", end="")
+                    print(f"{int(percent_done)}% Complete. Game {i:,} of {iterations:,}.\r", end="")
                     last_percent_done = percent_done
 
         end = time()
 
         if should_print_percent_done:
-            print(f"100% Complete. Game {i:,} of {iterations:,}.\n", end="")
+            print(f"100% Complete. Game {i:,} of {iterations:,}.\r", end="")
             print()
             print(f"Training process complete. {iterations:,} games played in {seconds_to_time(int(end-start))}.")
 
@@ -482,14 +482,14 @@ class AI_Player(Player):
             if should_print_percent_done:
                 percent_done = ((cur_time - start_time) / train_time_seconds) * 100
                 if percent_done >= last_percent_done + print_new_percent_change_amount:
-                    print(f"{int(percent_done)}% Complete. {bot_game.game_count:,} games played.\n", end="")
+                    print(f"{int(percent_done)}% Complete. {bot_game.game_count:,} games played.\r", end="")
                     last_percent_done = percent_done
 
             bot_game.play()
             bot_game.board.reset()
 
         if should_print_percent_done:
-            print(f"100% Complete. {bot_game.game_count:,} games played.\n", end="")
+            print(f"100% Complete. {bot_game.game_count:,} games played.\r", end="")
             print()
             print(f"Training process complete. {bot_game.game_count:,} games played in {seconds_to_time(train_time_seconds)}.")
 
