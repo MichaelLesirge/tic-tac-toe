@@ -114,7 +114,7 @@ class Board {
 			let tableRow = this.boardBody.insertRow();
 			for (let x = 0; x < this.width; x++) {
 				const el = tableRow.insertCell();
-				const cordName = x + OFFSET + "," + (y + OFFSET);
+				const cordName = (x + OFFSET) + "," + (y + OFFSET);
 
 				let cell = new Cell(el, cordName);
 				this.boardArray[y][x] = cell;
