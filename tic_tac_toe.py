@@ -400,8 +400,7 @@ class AI_Player(Player):
 
     SAVE_FILE_NAME_TEMPLATE = "strategy_%s.txt"
 
-    local_strategies: dict[str, dict[tuple[tuple[int]],
-                                     dict[tuple[int, int], int]]] = {}
+    local_strategies: dict[str, dict[tuple[tuple[int]], dict[tuple[int, int], int]]] = {}
 
     def __init__(self, char: str, color: str = None, *, start_in_training_mode: bool = False) -> None:
         super().__init__(char, color)
@@ -417,8 +416,7 @@ class AI_Player(Player):
         except (FileNotFoundError, PermissionError) as er:
             return None
         except Exception as er:
-            raise ValueError(
-                f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_id}'") from er
+            raise ValueError(f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_id}'") from er
         return pulled_strategy
 
     @classmethod
