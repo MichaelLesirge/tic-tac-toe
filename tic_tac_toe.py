@@ -496,7 +496,10 @@ class AI_Player(Player):
 
         def make_play(board, board_state):
             # would use set defualt here but than I would have to always make fallback
+            # options = strategy.setdefault(board_state, {(row, col): int(board.is_empty_location(row, col)) for col in range(board.width) for row in range(board.height)})
+            
             options = strategy.get(board_state)
+            
             if options is None:
                 options = strategy[board_state] = {(row, col): int(board.is_empty_location(
                     row, col)) for col in range(board.width) for row in range(board.height)}
@@ -513,25 +516,26 @@ class AI_Player(Player):
 
     def win(self, game: Game, turns: int) -> None:
         super().win(game, turns)
-        if self.in_training_mode:
-            for option, loc in self.recent_plays:
-                option[loc] += (game.board.size - turns) + 1
+        if self.in_training_mode: self.reward_points_for_plays(game.board.size - turns + 1)
         self.recent_plays.clear()
 
     def lose(self, game: Game, turns: int) -> None:
         super().lose(game, turns)
-        if self.in_training_mode:
-            for option, loc in self.recent_plays:
-                if option[loc] > 1:
-                    option[loc] -= 1
+        if self.in_training_mode: self.reward_points_for_plays(-1)
+
         self.recent_plays.clear()
 
     def tie(self, game: Game, turns: int) -> None:
         super().tie(game, turns)
-        if self.in_training_mode:
-            for option, loc in self.recent_plays:
-                option[loc] += 1
+        if self.in_training_mode: self.reward_points_for_plays(1)
         self.recent_plays.clear()
+    
+    def reward_points_for_plays(self, points: int) -> None:
+        pos = points > -1
+        for option, loc in self.recent_plays:
+            if pos or option[loc] > 1:
+                option[loc] += points
+        
 
     def make_play_any_rotation(self, board: Board, stratagy, play_func):
         # spin the board to fit than keep spinning it back to orginal
