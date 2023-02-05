@@ -1,8 +1,6 @@
 :root {
 	--starting-zoom-scale: 21vmin;
 	--zoom-scale: var(--starting-zoom-scale);
-	--cords-visibility: none;
-	/* tried using css varible for entire width but it did'nt update */
 }
 
 .board-container {
@@ -62,20 +60,6 @@
 	font-size: 90%;
 	
 	opacity: 25%;
-}
-
-.board-table td::after {
-	content: attr(cords);
-
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	
-	opacity: 75%;
-	font-size: 10%;
-	
-	display: var(--cords-visibility);
 }
 
 .board-table td.disabled {

@@ -2,7 +2,6 @@ import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./consts.js";
 
 // sorry for this mess of a proggram, I was learning JavaScript as I went.
 
-const toggleCordsButton = document.getElementById("toggle-cords");
 const resetBoardButton = document.getElementById("reset-button");
 
 const infoSpan = document.querySelector("#info");
@@ -24,53 +23,54 @@ const OFFSET = 1;
 
 class Cell {
 	constructor(el, name) {
+		this.name = "(" + name + ")";
 		this.el = el;
-		el.setAttribute("cords", "(" + name + ")")
-
+		
 		this.el.addEventListener("keydown", (event) => {
 			let selectedEl;
 			switch (event.key) {
 				case " ":
-				case "Enter":
-					this.el.click();
-					selectedEl = this.el;
-					break;
-				case "ArrowUp":
-					selectedEl = this.el.parentElement?.previousElementSibling?.children[this.el.cellIndex];
-					break;
-				case "ArrowDown":
-					selectedEl = this.el.parentElement?.nextElementSibling?.children[this.el.cellIndex];
+					case "Enter":
+						this.el.click();
+						selectedEl = this.el;
+						break;
+						case "ArrowUp":
+							selectedEl = this.el.parentElement?.previousElementSibling?.children[this.el.cellIndex];
+							break;
+							case "ArrowDown":
+								selectedEl = this.el.parentElement?.nextElementSibling?.children[this.el.cellIndex];
 					break;
 				case "ArrowRight":
 					selectedEl = this.el.nextElementSibling;
 					break;
-				case "ArrowLeft":
-					selectedEl = this.el.previousElementSibling;
-					break;
-			}
-			if (selectedEl) {
+					case "ArrowLeft":
+						selectedEl = this.el.previousElementSibling;
+						break;
+					}
+					if (selectedEl) {
 				// make funtion that selects and unselects element
 				if (this.disabled) this.el.removeAttribute("tabIndex");
 				selectedEl.setAttribute("tabIndex", 0);
 				selectedEl.focus();
 			}
 		});
-		this.name = name;
 		
 		this.reset();
 	}
 	
 	set(text) {
 		this.val = this.el.innerText = text;
+		this.el.title = text + " " + this.name;
 	}
 	
 	reset() {
 		this.disabled = false;
+		this.el.title = this.name;
 		this.set("");
 		this.el.classList.remove("disabled", "highlighted");
 		this.el.setAttribute("tabIndex", 0);
 	}
-	
+
 	disable() {
 		this.disabled = true;
 		this.el.onclick = () => {};
@@ -103,8 +103,6 @@ class Board {
 		this.currentPlayerIndex = 0;
 		this.isPlaying = true;
 
-		this.isDisplayingCords = false;
-
 		this.boardArray = Array(this.height);
 		this.boardBody = document.querySelector(".board-body");
 
@@ -114,14 +112,12 @@ class Board {
 			let tableRow = this.boardBody.insertRow();
 			for (let x = 0; x < this.width; x++) {
 				const el = tableRow.insertCell();
-				const cordName = (x + OFFSET) + "," + (y + OFFSET);
+				const coordName = x + OFFSET + "," + (y + OFFSET);
 
-				let cell = new Cell(el, cordName);
+				let cell = new Cell(el, coordName);
 				this.boardArray[y][x] = cell;
 			}
 		}
-
-		this.updateCordsVisablity();
 	}
 
 	playerTurn(cell) {
@@ -129,15 +125,15 @@ class Board {
 			resetBoardButton.classList.remove("fade-button");
 
 			const currentPlayer = players[this.currentPlayerIndex];
-			
+
 			cell.set(currentPlayer);
 			cell.disable();
-			
+
 			let isWinner = false;
 			let winningArray;
-			
+
 			[isWinner, winningArray] = this.isPlayerWinner(currentPlayer);
-			
+
 			if (isWinner) {
 				winningArray.forEach((cell) => cell.highlight());
 				this.gameOver();
@@ -147,15 +143,14 @@ class Board {
 				this.gameOver();
 				displayInfo("Tie!");
 				displayInfoPulse();
-			}
-			else {
+			} else {
 				this.turnCount++;
-	
+
 				this.currentPlayerIndex = (this.turnCount + this.gameCount) % players.length;
-				
+
 				const nextPlayer = players[this.currentPlayerIndex];
 				displayInfo(nextPlayer + "s turn.");
-				this.forEach((cell) => cell.el.setAttribute("next-player", nextPlayer))
+				this.forEach((cell) => cell.el.setAttribute("next-player", nextPlayer));
 			}
 		}
 	}
@@ -211,7 +206,7 @@ class Board {
 			for (let i = this.peicesToWinDiagonal - secondary; i < primary - this.peicesToWinDiagonal + 1; i++) {
 				let countTL2BR = 0;
 				let countTR2BL = 0;
-				for (let j = Math.max(0, -i); j < Math.min(secondary, primary-i); j++) {
+				for (let j = Math.max(0, -i); j < Math.min(secondary, primary - i); j++) {
 					// top left to buttom right
 					const xTL2BR = isWider ? j : i + j;
 					const yTL2BR = isWider ? i + j : j;
@@ -251,7 +246,7 @@ class Board {
 		this.currentPlayerIndex = this.gameCount % players.length;
 
 		displayInfo(`Starting with ${players[this.currentPlayerIndex]}s.`);
-		this.forEach((cell) => cell.el.setAttribute("next-player", players[this.currentPlayerIndex]))
+		this.forEach((cell) => cell.el.setAttribute("next-player", players[this.currentPlayerIndex]));
 
 		this.turnCount = 1;
 
@@ -269,11 +264,9 @@ class Board {
 		return x > -1 && x < this.width && y > -1 && y < this.height;
 	}
 
-	
 	isInBoard(x, y) {
 		return x > -1 && x < this.width && y > -1 && y < this.height;
 	}
-
 
 	gameOver() {
 		this.isPlaying = false;
@@ -290,22 +283,12 @@ class Board {
 	}
 
 	isMidGame() {
-		console.log(board.isPlaying, board.turnCount)
+		console.log(board.isPlaying, board.turnCount);
 		return board.isPlaying && board.turnCount != 1;
 	}
 
 	isOverflowing() {
 		return this.getCell(0, 0).el.getBoundingClientRect().left < 0 || this.getCell(this.width - 1, 0).el.getBoundingClientRect().right > (window.innerWidth || document.documentElement.clientWidth);
-	}
-
-	toggleCords() {
-		this.isDisplayingCords = !this.isDisplayingCords;
-		this.updateCordsVisablity();
-	}
-
-	updateCordsVisablity() {
-		toggleCordsButton.innerText = (this.isDisplayingCords ? "Hide" : "Display") + " Cords";
-		this.setCssVar("cords-visibility", this.isDisplayingCords ? "block" : "none");
 	}
 
 	setCssVar(name, value) {
@@ -392,7 +375,7 @@ function makeBoard() {
 		newURL.search = newParms;
 		history.pushState({}, null, newURL);
 	}
-	
+
 	return [new Board(width, height, ...(winRowLength ? [winRowLength, winRowLength, winRowLength] : [width, height, width === height ? width : undefined])), boardTitle];
 }
 
@@ -402,7 +385,6 @@ board.newGame();
 
 // nav buttons
 resetBoardButton.onclick = () => board.newGame();
-toggleCordsButton.onclick = () => board.toggleCords();
 
 // fix overflow
 const boardContainer = document.querySelector(".board-container");
