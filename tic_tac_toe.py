@@ -605,6 +605,18 @@ def rotate_90_degree(l):
 def mirror_x(l):
     return type(l)(type(l[0])(x[::-1]) for x in l)
 
+def is_same_arrangement(a, b):
+    if len(a) != len(b): return False
+    
+    unique_a = set(a)
+    unique_b = set(b)
+    
+    if len(unique_a) != len(unique_b): return False
+
+    a_arrangement = set(tuple(i for i, elem in enumerate(a) if elem == unique_item) for unique_item in unique_a)
+    b_arrangement = set(tuple(i for i, elem in enumerate(b) if elem == unique_item) for unique_item in unique_b)
+
+    return a_arrangement == b_arrangement
 
 def pick_weighted_random_key(d: dict[object, int]) -> object:
     return choices(list(d.keys()), d.values())[0]
