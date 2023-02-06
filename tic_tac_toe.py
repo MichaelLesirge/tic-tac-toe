@@ -17,7 +17,8 @@ STR_COLOR_CODES = {
 STR_BOLD_CODE = "\033[1m"
 STR_RESET_CODE = "\033[0m"
 
-STR_ENCHANSER_CODES = list(STR_COLOR_CODES.values()) + [STR_BOLD_CODE, STR_RESET_CODE]
+STR_ENCHANSER_CODES = list(STR_COLOR_CODES.values()) + \
+    [STR_BOLD_CODE, STR_RESET_CODE]
 
 OFFSET_FOR_HUMANS = 1
 
@@ -51,8 +52,8 @@ def main() -> None:
     game = Game(board, players)
 
     if any(isinstance(player, AI_Player) for player in players):
-        strategy = AI_Player.pull_stratagy(game.id)
-        if strategy is None:
+        found_stratagy = AI_Player.pull_stratagy(game.id)
+        if not found_stratagy:
             AI_Player.train(game, iterations=board.size * 2000, should_print_percent_done=True, print_new_percent_change_amount=1)
             AI_Player.push_local_stratagy(game.id)
             print()
@@ -88,7 +89,8 @@ def main() -> None:
 def make_tic_tac_toe_board() -> "Board":
     if get_bool_input("Do you want a custom board"):
         message = "Enter the %s of the board"
-        width, height = get_int_input(message % "width", min=1), get_int_input(message % "height", min=1)
+        width, height = get_int_input(
+            message % "width", min=1), get_int_input(message % "height", min=1)
     else:
         width, height = Board.DEFAULT_SIZE, Board.DEFAULT_SIZE
 
@@ -98,7 +100,8 @@ def make_tic_tac_toe_board() -> "Board":
         peices_to_win = get_int_input("Enter peices to win", min=1)
         peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = peices_to_win, peices_to_win, peices_to_win
     else:
-        peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = width, height, (width if width == height else None)
+        peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = width, height, (
+            width if width == height else None)
 
     return Board(width, height, peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal)
 
@@ -400,7 +403,8 @@ class AI_Player(Player):
 
     SAVE_FILE_NAME_TEMPLATE = "strategy_%s.txt"
 
-    local_strategies: dict[str, dict[tuple[tuple[int]], dict[tuple[int, int], int]]] = {}
+    local_strategies: dict[str, dict[tuple[tuple[int]],
+                                     dict[tuple[int, int], int]]] = {}
 
     def __init__(self, char: str, color: str = None, *, start_in_training_mode: bool = False) -> None:
         super().__init__(char, color)
@@ -408,16 +412,18 @@ class AI_Player(Player):
         self.in_training_mode = start_in_training_mode
 
     @classmethod
-    def pull_stratagy(cls, game_id: str) -> dict | None:
+    def pull_stratagy(cls, game_id: str) -> bool:
         try:
             with open(cls.SAVE_FILE_NAME_TEMPLATE % game_id, "r") as file:
                 # pulled_strategy = json.load(file)
                 pulled_strategy = eval(file.read())
         except (FileNotFoundError, PermissionError) as er:
-            return None
+            return False
         except Exception as er:
-            raise ValueError(f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_id}'") from er
-        return pulled_strategy
+            raise ValueError(
+                f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_id}'") from er
+        cls.local_strategies[game_id] = pulled_strategy
+        return True
 
     @classmethod
     def push_local_stratagy(cls, game_id: str) -> bool:
@@ -449,7 +455,8 @@ class AI_Player(Player):
             if should_print_percent_done:
                 percent_done = (i / iterations) * 100
                 if percent_done >= last_percent_done + print_new_percent_change_amount:
-                    print(f"{int(percent_done)}% Complete. Game {i:,} of {iterations:,}.\r", end="")
+                    print(
+                        f"{int(percent_done)}% Complete. Game {i:,} of {iterations:,}.\r", end="")
                     last_percent_done = percent_done
 
         end = time()
@@ -457,7 +464,8 @@ class AI_Player(Player):
         if should_print_percent_done:
             print(f"100% Complete. Game {i:,} of {iterations:,}.\r", end="")
             print()
-            print(f"Training process complete. {iterations:,} games played in {seconds_to_time(int(end-start))}.")
+            print(
+                f"Training process complete. {iterations:,} games played in {seconds_to_time(int(end-start))}.")
 
     @classmethod
     def timed_train(cls, game: Game, train_time_seconds: int = 60, should_print_percent_done: bool = False, print_new_percent_change_amount: int = 1) -> None:
@@ -475,21 +483,25 @@ class AI_Player(Player):
 
         cur_time = start_time
         while cur_time < end_time:
-            cur_time = time()
-
-            if should_print_percent_done:
-                percent_done = ((cur_time - start_time) / train_time_seconds) * 100
-                if percent_done >= last_percent_done + print_new_percent_change_amount:
-                    print(f"{int(percent_done)}% Complete. {bot_game.game_count:,} games played.\r", end="")
-                    last_percent_done = percent_done
-
             bot_game.play()
             bot_game.board.reset()
 
+            cur_time = time()
+
+            if should_print_percent_done:
+                percent_done = ((cur_time - start_time) /
+                                train_time_seconds) * 100
+                if percent_done >= last_percent_done + print_new_percent_change_amount:
+                    print(
+                        f"{int(percent_done)}% Complete. {bot_game.game_count:,} games played.\r", end="")
+                    last_percent_done = percent_done
+
         if should_print_percent_done:
-            print(f"100% Complete. {bot_game.game_count:,} games played.\r", end="")
+            print(
+                f"100% Complete. {bot_game.game_count:,} games played.\r", end="")
             print()
-            print(f"Training process complete. {bot_game.game_count:,} games played in {seconds_to_time(train_time_seconds)}.")
+            print(
+                f"Training process complete. {bot_game.game_count:,} games played in {seconds_to_time(train_time_seconds)}.")
 
     def take_turn(self, game: Game) -> None:
         strategy = self.local_strategies.setdefault(game.id, {})
@@ -497,9 +509,9 @@ class AI_Player(Player):
         def make_play(board, board_state):
             # would use set defualt here but than I would have to always make fallback
             # options = strategy.setdefault(board_state, {(row, col): int(board.is_empty_location(row, col)) for col in range(board.width) for row in range(board.height)})
-            
+
             options = strategy.get(board_state)
-            
+
             if options is None:
                 options = strategy[board_state] = {(row, col): int(board.is_empty_location(
                     row, col)) for col in range(board.width) for row in range(board.height)}
@@ -516,26 +528,28 @@ class AI_Player(Player):
 
     def win(self, game: Game, turns: int) -> None:
         super().win(game, turns)
-        if self.in_training_mode: self.reward_points_for_plays(game.board.size - turns + 1)
+        if self.in_training_mode:
+            self.reward_points_for_plays(game.board.size - turns + 1)
         self.recent_plays.clear()
 
     def lose(self, game: Game, turns: int) -> None:
         super().lose(game, turns)
-        if self.in_training_mode: self.reward_points_for_plays(-1)
+        if self.in_training_mode:
+            self.reward_points_for_plays(-1)
 
         self.recent_plays.clear()
 
     def tie(self, game: Game, turns: int) -> None:
         super().tie(game, turns)
-        if self.in_training_mode: self.reward_points_for_plays(1)
+        if self.in_training_mode:
+            self.reward_points_for_plays(1)
         self.recent_plays.clear()
-    
+
     def reward_points_for_plays(self, points: int) -> None:
         pos = points > -1
         for option, loc in self.recent_plays:
             if pos or option[loc] > 1:
                 option[loc] += points
-        
 
     def make_play_any_rotation(self, board: Board, stratagy, play_func):
         # spin the board to fit than keep spinning it back to orginal
