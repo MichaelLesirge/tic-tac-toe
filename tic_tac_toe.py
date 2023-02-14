@@ -98,12 +98,12 @@ def make_tic_tac_toe_board() -> "Board":
 
     if get_bool_input("Do you want a custom win condition"):
         peices_to_win = get_int_input("Enter peices to win", min=1)
-        peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = peices_to_win, peices_to_win, peices_to_win
+        peices_to_win_horizontal, peices_to_win_vertical, peices_to_win_diagonal = peices_to_win, peices_to_win, peices_to_win
     else:
-        peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal = width, height, (
+        peices_to_win_horizontal, peices_to_win_vertical, peices_to_win_diagonal = width, height, (
             width if width == height else None)
 
-    return Board(width, height, peices_to_win_horizontal, peices_to_win_verticle, peices_to_win_diagnal)
+    return Board(width, height, peices_to_win_horizontal, peices_to_win_vertical, peices_to_win_diagonal)
 
 
 def make_players() -> list["Player"]:
@@ -211,7 +211,7 @@ class Board:
 
         self.should_check_horizontal = (peices_to_win_horizontal != None) and (
             peices_to_win_horizontal <= self.width)
-        self.should_check_verticle = (peices_to_win_vertical != None) and (
+        self.should_check_vertical = (peices_to_win_vertical != None) and (
             peices_to_win_vertical <= self.height)
         self.should_check_diagonal = (peices_to_win_diagonal != None) and (
             peices_to_win_diagonal <= self.width or peices_to_win_diagonal <= self.height)
@@ -270,7 +270,7 @@ class Board:
 
     def is_winner(self, player):
         return ((self.should_check_horizontal and self.check_horizontal(player)) or
-            (self.should_check_verticle and self.check_vertical(player)) or
+            (self.should_check_vertical and self.check_vertical(player)) or
             (self.should_check_diagonal and self.check_diagonal(player)))
         
     def get(self, row: int, col: int) -> object:
