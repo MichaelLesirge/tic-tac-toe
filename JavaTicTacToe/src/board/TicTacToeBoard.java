@@ -69,7 +69,7 @@ public class TicTacToeBoard extends Board<Player> {
         return count;
     }
 
-    public boolean checkHorizontal(Object player) {
+    private boolean checkHorizontal(Player player) {
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width - peicesToWinHorizontal + 1; col++) {
                 if (countSequence(row, col, 0, 1, player) >= peicesToWinHorizontal) {
@@ -80,7 +80,7 @@ public class TicTacToeBoard extends Board<Player> {
         return false;
     }
 
-    public boolean checkVertical(Object player) {
+    private boolean checkVertical(Player player) {
         for (int row = 0; row < height - peicesToWinVertical + 1; row++) {
             for (int col = 0; col < width; col++) {
                 if (countSequence(row, col, 1, 0, player) >= peicesToWinVertical) {
@@ -91,7 +91,7 @@ public class TicTacToeBoard extends Board<Player> {
         return false;
     }
 
-    public boolean checkDiagonal(Object player) {
+    private boolean checkDiagonal(Player player) {
         for (int row = 0; row < height - peicesToWinDiagonal + 1; row++) {
             for (int col = 0; col < width - peicesToWinDiagonal + 1; col++) {
                 if (countSequence(row, col, 1, 1, player) >= peicesToWinDiagonal ||
@@ -104,7 +104,7 @@ public class TicTacToeBoard extends Board<Player> {
         return false;
     }
 
-    public boolean is_winner(Object player) {
+    public boolean isPlayerWinner(Player player) {
         return ((shouldCheckHorizontal && checkHorizontal(player)) ||
                 (shouldCheckVertical && checkVertical(player)) ||
                 (shouldCheckDiagonal && checkDiagonal(player)));
