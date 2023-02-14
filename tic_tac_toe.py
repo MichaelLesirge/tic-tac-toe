@@ -40,7 +40,7 @@ def main() -> None:
     print()
     # board = Board(
     #     width=3, height=3,
-    #     peices_to_win_horizontal=3, peices_to_win_verticle=3, peices_to_win_diagnal=3,
+    #     peices_to_win_horizontal=3, peices_to_win_vertical=3, peices_to_win_diagonal=2,
     # )
 
     players = make_players()
@@ -158,7 +158,7 @@ class Game:
 
         self.tied_game_count = 0
 
-        self.id = f"{self.board.width}_{self.board.height}_{self.board.peices_to_win_horizontal}_{self.board.peices_to_win_verticle}_{self.board.peices_to_win_diagnal}_{len(self.players)}"
+        self.id = f"{self.board.width}_{self.board.height}_{self.board.peices_to_win_horizontal}_{self.board.peices_to_win_vertical}_{self.board.peices_to_win_diagonal}_{len(self.players)}"
 
     def play(self, *, cycle_first_player: bool = False):
         winner = None
@@ -198,7 +198,7 @@ class Game:
 class Board:
     DEFAULT_SIZE = 3
 
-    def __init__(self, width: int, height: int, peices_to_win_horizontal: int, peices_to_win_verticle: int, peices_to_win_diagnal: int):
+    def __init__(self, width: int, height: int, peices_to_win_horizontal: int, peices_to_win_vertical: int, peices_to_win_diagonal: int):
         self.width = width
         self.height = height
 
@@ -211,14 +211,14 @@ class Board:
 
         self.should_check_horizontal = (peices_to_win_horizontal != None) and (
             peices_to_win_horizontal <= self.width)
-        self.should_check_verticle = (peices_to_win_verticle != None) and (
-            peices_to_win_verticle <= self.height)
-        self.should_check_diagonal = (peices_to_win_diagnal != None) and (
-            peices_to_win_diagnal <= self.width or peices_to_win_diagnal <= self.height)
+        self.should_check_verticle = (peices_to_win_vertical != None) and (
+            peices_to_win_vertical <= self.height)
+        self.should_check_diagonal = (peices_to_win_diagonal != None) and (
+            peices_to_win_diagonal <= self.width or peices_to_win_diagonal <= self.height)
 
         self.peices_to_win_horizontal = peices_to_win_horizontal
-        self.peices_to_win_verticle = peices_to_win_verticle
-        self.peices_to_win_diagnal = peices_to_win_diagnal
+        self.peices_to_win_vertical = peices_to_win_vertical
+        self.peices_to_win_diagonal = peices_to_win_diagonal
 
         self.placed: int
         self.board: list[list[object]]
@@ -238,61 +238,41 @@ class Board:
     def is_tie(self) -> bool:
         return self.placed >= self.size
 
-    def is_winner(self, player: "Player") -> list[int, int, int, int]:
-        # fix code duplcation here
-        if self.should_check_horizontal:
-            for row in range(self.height):
-                count = 0
-                for col in range(self.width):
-                    if self.get(row, col) == player:
-                        count += 1
-                        if count >= self.peices_to_win_horizontal:
-                            return True
-                    else:
-                        count = 0
+    def _count_sequence(self, row, col, drow, dcol, player):
+        count = 0
+        while self.is_valid_location(row, col) and self.get(row, col) == player:
+            count += 1
+            row += drow
+            col += dcol
+        return count
 
-        if self.should_check_verticle:
+    def check_horizontal(self, player):
+        for row in range(self.height):
+            for col in range(self.width - self.peices_to_win_horizontal + 1):
+                if self._count_sequence(row, col, 0, 1, player) >= self.peices_to_win_horizontal:
+                    return True
+        return False
+
+    def check_vertical(self, player):
+        for row in range(self.height - self.peices_to_win_vertical + 1):
             for col in range(self.width):
-                count = 0
-                for row in range(self.height):
-                    if self.get(row, col) == player:
-                        count += 1
-                        if count >= self.peices_to_win_verticle:
-                            return True
-                    else:
-                        count = 0
+                if self._count_sequence(row, col, 1, 0, player) >= self.peices_to_win_vertical:
+                    return True
+        return False
 
-        if self.should_check_diagonal:
-            isWider = self.width >= self.height
-            primary = self.width if isWider else self.height
-            secondary = self.width if not isWider else self.height
+    def check_diagonal(self, player):
+        for row in range(self.height - self.peices_to_win_diagonal + 1):
+            for col in range(self.width - self.peices_to_win_diagonal + 1):
+                if (self._count_sequence(row, col, 1, 1, player) >= self.peices_to_win_diagonal or
+                        self._count_sequence(row, col + self.peices_to_win_diagonal - 1, 1, -1, player) >= self.peices_to_win_diagonal):
+                    return True
+        return False
 
-            for i in range(self.peices_to_win_diagnal - secondary, primary - self.peices_to_win_diagnal + 1):
-                countTL2BR = 0
-                countTR2BL = 0
-                for j in range(max(0, -i), min(secondary, primary-i)):
-                    # top left to buttom right
-                    rowTL2BR = j if isWider else i + j
-                    colTL2BR = i + j if isWider else j
-
-                    # top right to buttom left
-                    rowTR2BL = j if isWider else primary - (i + j) - 1
-                    colTR2BL = primary - (i + j) - 1 if isWider else j
-
-                    if self.get(rowTL2BR, colTL2BR) == player:
-                        countTL2BR += 1
-                        if countTL2BR >= self.peices_to_win_diagnal:
-                            return True
-                    else:
-                        countTL2BR = 0
-
-                    if self.get(rowTR2BL, colTR2BL) == player:
-                        countTR2BL += 1
-                        if countTR2BL >= self.peices_to_win_diagnal:
-                            return True
-                    else:
-                        countTR2BL = 0
-
+    def is_winner(self, player):
+        return ((self.should_check_horizontal and self.check_horizontal(player)) or
+            (self.should_check_verticle and self.check_vertical(player)) or
+            (self.should_check_diagonal and self.check_diagonal(player)))
+        
     def get(self, row: int, col: int) -> object:
         return self.board[row][col]
 
@@ -330,7 +310,7 @@ class Board:
     # def __repr__(self) -> str:
     #     return f"<{__name__}.{self.__class__.__name__} board={self.board}>"
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.width}, {self.height}, {self.peices_to_win_horizontal}, {self.peices_to_win_verticle}, {self.peices_to_win_diagnal})"
+        return f"{self.__class__.__name__}({self.width}, {self.height}, {self.peices_to_win_horizontal}, {self.peices_to_win_vertical}, {self.peices_to_win_diagonal})"
 
     def __str__(self) -> str:
         # I'm so sorry future self, but I realised it was possible and this project does not matter so I just did it.
@@ -587,7 +567,7 @@ def create_training_game(game: Game) -> Game:
     players = [AI_Player(player.char, player.color, start_in_training_mode=True)
                for player in game.players]
     board = Board(game.board.width, game.board.height,
-                  game.board.peices_to_win_horizontal, game.board.peices_to_win_verticle,  game.board.peices_to_win_diagnal)
+                  game.board.peices_to_win_horizontal, game.board.peices_to_win_vertical,  game.board.peices_to_win_diagonal)
 
     return Game(board, players)
 
