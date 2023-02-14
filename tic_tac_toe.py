@@ -238,7 +238,7 @@ class Board:
     def is_tie(self) -> bool:
         return self.placed >= self.size
 
-    def _count_sequence(self, row, col, drow, dcol, player):
+    def _count_sequence(self, row: int, col: int, drow: int, dcol: int, player) -> int:
         count = 0
         while self.is_valid_location(row, col) and self.get(row, col) == player:
             count += 1
@@ -246,21 +246,21 @@ class Board:
             col += dcol
         return count
 
-    def check_horizontal(self, player):
+    def check_horizontal(self, player) -> bool:
         for row in range(self.height):
             for col in range(self.width - self.peices_to_win_horizontal + 1):
                 if self._count_sequence(row, col, 0, 1, player) >= self.peices_to_win_horizontal:
                     return True
         return False
 
-    def check_vertical(self, player):
+    def check_vertical(self, player) -> bool:
         for row in range(self.height - self.peices_to_win_vertical + 1):
             for col in range(self.width):
                 if self._count_sequence(row, col, 1, 0, player) >= self.peices_to_win_vertical:
                     return True
         return False
 
-    def check_diagonal(self, player):
+    def check_diagonal(self, player) -> bool:
         for row in range(self.height - self.peices_to_win_diagonal + 1):
             for col in range(self.width - self.peices_to_win_diagonal + 1):
                 if (self._count_sequence(row, col, 1, 1, player) >= self.peices_to_win_diagonal or
@@ -268,7 +268,7 @@ class Board:
                     return True
         return False
 
-    def is_winner(self, player):
+    def is_winner(self, player) -> bool:
         return ((self.should_check_horizontal and self.check_horizontal(player)) or
             (self.should_check_vertical and self.check_vertical(player)) or
             (self.should_check_diagonal and self.check_diagonal(player)))
