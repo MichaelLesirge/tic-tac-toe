@@ -1,8 +1,7 @@
 # Stuff to improve or add
 
 ## All games
-- Remove code duplication in win check funtions. 
-- Make diagnal checking better (idk how)
+- 
 
 ## Java
 - Make board have playing / not playing state
