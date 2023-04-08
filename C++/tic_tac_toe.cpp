@@ -14,6 +14,13 @@
 
 using String = std::string;
 
+bool is_number(const String& s)
+{
+    std::string::const_iterator it = s.begin();
+    while (it != s.end() && std::isdigit(*it)) ++it;
+    return !s.empty() && it == s.end();
+}
+
 const int OFFSET_FOR_HUMANS = 1;
 
 class Board
@@ -29,19 +36,24 @@ private:
 
     size_t placed;
 
-    void set(size_t i, size_t j, char val)
+    void set(size_t row, size_t col, char val)
     {
-        board[i][j] = val;
+        board[row][col] = val;
     }
 
-    char get(size_t i, size_t j) const
+    bool checkDirection(size_t row_start, size_t col_start, int row_change, int col_change, char player) const
     {
-        return board[i][j];
-    }
-
-    void incIfEqual(size_t i, size_t j, char val, size_t &counter)
-    {
-        counter += get(i, j) == val;
+        size_t row = row_start, col = col_start;
+        while (row < SIDE_SIZE && col < SIDE_SIZE)
+        {
+            if (get(row, col) != player)
+            {
+                return false;
+            }
+            row += row_change;
+            col += col_change;
+        }
+        return true;
     }
 
 public:
@@ -53,13 +65,18 @@ public:
     void reset()
     {
         placed = 0;
-        for (size_t i = 0; i < SIDE_SIZE; i++)
+        for (size_t row = 0; row < SIDE_SIZE; row++)
         {
-            for (size_t j = 0; j < SIDE_SIZE; j++)
+            for (size_t col = 0; col < SIDE_SIZE; col++)
             {
-                set(i, j, '\0');
+                set(row, col, FILLER);
             }
         }
+    }
+
+    char get(size_t row, size_t col) const
+    {
+        return board[row][col];
     }
 
     bool isFull() const
@@ -67,49 +84,50 @@ public:
         return placed >= TOTAL_SIZE;
     }
 
-    bool isPlayerWinner(char player)
+
+    bool isPlayerWinner(char player) const
     {
-        size_t hCount = 0;
-        size_t vCount = 0;
-        size_t dlrCount = 0;
-        size_t drlCount = 0;
+        if (checkDirection(0, 0, 1, 1, player) || checkDirection(SIDE_SIZE - 1, 0, 1, -1, player))
+        {
+            return true;
+        }
         for (size_t i = 0; i < SIDE_SIZE; i++)
         {
-            incIfEqual(i, i, player, dlrCount);
-            incIfEqual(i, SIDE_SIZE - i - 1, player, drlCount);
-            for (size_t j = 0; j < SIDE_SIZE; j++)
+            if (checkDirection(i, 0, 1, 0, player) || checkDirection(0, i, 0, 1, player))
             {
-                incIfEqual(i, j, player, hCount);
-                incIfEqual(j, i, player, vCount);
+                return true;
             }
         }
-        // PRINTLN(hCount << ", " << vCount << ", " << dlrCount << ", " << drlCount);
-        return hCount >= SIDE_SIZE || vCount >= SIDE_SIZE || dlrCount >= SIDE_SIZE || drlCount >= SIDE_SIZE;
+        return false;
     }
 
-    void placeCell(size_t x, size_t y, char val)
+    bool isValidPosition(int row, int col) const
     {
-        if (get(y, x) != '\0')
+        return (row > -1) && (row < (int) SIDE_SIZE) && (col > -1) && (col < (int) SIDE_SIZE);
+    }
+
+    void placeCell(int row, int col, char val)
+    {
+        if (!isValidPosition(row, col))
         {
-            throw std::invalid_argument("location is already occuiped");
+            throw std::invalid_argument("Location is not in board");
         }
-        set(y, x, val);
+        if (get(row, col) != FILLER)
+        {
+            throw std::invalid_argument("Location is already occuiped");
+        }
+        set(row, col, val);
         placed++;
-    }
-
-    char getCell(size_t x, size_t y)
-    {
-        return get(y, x);
     }
 
     const String toString() const
     {
         String out = "";
-        for (size_t i = 0; i < SIDE_SIZE; i++)
+        for (size_t row = 0; row < SIDE_SIZE; row++)
         {
-            for (size_t j = 0; j < SIDE_SIZE; j++)
+            for (size_t col = 0; col < SIDE_SIZE; col++)
             {
-                out.push_back(get(i, j) == '\0' ? FILLER : get(i, j));
+                out.push_back(get(row, col));
                 out.push_back(' ');
             }
             out.push_back('\n');
@@ -119,61 +137,50 @@ public:
     }
 };
 
-const std::map<String, size_t> verticalInputMapper = {
-    {"top", 1},
-    {"center", (Board::SIDE_SIZE / 2) + 1},
-    {"middle", (Board::SIDE_SIZE / 2) + 1},
-    {"buttom", Board::SIDE_SIZE},
+const std::map<String, size_t> rowInputMapper = {
+    {"top", 0},
+    {"center", Board::SIDE_SIZE / 2},
+    {"bottom", Board::SIDE_SIZE - 1},
 };
 
-const std::map<String, size_t> horizontalInputMapper = {
-    {"left", 1},
-    {"center", (Board::SIDE_SIZE / 2) + 1},
-    {"middle", (Board::SIDE_SIZE / 2) + 1},
-    {"right", Board::SIDE_SIZE},
+const std::map<String, size_t> colInputMapper = {
+    {"left", 0},
+    {"center", Board::SIDE_SIZE / 2},
+    {"right", Board::SIDE_SIZE - 1},
 };
 
-void getPosInput(const String &s, size_t &choiceX, size_t &choiceY)
+void getPositionInput(const String &s, int &rowChoice, int &colChoice)
 {
     const int mid = s.find_first_of(" ");
 
-    const String verticlePos = s.substr(0, mid);
-    const String horizontalPos = s.substr(mid + 1, s.length());
+    const String userRowChoice = s.substr(0, mid);
+    const String userColChoice = s.substr(mid + 1, s.length());
 
-    if (verticalInputMapper.count(verticlePos))
+    if (rowInputMapper.count(userRowChoice))
     {
-        choiceY = verticalInputMapper.find(verticlePos)->second;
+        rowChoice = rowInputMapper.find(userRowChoice)->second;
+    }
+    else if (is_number(userRowChoice) )
+    {
+        rowChoice = std::stoi(userRowChoice) + OFFSET_FOR_HUMANS;
     }
     else
     {
-        try
-        {
-            choiceY = std::stoi(verticlePos);
-        }
-        catch (const std::invalid_argument &e)
-        {
-            throw std::invalid_argument("Verticle postion (first value) must be a number or \"top\", \"center\", or \"buttom\"");
-            ;
-        }
+        throw std::invalid_argument("Row location (first value) must be \"top\", \"center\", or \"buttom\" or row number");
     }
 
-    if (horizontalInputMapper.count(horizontalPos))
+    if (colInputMapper.count(userColChoice))
     {
-        choiceX = horizontalInputMapper.find(horizontalPos)->second;
+        colChoice = colInputMapper.find(userColChoice)->second;
+    }
+    else if (is_number(userColChoice))
+    {
+        colChoice = std::stoi(userColChoice) + OFFSET_FOR_HUMANS;
     }
     else
     {
-        try
-        {
-            choiceX = std::stoi(horizontalPos);
-        }
-        catch (std::invalid_argument &e)
-        {
-            throw std::invalid_argument("Horizontal postion (second value) must be a number or \"left\", \"center\", or \"right\"");
-        }
+        throw std::invalid_argument("Column location (second value) must be \"left\", \"center\", or \"right\" or column number");
     }
-    choiceX -= OFFSET_FOR_HUMANS;
-    choiceY -= OFFSET_FOR_HUMANS;
 }
 
 int main()
@@ -215,22 +222,14 @@ int main()
                     exit(0);
                 }
 
-                size_t choiceX;
-                size_t choiceY;
+                int colChoice;
+                int rowChoice;
 
                 try
                 {
-                    getPosInput(choice, choiceX, choiceY); // store x and y pos in choiceX and choiceY
+                    getPositionInput(choice, colChoice, rowChoice); // store x and y pos in choiceX and choiceY
 
-                    if (choiceX >= Board::SIDE_SIZE)
-                    {
-                        throw std::invalid_argument("X position must be between " + std::to_string(OFFSET_FOR_HUMANS) + " and " + std::to_string(Board::SIDE_SIZE));
-                    }
-                    if (choiceY >= Board::SIDE_SIZE)
-                    {
-                        throw std::invalid_argument("Y position must be between " + std::to_string(OFFSET_FOR_HUMANS) + " and " + std::to_string(Board::SIDE_SIZE));
-                    }
-                    board.placeCell(choiceX, choiceY, currentPlayer); // placeCell current player at choice X, Y
+                    board.placeCell(colChoice, rowChoice, currentPlayer); // placeCell current player at choice X, Y
                 }
                 catch (std::invalid_argument &e)
                 {
@@ -243,20 +242,23 @@ int main()
 
             if (board.isFull())
             {
-                PRINTLN("\n" << board.toString() << "\n");
-                PRINTLN("Its a tie" << "\n");
+                PRINTLN("\n"
+                        << board.toString() << "\n");
+                PRINTLN("Its a tie"
+                        << "\n");
                 playing = false;
             }
             else if (board.isPlayerWinner(currentPlayer))
             {
-                PRINTLN("\n" << board.toString() << "\n");
-                PRINTLN("Player " << currentPlayer << " wins!" << "\n");
+                PRINTLN("\n"
+                        << board.toString() << "\n");
+                PRINTLN("Player " << currentPlayer << " wins!"
+                                  << "\n");
                 playing = false;
             }
 
             turnCount++;
         }
-
 
         String wantsToPlayAgain;
 
