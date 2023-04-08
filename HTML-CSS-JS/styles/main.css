@@ -158,6 +158,10 @@ body {
 	cursor: zoom-out;
 }
 
+.button {
+	cursor: pointer;
+}
+
 @media (max-width: 900px) {
 	.nav-section:last-of-type {
 		display: flex;

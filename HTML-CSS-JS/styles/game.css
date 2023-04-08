@@ -66,9 +66,10 @@
 	cursor: default !important;
 }
 
-
 .board-table td.highlighted {
 	background-color: rgb(168, 248, 168) !important;
 }
+
+
 
 
