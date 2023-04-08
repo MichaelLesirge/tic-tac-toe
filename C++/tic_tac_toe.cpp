@@ -149,37 +149,19 @@ const std::map<String, size_t> colInputMapper = {
     {"right", Board::SIDE_SIZE - 1},
 };
 
-void getPositionInput(const String &s, int &rowChoice, int &colChoice)
+int getPositionInput(const String &userChoice, const std::map<String, size_t> &valueMap)
 {
-    const int mid = s.find_first_of(" ");
-
-    const String userRowChoice = s.substr(0, mid);
-    const String userColChoice = s.substr(mid + 1, s.length());
-
-    if (rowInputMapper.count(userRowChoice))
+    if (valueMap.count(userChoice))
     {
-        rowChoice = rowInputMapper.find(userRowChoice)->second;
+        return valueMap.find(userChoice)->second;
     }
-    else if (is_number(userRowChoice) )
+    else if (is_number(userChoice) )
     {
-        rowChoice = std::stoi(userRowChoice) + OFFSET_FOR_HUMANS;
+        return std::stoi(userChoice) - OFFSET_FOR_HUMANS;
     }
     else
     {
-        throw std::invalid_argument("Row location (first value) must be \"top\", \"center\", or \"buttom\" or row number");
-    }
-
-    if (colInputMapper.count(userColChoice))
-    {
-        colChoice = colInputMapper.find(userColChoice)->second;
-    }
-    else if (is_number(userColChoice))
-    {
-        colChoice = std::stoi(userColChoice) + OFFSET_FOR_HUMANS;
-    }
-    else
-    {
-        throw std::invalid_argument("Column location (second value) must be \"left\", \"center\", or \"right\" or column number");
+        throw std::invalid_argument("\"" + userChoice + "\" is not a valid location."); 
     }
 }
 
@@ -212,24 +194,28 @@ int main()
 
             while (!hasGotValidInput)
             {
-                String choice;
+                String userChoice;
                 PRINT("Where do you want to go: ");
-                std::getline(std::cin, choice);
+                std::getline(std::cin, userChoice);
 
-                if (choice == "QUIT")
+                if (userChoice == "QUIT")
                 {
                     PRINTLN("Good Bye!");
                     exit(0);
                 }
 
-                int colChoice;
-                int rowChoice;
+                const int mid = userChoice.find_first_of(" ");
+
+                const String userRowChoice = userChoice.substr(0, mid);
+                const String userColChoice = userChoice.substr(mid + 1, userChoice.length());
+
 
                 try
                 {
-                    getPositionInput(choice, colChoice, rowChoice); // store x and y pos in choiceX and choiceY
-
-                    board.placeCell(colChoice, rowChoice, currentPlayer); // placeCell current player at choice X, Y
+                    const int colChoice = getPositionInput(userColChoice, colInputMapper);
+                    const int rowChoice = getPositionInput(userRowChoice, rowInputMapper);
+                    
+                    board.placeCell(colChoice, rowChoice, currentPlayer);
                 }
                 catch (std::invalid_argument &e)
                 {
@@ -242,18 +228,14 @@ int main()
 
             if (board.isFull())
             {
-                PRINTLN("\n"
-                        << board.toString() << "\n");
-                PRINTLN("Its a tie"
-                        << "\n");
+                PRINTLN("\n" << board.toString() << "\n");
+                PRINTLN("Its a tie" << "\n");
                 playing = false;
             }
             else if (board.isPlayerWinner(currentPlayer))
             {
-                PRINTLN("\n"
-                        << board.toString() << "\n");
-                PRINTLN("Player " << currentPlayer << " wins!"
-                                  << "\n");
+                PRINTLN("\n" << board.toString() << "\n");
+                PRINTLN("Player " << currentPlayer << " wins!" << "\n");
                 playing = false;
             }
 
