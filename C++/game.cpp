@@ -7,11 +7,6 @@
 #include <string>
 #include <map>
 
-#define PRINT(x) std::cout << x
-#define PRINTLN(x) std::cout << x << "\n"
-#define ERROR(x) std::cerr << x
-#define ERRORLN(x) std::cerr << x << "\n"
-
 using String = std::string;
 
 bool is_number(const String& s)
@@ -45,6 +40,7 @@ private:
     {
         size_t row = row_start, col = col_start;
         while (row < SIDE_SIZE && col < SIDE_SIZE)
+        
         {
             if (get(row, col) != player)
             {
@@ -172,8 +168,6 @@ int main()
     const size_t playerCount = 2;
     const char players[playerCount] = {'X', 'O'};
 
-    PRINTLN("This project is incomplete.");
-
     bool playAgain = true;
 
     while (playAgain)
@@ -187,20 +181,20 @@ int main()
         {
             char currentPlayer = players[turnCount % playerCount];
 
-            PRINTLN("\n" << currentPlayer << " turn.");
-            PRINTLN("\n" << board.toString() << "\n");
+            std::cout << '\n' << currentPlayer << " turn." << '\n';
+            std::cout << '\n' << board.toString() << '\n' << '\n';
 
             bool hasGotValidInput = false;
 
             while (!hasGotValidInput)
             {
                 String userChoice;
-                PRINT("Where do you want to go: ");
+                std::cout << "Where do you want to go: ";
                 std::getline(std::cin, userChoice);
 
                 if (userChoice == "QUIT")
                 {
-                    PRINTLN("Good Bye!");
+                    std::cout << "Good Bye!" << '\n';
                     exit(0);
                 }
 
@@ -212,14 +206,14 @@ int main()
 
                 try
                 {
-                    const int colChoice = getPositionInput(userColChoice, colInputMapper);
                     const int rowChoice = getPositionInput(userRowChoice, rowInputMapper);
+                    const int colChoice = getPositionInput(userColChoice, colInputMapper);
                     
-                    board.placeCell(colChoice, rowChoice, currentPlayer);
+                    board.placeCell(rowChoice, colChoice, currentPlayer);
                 }
                 catch (std::invalid_argument &e)
                 {
-                    ERRORLN(e.what());
+                    std::cout << e.what() << '\n';
                     continue;
                 }
 
@@ -228,14 +222,14 @@ int main()
 
             if (board.isFull())
             {
-                PRINTLN("\n" << board.toString() << "\n");
-                PRINTLN("Its a tie" << "\n");
+                std::cout << '\n' << board.toString() << '\n' << '\n';
+                std::cout << "Its a tie" << '\n' << '\n';
                 playing = false;
             }
             else if (board.isPlayerWinner(currentPlayer))
             {
-                PRINTLN("\n" << board.toString() << "\n");
-                PRINTLN("Player " << currentPlayer << " wins!" << "\n");
+                std::cout << '\n' << board.toString() << '\n' << '\n';
+                std::cout << "Player " << currentPlayer << " wins!" << '\n';
                 playing = false;
             }
 
