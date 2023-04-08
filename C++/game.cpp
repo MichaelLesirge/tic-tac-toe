@@ -1,7 +1,7 @@
 // Run here by copying and pasting code in to main file:
 // https://www.programiz.com/cpp-programming/online-compiler/
 
-// g++ -Wall -Wextra -pedantic -O3 -g -std=c++17 tic_tac_toe.cpp -o tic_tac_toe.exe
+// g++ -Wall -Wextra -pedantic -O3 -g -std=c++17 game.cpp -o game.exe
 
 #include <iostream>
 #include <string>

@@ -5,8 +5,6 @@ from random import choices
 from time import time
 from abc import ABC, abstractmethod
 
-# $ g++ -Wall -Wextra -pedantic -O3 -g -std=c++17 game.cpp -o game.exe
-
 STR_COLOR_CODES = {
     "red": "\u001b[31m",
     "blue": "\u001b[34m",
