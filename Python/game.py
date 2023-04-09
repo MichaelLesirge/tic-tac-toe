@@ -17,6 +17,8 @@ class Config:
     COLOR_MODE = True
     
     FANCY_BOARD_CHAR_SET = "┼", "─", "│"
+    # FANCY_BOARD_CHAR_SET = "\u253C", "\u2500", "\u2502"
+    
     BASIC_BOARD_CHAR_SET = "+", "-", "|"
     
     used_board_char_set = FANCY_BOARD_CHAR_SET
@@ -41,6 +43,7 @@ STR_ENCHANSER_CODES = list(STR_COLOR_CODES.values()) + \
     [STR_BOLD_CODE, STR_RESET_CODE]
 
 def main() -> None:
+    # hacky way to get check if terminal supports the fancy unicode charchters
     welcome_message = "Welcome to tic-tac-toe with Python!"
     try:
         print(Config.used_board_char_set[1], welcome_message, Config.used_board_char_set[1])
@@ -67,7 +70,8 @@ def main() -> None:
     # players = [AI_Player("A", STR_COLOR_CODES["green"]), AI_Player("B", STR_COLOR_CODES["cyan"]), Human_Player("C", STR_COLOR_CODES["blue"])]
 
     game = Game(board, players)
-     
+    
+    # check if any players are AI and if there are train them
     if any(isinstance(player, AIPlayer) for player in players):
         found_stratagy = AIPlayer.pull_stratagy(game.id)
         if not found_stratagy:
@@ -93,6 +97,7 @@ def main() -> None:
 
         print()
 
+        # scores
         print(f"Ties: {game.tied_game_count}")
         for player in players:
             print(f"{player}{' (AI)' if isinstance(player, AIPlayer) else ''}: {player.wins}")
