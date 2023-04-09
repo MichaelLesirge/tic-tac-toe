@@ -1,7 +1,8 @@
 // Run here by copying and pasting code in to main file:
 // https://www.programiz.com/cpp-programming/online-compiler/
 
-// g++ -Wall -Wextra -pedantic -O3 -g -std=c++17 game.cpp -o game.exe
+// g++ -Wall -Wextra -pedantic -g -std=c++17 game.cpp -o game.exe
+// g++ -O3 -Wall -Wextra -pedantic -std=c++17 game.cpp -o game.exe -static
 
 #include <iostream>
 #include <string>
@@ -9,11 +10,30 @@
 
 using String = std::string;
 
+
 bool is_number(const String& s)
 {
-    std::string::const_iterator it = s.begin();
-    while (it != s.end() && std::isdigit(*it)) ++it;
-    return !s.empty() && it == s.end();
+    // I dont know why I did it like this,
+    // a for loop would have been fine,
+    // but no,
+    // this is how you are suppose to do it with C++.
+    // I want to go back to python now
+    
+    String::const_iterator i = s.begin();
+    while (i != s.end() && std::isdigit(*i)) ++i;
+    return !s.empty() && i == s.end();
+}
+
+template <typename... Args>
+void print(Args... args) {
+    // AAAAAAAAAAAAAAAAAAAAAAAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    // i just want print
+    (std::cout << ... << args);
+}
+
+template <typename... Args>
+void println(Args... args) {
+    (std::cout << ... << args) << '\n';
 }
 
 const int OFFSET_FOR_HUMANS = 1;
@@ -39,8 +59,7 @@ private:
     bool checkDirection(size_t row_start, size_t col_start, int row_change, int col_change, char player) const
     {
         size_t row = row_start, col = col_start;
-        while (row < SIDE_SIZE && col < SIDE_SIZE)
-        
+        for (size_t i = 0; i < SIDE_SIZE; i++)
         {
             if (get(row, col) != player)
             {
@@ -83,13 +102,13 @@ public:
 
     bool isPlayerWinner(char player) const
     {
-        if (checkDirection(0, 0, 1, 1, player) || checkDirection(SIDE_SIZE - 1, 0, 1, -1, player))
+        if (checkDirection(0, 0, 1, 1, player) || checkDirection(0, SIDE_SIZE - 1, 1, -1, player))
         {
             return true;
         }
         for (size_t i = 0; i < SIDE_SIZE; i++)
         {
-            if (checkDirection(i, 0, 1, 0, player) || checkDirection(0, i, 0, 1, player))
+            if (checkDirection(i, 0, 0, 1, player) || checkDirection(0, i, 1, 0, player))
             {
                 return true;
             }
@@ -136,12 +155,14 @@ public:
 const std::map<String, size_t> rowInputMapper = {
     {"top", 0},
     {"center", Board::SIDE_SIZE / 2},
+    {"middle", Board::SIDE_SIZE / 2},
     {"bottom", Board::SIDE_SIZE - 1},
 };
 
 const std::map<String, size_t> colInputMapper = {
     {"left", 0},
     {"center", Board::SIDE_SIZE / 2},
+    {"middle", Board::SIDE_SIZE / 2},
     {"right", Board::SIDE_SIZE - 1},
 };
 
@@ -181,20 +202,20 @@ int main()
         {
             char currentPlayer = players[turnCount % playerCount];
 
-            std::cout << '\n' << currentPlayer << " turn." << '\n';
-            std::cout << '\n' << board.toString() << '\n' << '\n';
+            println('\n', currentPlayer, " turn.");
+            println('\n', board.toString(), '\n');
 
             bool hasGotValidInput = false;
 
             while (!hasGotValidInput)
             {
                 String userChoice;
-                std::cout << "Where do you want to go: ";
+                print("Where do you want to go: ");
                 std::getline(std::cin, userChoice);
 
                 if (userChoice == "QUIT")
                 {
-                    std::cout << "Good Bye!" << '\n';
+                    println("Good Bye!");
                     exit(0);
                 }
 
@@ -213,7 +234,7 @@ int main()
                 }
                 catch (std::invalid_argument &e)
                 {
-                    std::cout << e.what() << '\n';
+                    println(e.what());
                     continue;
                 }
 
@@ -222,14 +243,14 @@ int main()
 
             if (board.isFull())
             {
-                std::cout << '\n' << board.toString() << '\n' << '\n';
-                std::cout << "Its a tie" << '\n' << '\n';
+                println('\n', board.toString(), '\n');
+                println("Its a tie", '\n');
                 playing = false;
             }
             else if (board.isPlayerWinner(currentPlayer))
             {
-                std::cout << '\n' << board.toString() << '\n' << '\n';
-                std::cout << "Player " << currentPlayer << " wins!" << '\n';
+                println('\n', board.toString(), '\n');
+                println("Player ", currentPlayer, " wins!");
                 playing = false;
             }
 
@@ -238,7 +259,7 @@ int main()
 
         String wantsToPlayAgain;
 
-        std::cout << "Do you want to play agien: [Y/n] ";
+        print("Do you want to play agien: [Y/n]");
         std::cin >> wantsToPlayAgain;
 
         playAgain = wantsToPlayAgain == "y" || wantsToPlayAgain == "Y";
