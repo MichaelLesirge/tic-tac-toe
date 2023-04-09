@@ -20,17 +20,28 @@ STR_RESET_CODE = "\033[0m"
 STR_ENCHANSER_CODES = list(STR_COLOR_CODES.values()) + \
     [STR_BOLD_CODE, STR_RESET_CODE]
 
-OFFSET_FOR_HUMANS = 1
+class Config:
+    OFFSET_FOR_HUMANS = 1
 
-CYCLE_FIRST_PLAYER = True
-AI_PLAYER_RAND_START = True
+    CYCLE_FIRST_PLAYER = True
+    AI_PLAYER_RAND_START = True
+    
+    COLOR_MODE = True
+    
+    FANCY_BOARD_CHAR_SET = "┼", "─", "│"
+    BASIC_BOARD_CHAR_SET = "+", "-", "|"
 
-
-should_use_colors = True
-
+    used_board_char_set = FANCY_BOARD_CHAR_SET
+ 
 
 def main() -> None:
-    print("Welcome to tic-tac-toe with Python!")
+    welcome_message = "Welcome to tic-tac-toe with Python!"
+    try:
+        print(Config.used_board_char_set[1], welcome_message, Config.used_board_char_set[1])
+    except UnicodeError as ex:
+        Config.used_board_char_set = Config.BASIC_BOARD_CHAR_SET
+        print(Config.used_board_char_set[1], welcome_message, Config.used_board_char_set[1])
+        
     print()
 
     # should_use_colors = bool_input("Does you console support ASCII color codes if your not sure, \u001b[31mis this red for you\033[0m")
@@ -50,7 +61,7 @@ def main() -> None:
     # players = [AI_Player("A", STR_COLOR_CODES["green"]), AI_Player("B", STR_COLOR_CODES["cyan"]), Human_Player("C", STR_COLOR_CODES["blue"])]
 
     game = Game(board, players)
-
+     
     if any(isinstance(player, AI_Player) for player in players):
         found_stratagy = AI_Player.pull_stratagy(game.id)
         if not found_stratagy:
@@ -63,9 +74,9 @@ def main() -> None:
     playing = True
     while playing:
         board.reset()
-        print(f"Round {game.game_count+OFFSET_FOR_HUMANS}")
+        print(f"Round {game.game_count+Config.OFFSET_FOR_HUMANS}")
 
-        winner = game.play(cycle_first_player=CYCLE_FIRST_PLAYER)
+        winner = game.play(cycle_first_player=Config.CYCLE_FIRST_PLAYER)
 
         print(game.board)
 
@@ -87,21 +98,15 @@ def main() -> None:
 
 
 def make_tic_tac_toe_board() -> "Board":
-    if get_bool_input("Do you want a custom board"):
-        message = "Enter the %s of the board"
-        width, height = get_int_input(
-            message % "width", min=1), get_int_input(message % "height", min=1)
-    else:
-        width, height = Board.DEFAULT_SIZE, Board.DEFAULT_SIZE
-
+    message = "Enter the %s of the board"
+    width, height = get_int_input(message % "width", min=1, default=Board.DEFAULT_SIZE), get_int_input(message % "height", min=1, default=Board.DEFAULT_SIZE)
+    
     print()
-
-    if get_bool_input("Do you want a custom win condition"):
-        peices_to_win = get_int_input("Enter peices to win", min=1)
-        peices_to_win_horizontal, peices_to_win_vertical, peices_to_win_diagonal = peices_to_win, peices_to_win, peices_to_win
+    peices_to_win = get_int_input("Enter peices to win", min=1, default="across the board")
+    if peices_to_win == "across the board":
+        peices_to_win_horizontal, peices_to_win_vertical, peices_to_win_diagonal = width, height, (width if width == height else None)
     else:
-        peices_to_win_horizontal, peices_to_win_vertical, peices_to_win_diagonal = width, height, (
-            width if width == height else None)
+        peices_to_win_horizontal, peices_to_win_vertical, peices_to_win_diagonal = peices_to_win, peices_to_win, peices_to_win
 
     return Board(width, height, peices_to_win_horizontal, peices_to_win_vertical, peices_to_win_diagonal)
 
@@ -141,7 +146,7 @@ def make_player() -> "Player":
     letter = get_valid_input("Letter", get_valid_letter)
 
     color = None
-    if should_use_colors:
+    if Config.COLOR_MODE:
         color = get_valid_input("Color", get_valid_color)
 
     player_type = AI_Player if make_ai else Human_Player
@@ -149,7 +154,7 @@ def make_player() -> "Player":
     return player_type(letter, color)
 
 
-class Game:
+class Game:   
     def __init__(self, board: "Board", players: list["Player"]) -> None:
         self.board = board
         self.players = players
@@ -204,8 +209,8 @@ class Board:
 
         self.size = self.width * self.height
 
-        self.min_loc = OFFSET_FOR_HUMANS
-        self.max_loc = self.size + OFFSET_FOR_HUMANS - 1
+        self.min_loc = Config.OFFSET_FOR_HUMANS
+        self.max_loc = self.size + Config.OFFSET_FOR_HUMANS - 1
 
         self.max_cell_len = len(str(self.max_loc))
 
@@ -280,14 +285,14 @@ class Board:
         self.board[row][col] = val
 
     def to_indexs(self, loc: int) -> tuple[int, int]:
-        loc -= OFFSET_FOR_HUMANS
+        loc -= Config.OFFSET_FOR_HUMANS
 
         row = loc // self.width
         col = loc - (self.width * row)
         return row, col
 
     def to_loc(self, row: int, col: int) -> int:
-        return (row*self.width)+col+OFFSET_FOR_HUMANS
+        return (row*self.width)+col+Config.OFFSET_FOR_HUMANS
 
     def _place(self, row: int, col: int, val: object) -> None:
         self.placed += 1
@@ -296,12 +301,10 @@ class Board:
     def place(self, loc: int, player: object) -> None:
         row, col = self.to_indexs(loc)
 
-        self.max_cell_len = max(get_colorless_len(
-            str(player)), self.max_cell_len)
+        self.max_cell_len = max(get_colorless_len(str(player)), self.max_cell_len)
 
         if not self.is_valid_location(row, col):
-            raise ValueError(
-                f"location must be from {self.min_loc} to {self.max_loc}")
+            raise ValueError(f"location must be from {self.min_loc} to {self.max_loc}")
         if not self.is_empty_location(row, col):
             raise ValueError("location is already occupied")
 
@@ -314,7 +317,8 @@ class Board:
 
     def __str__(self) -> str:
         # I'm so sorry future self, but I realised it was possible and this project does not matter so I just did it.
-        return "\n" + (("\n" + "┼".join(["─" + ("─" * self.max_cell_len) + "─"] * self.width) + "─" + "\n").join([" " + ((" " + "│" + " ").join([centered_padding(str(item if item else self.to_loc(i, j)), self.max_cell_len) for j, item in enumerate(row)]) + " ") for i, row in enumerate(self.board)])) + "\n"
+        cross, h_line, v_line = Config.used_board_char_set
+        return "\n" + (("\n" + cross.join([h_line + (h_line * self.max_cell_len) + h_line] * self.width) + h_line + "\n").join([" " + ((" " + v_line + " ").join([centered_padding(str(item if item else self.to_loc(i, j)), self.max_cell_len) for j, item in enumerate(row)]) + " ") for i, row in enumerate(self.board)])) + "\n"
 
 
 class Player(ABC):
@@ -355,7 +359,7 @@ class Player(ABC):
         return f"{self.__class__.__name__}(char={self.char}, wins={self.wins})"
 
     def __str__(self) -> str:
-        if should_use_colors and self.color:
+        if Config.COLOR_MODE and self.color:
             return self.color + STR_BOLD_CODE + self.char + STR_RESET_CODE
         return self.char
 
@@ -368,8 +372,7 @@ class Human_Player(Player):
         def make_play(loc):
             game.board.place(loc, self)
 
-        get_valid_input("Enter where you want to go",
-                        make_play, input_func=get_int_input)
+        get_valid_input("Enter where you want to go", make_play, input_func=get_int_input)
 
 
 class AI_Player(Player):
@@ -383,8 +386,7 @@ class AI_Player(Player):
 
     SAVE_FILE_NAME_TEMPLATE = "strategy_%s.txt"
 
-    local_strategies: dict[str, dict[tuple[tuple[int]],
-                                     dict[tuple[int, int], int]]] = {}
+    local_strategies: dict[str, dict[tuple[tuple[int]], dict[tuple[int, int], int]]] = {}
 
     def __init__(self, char: str, color: str = None, *, start_in_training_mode: bool = False) -> None:
         super().__init__(char, color)
@@ -400,8 +402,7 @@ class AI_Player(Player):
         except (FileNotFoundError, PermissionError) as er:
             return False
         except Exception as er:
-            raise ValueError(
-                f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_id}'") from er
+            raise ValueError(f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_id}'") from er
         cls.local_strategies[game_id] = pulled_strategy
         return True
 
@@ -435,8 +436,7 @@ class AI_Player(Player):
             if should_print_percent_done:
                 percent_done = (i / iterations) * 100
                 if percent_done >= last_percent_done + print_new_percent_change_amount:
-                    print(
-                        f"{int(percent_done)}% Complete. Game {i:,} of {iterations:,}.\r", end="")
+                    print(f"{int(percent_done)}% Complete. Game {i:,} of {iterations:,}.\r", end="")
                     last_percent_done = percent_done
 
         end = time()
@@ -444,8 +444,7 @@ class AI_Player(Player):
         if should_print_percent_done:
             print(f"100% Complete. Game {i:,} of {iterations:,}.\r", end="")
             print()
-            print(
-                f"Training process complete. {iterations:,} games played in {seconds_to_time(int(end-start))}.")
+            print(f"Training process complete. {iterations:,} games played in {seconds_to_time(int(end-start))}.")
 
     @classmethod
     def timed_train(cls, game: Game, train_time_seconds: int = 60, should_print_percent_done: bool = False, print_new_percent_change_amount: int = 1) -> None:
@@ -496,7 +495,7 @@ class AI_Player(Player):
                 options = strategy[board_state] = {(row, col): int(board.is_empty_location(
                     row, col)) for col in range(board.width) for row in range(board.height)}
 
-            if self.in_training_mode or (AI_PLAYER_RAND_START and board.placed == 0):
+            if self.in_training_mode or (Config.AI_PLAYER_RAND_START and board.placed == 0):
                 row, col = pick_weighted_random_key(options)
             else:
                 row, col = max(options, key=options.get)
@@ -634,8 +633,14 @@ def input_s(prompt=""):
     return input(prompt + ": ").strip()
 
 
-def get_int_input(prompt: str, *, min=float("-infinity"), max=float("infinity")) -> None:
+def get_int_input(prompt: str, *, min: int = float("-inf"), max: int = float("inf"), default: int = None) -> None:
+    if default is not None:
+        prompt += f" (default is {default})"
+    
     def func(x: str):
+        if default is not None and x == "":
+            return default
+        
         try:
             x = int(x)
         except ValueError:
