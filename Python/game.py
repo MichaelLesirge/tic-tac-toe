@@ -89,7 +89,7 @@ def main() -> None:
 
         print(f"Ties: {game.tied_game_count}")
         for player in players:
-            print(f"{player}: {player.wins}")
+            print(f"{player}{' (AI)' if isinstance(player, AI_Player) else ''}: {player.wins}")
         print()
 
         playing = get_bool_input("Do you want to play again")
