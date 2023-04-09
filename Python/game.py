@@ -5,6 +5,22 @@ from random import choices
 from time import time
 from abc import ABC, abstractmethod
 
+
+class Config:
+    OFFSET_FOR_HUMANS = 1
+
+    CYCLE_FIRST_PLAYER = True
+    AI_PLAYER_RAND_START = True
+    
+    DEFAULT_PLAYER_COUNT = 2
+    
+    COLOR_MODE = True
+    
+    FANCY_BOARD_CHAR_SET = "┼", "─", "│"
+    BASIC_BOARD_CHAR_SET = "+", "-", "|"
+    
+    used_board_char_set = FANCY_BOARD_CHAR_SET
+ 
 STR_COLOR_CODES = {
     "red": "\u001b[31m",
     "blue": "\u001b[34m",
@@ -17,22 +33,12 @@ STR_COLOR_CODES = {
 STR_BOLD_CODE = "\033[1m"
 STR_RESET_CODE = "\033[0m"
 
+
+# PLAYER_CHAR_DEFAULT_ORDERD = "".join(chr(i) for i in range(ord('A'),ord('Z')+1))
+PLAYER_CHAR_DEFAULTS = "XO" + "ABCDEFGHIJKLMNPQRSTUVWYZ"
+
 STR_ENCHANSER_CODES = list(STR_COLOR_CODES.values()) + \
     [STR_BOLD_CODE, STR_RESET_CODE]
-
-class Config:
-    OFFSET_FOR_HUMANS = 1
-
-    CYCLE_FIRST_PLAYER = True
-    AI_PLAYER_RAND_START = True
-    
-    COLOR_MODE = True
-    
-    FANCY_BOARD_CHAR_SET = "┼", "─", "│"
-    BASIC_BOARD_CHAR_SET = "+", "-", "|"
-
-    used_board_char_set = FANCY_BOARD_CHAR_SET
- 
 
 def main() -> None:
     welcome_message = "Welcome to tic-tac-toe with Python!"
@@ -62,11 +68,11 @@ def main() -> None:
 
     game = Game(board, players)
      
-    if any(isinstance(player, AI_Player) for player in players):
-        found_stratagy = AI_Player.pull_stratagy(game.id)
+    if any(isinstance(player, AIPlayer) for player in players):
+        found_stratagy = AIPlayer.pull_stratagy(game.id)
         if not found_stratagy:
-            AI_Player.train(game, iterations=board.size * 2000, should_print_percent_done=True, print_new_percent_change_amount=1)
-            AI_Player.push_local_stratagy(game.id)
+            AIPlayer.train(game, iterations=board.size * 2000, should_print_percent_done=True, print_new_percent_change_amount=1)
+            AIPlayer.push_local_stratagy(game.id)
             print()
 
     # AI_Player.timed_train(game, train_time_seconds=1, should_print_percent_done=True)
@@ -89,7 +95,7 @@ def main() -> None:
 
         print(f"Ties: {game.tied_game_count}")
         for player in players:
-            print(f"{player}{' (AI)' if isinstance(player, AI_Player) else ''}: {player.wins}")
+            print(f"{player}{' (AI)' if isinstance(player, AIPlayer) else ''}: {player.wins}")
         print()
 
         playing = get_bool_input("Do you want to play again")
@@ -112,20 +118,6 @@ def make_tic_tac_toe_board() -> "Board":
 
 
 def make_players() -> list["Player"]:
-    players = []
-    if get_bool_input("Do you want a custom players"):
-        for i in range(1, get_int_input("Enter the number of players", min=1) + 1):
-            print()
-            print(f"Player {i}")
-            new_player = make_player()
-            players.append(new_player)
-    else:
-        players.append(Human_Player("X", STR_COLOR_CODES["red"]))
-        players.append(AI_Player("O", STR_COLOR_CODES["blue"]))
-    return players
-
-
-def make_player() -> "Player":
     def get_valid_letter(x: str) -> str:
         if len(x) != 1:
             raise ValueError("Player character must be one character")
@@ -137,22 +129,29 @@ def make_player() -> "Player":
         x = x.lower()
         if x not in STR_COLOR_CODES:
             possible_colors = list(STR_COLOR_CODES.keys())
-            raise ValueError(
-                f"\"{x}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
+            raise ValueError(f"\"{x}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
         return STR_COLOR_CODES[x]
+    
+    color_key_options = list(STR_COLOR_CODES.keys())
+    
+    players = []
+    for i in range(get_int_input("Enter the number of players", min=1, default=Config.DEFAULT_PLAYER_COUNT) ):
+        print()
+        print(f"Player {i + Config.OFFSET_FOR_HUMANS}")
 
-    make_ai = get_bool_input("Bot")
+        make_ai = get_bool_input("Bot")
 
-    letter = get_valid_input("Letter", get_valid_letter)
+        letter = get_valid_input("Letter", get_valid_letter, default=PLAYER_CHAR_DEFAULTS[i])
 
-    color = None
-    if Config.COLOR_MODE:
-        color = get_valid_input("Color", get_valid_color)
+        color = None
+        if Config.COLOR_MODE:
+            color = get_valid_input("Color", get_valid_color, default=color_key_options[i])
 
-    player_type = AI_Player if make_ai else Human_Player
+        player_type = AIPlayer if make_ai else HumanPlayer
 
-    return player_type(letter, color)
-
+        players.append(player_type(letter, color))
+    
+    return players
 
 class Game:   
     def __init__(self, board: "Board", players: list["Player"]) -> None:
@@ -364,7 +363,7 @@ class Player(ABC):
         return self.char
 
 
-class Human_Player(Player):
+class HumanPlayer(Player):
     def take_turn(self, game: Game) -> None:
         print(game.board)
         print(f"Player {self}'s turn")
@@ -375,7 +374,7 @@ class Human_Player(Player):
         get_valid_input("Enter where you want to go", make_play, input_func=get_int_input)
 
 
-class AI_Player(Player):
+class AIPlayer(Player):
     """
     Very inefficent TicTacToe AI.
     All it does it play a bunch of games and find the "best" move for that specific situation.
@@ -402,7 +401,7 @@ class AI_Player(Player):
         except (FileNotFoundError, PermissionError) as er:
             return False
         except Exception as er:
-            raise ValueError(f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_id}'") from er
+            raise ValueError(f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_id}'. Delete file and retrain to fix error") from er
         cls.local_strategies[game_id] = pulled_strategy
         return True
 
@@ -412,7 +411,7 @@ class AI_Player(Player):
             with open(cls.SAVE_FILE_NAME_TEMPLATE % game_id, "w") as file:
                 # can't store to json because tuples as dict keys is not allowed
                 # json.dump(cls.local_strategies[game_id], file)
-                file.write(str(cls.local_strategies[game_id]))
+                file.write(str(cls.local_strategies[game_id]).replace(" ", ""))
         except (PermissionError) as er:
             return False
 
@@ -476,11 +475,9 @@ class AI_Player(Player):
                     last_percent_done = percent_done
 
         if should_print_percent_done:
-            print(
-                f"100% Complete. {bot_game.game_count:,} games played.\r", end="")
+            print(f"100% Complete. {bot_game.game_count:,} games played.\r", end="")
             print()
-            print(
-                f"Training process complete. {bot_game.game_count:,} games played in {seconds_to_time(train_time_seconds)}.")
+            print(f"Training process complete. {bot_game.game_count:,} games played in {seconds_to_time(train_time_seconds)}.")
 
     def take_turn(self, game: Game) -> None:
         strategy = self.local_strategies.setdefault(game.id, {})
@@ -563,7 +560,7 @@ class AI_Player(Player):
 
 
 def create_training_game(game: Game) -> Game:
-    players = [AI_Player(player.char, player.color, start_in_training_mode=True)
+    players = [AIPlayer(player.char, player.color, start_in_training_mode=True)
                for player in game.players]
     board = Board(game.board.width, game.board.height,
                   game.board.peices_to_win_horizontal, game.board.peices_to_win_vertical,  game.board.peices_to_win_diagonal)
@@ -633,12 +630,10 @@ def input_s(prompt=""):
     return input(prompt + ": ").strip()
 
 
-def get_int_input(prompt: str, *, min: int = float("-inf"), max: int = float("inf"), default: int = None) -> None:
-    if default is not None:
-        prompt += f" (default is {default})"
+def get_int_input(prompt: str, *, min: int = float("-inf"), max: int = float("inf"), default = None) -> None:
     
     def func(x: str):
-        if default is not None and x == "":
+        if x is default:
             return default
         
         try:
@@ -651,17 +646,26 @@ def get_int_input(prompt: str, *, min: int = float("-inf"), max: int = float("in
             raise ValueError(f"input must be smaller than {max}")
         return x
 
-    return get_valid_input(prompt, func)
+    return get_valid_input(prompt, func, default=default, convert_default = False)
 
 
-def get_valid_input(prompt: str, converter, *, input_func=input_s):
+def get_valid_input(prompt: str, converter, *, input_func=input_s, default=None, convert_default=True):
+    if default is not None:
+        prompt += f" (default is {default})"
+    
     while True:
         try:
-            user_input = converter(input_func(prompt))
+            user_input = input_func(prompt)
+            if default is not None and user_input == "":
+                if convert_default:
+                    return converter(default)
+                else:
+                    return default
+            converted_user_input = converter(user_input)
         except ValueError as er:
             print_invalid(er)
         else:
-            return user_input
+            return converted_user_input
 
 
 def print_invalid(er) -> None:
