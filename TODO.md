@@ -9,9 +9,10 @@
 
 ## Python
 - Highlight background of winning elements
-- Make a GUI
+- Allow user to save game settings (board size, players)
 - make save and pull return and recieve stratagy and make cache more like local, this may allow multiprossing for training
 - decrease overall coupling
+- Make a GUI
 
 
 ## JavaScript
