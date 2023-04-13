@@ -10,5 +10,7 @@ Open without any download on [Githack](https://raw.githack.com/michael-lesirge/t
 ## Images
 <img src="https://user-images.githubusercontent.com/100492377/230738158-54f53606-99b7-4c5d-b8f7-07c192725337.png" alt="screenshot of Create Your Board page" width="600" height="375">
 <img src="https://user-images.githubusercontent.com/100492377/230738634-21a663cf-c2db-4ec7-bc2c-c154f7b91f5e.png" alt="screenshot of start of 3x3 game" width="600" height="375">
-<img src="https://user-images.githubusercontent.com/100492377/230738703-de8e0e94-0747-4854-8df0-79272028f4a4.png" alt="screenshot of Os winning game" width="600" height="375">
+<img src="https://user-images.githubusercontent.com/100492377/230738703-de8e0e94-0747-4854-8df0-79272028f4a4.png" alt="screenshot of 'O' winning game" width="600" height="375">
 
+## Why I learned HTML, CSS, and JS
+I wanted to be able to create a website. I naturally learned it since I needed to make a frontend for my Python Django thing 
