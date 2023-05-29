@@ -1,8 +1,7 @@
 // Run here by copying and pasting code in to main file:
 // https://www.programiz.com/cpp-programming/online-compiler/
 
-// g++ -Wall -Wextra -pedantic -g -std=c++17 game.cpp -o game.exe
-// g++ -O3 -Wall -Wextra -pedantic -std=c++17 game.cpp -o game.exe -static
+// g++ -Wall -Wextra -pedantic -O3 -std=c++17 game.cpp -o game.exe
 
 #include <iostream>
 #include <string>
@@ -13,30 +12,27 @@ using String = std::string;
 
 bool is_number(const String& s)
 {
-    // I dont know why I did it like this,
-    // a for loop would have been fine,
-    // but no,
-    // this is how you are suppose to do it with C++.
-    // I want to go back to python now
-    
     String::const_iterator i = s.begin();
     while (i != s.end() && std::isdigit(*i)) ++i;
     return !s.empty() && i == s.end();
 }
 
-template <typename... Args>
-void print(Args... args) {
-    // AAAAAAAAAAAAAAAAAAAAAAAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
-    // i just want print
-    (std::cout << ... << args);
+// could have just used printf but wanted to try templates
+template<typename... Args>
+inline void print(const Args&... args)
+{
+    ((std::cout << args), ...);
 }
 
-template <typename... Args>
-void println(Args... args) {
-    (std::cout << ... << args) << '\n';
+template<typename... Args>
+inline void println(const Args&... args)
+{
+    print(args..., '\n');
 }
 
-const int OFFSET_FOR_HUMANS = 1;
+
+
+static const int OFFSET_FOR_HUMANS = 1;
 
 class Board
 {
@@ -150,6 +146,12 @@ public:
 
         return out.erase(out.length() - 1);
     }
+
+    friend std::ostream& operator<<(std::ostream& outStream, const Board& board)
+    {
+        outStream << board.toString();
+        return outStream;
+    }
 };
 
 const std::map<String, size_t> rowInputMapper = {
@@ -169,17 +171,11 @@ const std::map<String, size_t> colInputMapper = {
 int getPositionInput(const String &userChoice, const std::map<String, size_t> &valueMap)
 {
     if (valueMap.count(userChoice))
-    {
         return valueMap.find(userChoice)->second;
-    }
-    else if (is_number(userChoice) )
-    {
+    else if (is_number(userChoice))
         return std::stoi(userChoice) - OFFSET_FOR_HUMANS;
-    }
     else
-    {
         throw std::invalid_argument("\"" + userChoice + "\" is not a valid location."); 
-    }
 }
 
 int main()
@@ -259,7 +255,7 @@ int main()
 
         String wantsToPlayAgain;
 
-        print("Do you want to play agien: [Y/n]");
+        print("Do you want to play agien [Y/n]: ");
         std::cin >> wantsToPlayAgain;
 
         playAgain = wantsToPlayAgain == "y" || wantsToPlayAgain == "Y";
