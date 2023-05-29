@@ -5,19 +5,23 @@ from random import choices
 from time import time
 from abc import ABC, abstractmethod
 
+
 class Config:
     OFFSET_FOR_HUMANS = 1
 
     CYCLE_FIRST_PLAYER = True
     AI_PLAYER_RAND_START = True
-    
+
     DEFAULT_PLAYER_CHARS = ["X", "O"]
     DEFAULT_PLAYER_COUNT = len(DEFAULT_PLAYER_CHARS)
-    
+
     # ordered by chance of working with start being least likely
     BOARD_CHAR_SETS = [("┼", "─", "│"), ("+", "-", "|")]
- 
-DEFAULT_PLAYER_CHARS_ORDERED = Config.DEFAULT_PLAYER_CHARS + [chr(i) for i in range(ord('A'), ord('Z')+1) if chr(i) not in Config.DEFAULT_PLAYER_CHARS]
+
+
+DEFAULT_PLAYER_CHARS_ORDERED = Config.DEFAULT_PLAYER_CHARS + \
+    [chr(i) for i in range(ord('A'), ord('Z')+1)
+     if chr(i) not in Config.DEFAULT_PLAYER_CHARS]
 
 STR_COLOR_CODES = {
     "red": "\u001b[31m",
@@ -34,6 +38,7 @@ STR_RESET_CODE = "\033[0m"
 STR_ENCHANSER_CODES = list(STR_COLOR_CODES.values()) + \
     [STR_BOLD_CODE, STR_RESET_CODE]
 
+
 def main() -> None:
     # hacky way to get check if terminal supports the fancy unicode charchters
     printed_welcome_message = False
@@ -47,7 +52,7 @@ def main() -> None:
         else:
             printed_welcome_message = True
     Game.used_board_char_set = Config.BOARD_CHAR_SETS[used_board_char_set_index]
-    
+
     print()
 
     Game.should_use_colors = True
@@ -68,12 +73,13 @@ def main() -> None:
     # players = [AI_Player("A", STR_COLOR_CODES["green"]), AI_Player("B", STR_COLOR_CODES["cyan"]), Human_Player("C", STR_COLOR_CODES["blue"])]
 
     game = Game(board, players)
-    
+
     # check if any players are AI and if there are train them
     if any(isinstance(player, AIPlayer) for player in players):
         found_stratagy = AIPlayer.pull_stratagy(game.id)
         if not found_stratagy:
-            AIPlayer.train(game, iterations=board.size * 2000, should_print_percent_done=True, print_new_percent_change_amount=1)
+            AIPlayer.train(game, iterations=board.size * 2000,
+                           should_print_percent_done=True, print_new_percent_change_amount=1)
             AIPlayer.push_local_stratagy(game.id)
             print()
 
@@ -98,7 +104,8 @@ def main() -> None:
         # scores
         print(f"Ties: {game.tied_game_count}")
         for player in players:
-            print(f"{player}{' (AI)' if isinstance(player, AIPlayer) else ''}: {player.wins}")
+            print(
+                f"{player}{' (AI)' if isinstance(player, AIPlayer) else ''}: {player.wins}")
         print()
 
         playing = get_bool_input("Do you want to play again")
@@ -108,12 +115,15 @@ def main() -> None:
 
 def make_tic_tac_toe_board() -> "Board":
     message = "Enter the %s of the board"
-    width, height = get_int_input(message % "width", min=1, default=Board.DEFAULT_SIZE), get_int_input(message % "height", min=1, default=Board.DEFAULT_SIZE)
-    
+    width, height = get_int_input(message % "width", min=1, default=Board.DEFAULT_SIZE), get_int_input(
+        message % "height", min=1, default=Board.DEFAULT_SIZE)
+
     print()
-    peices_to_win = get_int_input("Enter peices to win", min=1, default="across the board")
+    peices_to_win = get_int_input(
+        "Enter peices to win", min=1, default="across the board")
     if peices_to_win == "across the board":
-        peices_to_win_horizontal, peices_to_win_vertical, peices_to_win_diagonal = width, height, (width if width == height else None)
+        peices_to_win_horizontal, peices_to_win_vertical, peices_to_win_diagonal = width, height, (
+            width if width == height else None)
     else:
         peices_to_win_horizontal, peices_to_win_vertical, peices_to_win_diagonal = peices_to_win, peices_to_win, peices_to_win
 
@@ -132,34 +142,41 @@ def make_players() -> list["Player"]:
         x = x.lower()
         if x not in STR_COLOR_CODES:
             possible_colors = list(STR_COLOR_CODES.keys())
-            raise ValueError(f"\"{x}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
+            raise ValueError(
+                f"\"{x}\" is not an available color. Try {', '.join(possible_colors[:-1])} or {possible_colors[-1]}")
         return STR_COLOR_CODES[x]
-    
+
     color_key_options = list(STR_COLOR_CODES.keys())
-    
+
     players = []
-    for i in range(get_int_input("Enter the number of players", min=1, default=Config.DEFAULT_PLAYER_COUNT) ):
+    for i in range(get_int_input("Enter the number of players", min=1, default=Config.DEFAULT_PLAYER_COUNT)):
         print()
         print(f"Player {i + Config.OFFSET_FOR_HUMANS}")
 
         make_ai = get_bool_input("Bot")
 
-        letter = get_valid_input("Letter", get_valid_letter, default=DEFAULT_PLAYER_CHARS_ORDERED[i])
+        letter = get_valid_input(
+            "Letter", get_valid_letter, default=DEFAULT_PLAYER_CHARS_ORDERED[i])
 
         color = None
         if Game.should_use_colors:
-            color = get_valid_input("Color", get_valid_color, default=color_key_options[i])
+            color = get_valid_input(
+                "Color", get_valid_color, default=color_key_options[i])
 
         player_type = AIPlayer if make_ai else HumanPlayer
 
         players.append(player_type(letter, color))
-    
+
     return players
+
 
 class Game:
     used_board_char_set = Config.BOARD_CHAR_SETS[-1]
     should_use_colors = True
     
+    
+      
+
       
     def __init__(self, board: "Board", players: list["Player"]) -> None:
         self.board = board
@@ -230,12 +247,11 @@ class Board:
         self.peices_to_win_horizontal = peices_to_win_horizontal
         self.peices_to_win_vertical = peices_to_win_vertical
         self.peices_to_win_diagonal = peices_to_win_diagonal
-        
+
         self.placed: int
-        self.board: list[list[object]]
+        self.board: list[list[Player | None]]
         self.reset()
         
-
     def reset(self) -> None:
         self.placed = 0
         self.board = [[None for col in range(self.width)]
@@ -282,9 +298,9 @@ class Board:
 
     def is_winner(self, player) -> bool:
         return ((self.should_check_horizontal and self.check_horizontal(player)) or
-            (self.should_check_vertical and self.check_vertical(player)) or
-            (self.should_check_diagonal and self.check_diagonal(player)))
-        
+                (self.should_check_vertical and self.check_vertical(player)) or
+                (self.should_check_diagonal and self.check_diagonal(player)))
+
     def get(self, row: int, col: int) -> object:
         return self.board[row][col]
 
@@ -308,10 +324,12 @@ class Board:
     def place(self, loc: int, player: object) -> None:
         row, col = self.to_indexs(loc)
 
-        self.max_cell_len = max(get_colorless_len(str(player)), self.max_cell_len)
+        self.max_cell_len = max(get_colorless_len(
+            str(player)), self.max_cell_len)
 
         if not self.is_valid_location(row, col):
-            raise ValueError(f"location must be from {self.min_loc} to {self.max_loc}")
+            raise ValueError(
+                f"location must be from {self.min_loc} to {self.max_loc}")
         if not self.is_empty_location(row, col):
             raise ValueError("location is already occupied")
 
@@ -379,7 +397,8 @@ class HumanPlayer(Player):
         def make_play(loc):
             game.board.place(loc, self)
 
-        get_valid_input("Enter where you want to go", make_play, input_func=get_int_input)
+        get_valid_input("Enter where you want to go",
+                        make_play, input_func=get_int_input)
 
 
 class AIPlayer(Player):
@@ -393,7 +412,8 @@ class AIPlayer(Player):
 
     SAVE_FILE_NAME_TEMPLATE = "strategy_%s.txt"
 
-    local_strategies: dict[str, dict[tuple[tuple[int]], dict[tuple[int, int], int]]] = {}
+    local_strategies: dict[str, dict[tuple[tuple[int]],
+                                     dict[tuple[int, int], int]]] = {}
 
     def __init__(self, char: str, color: str = None, *, start_in_training_mode: bool = False) -> None:
         super().__init__(char, color)
@@ -409,7 +429,8 @@ class AIPlayer(Player):
         except (FileNotFoundError, PermissionError) as er:
             return False
         except Exception as er:
-            raise ValueError(f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_id}'. Delete file and retrain to fix error") from er
+            raise ValueError(
+                f"Invlaid file contents for save file '{cls.SAVE_FILE_NAME_TEMPLATE % game_id}'. Delete file and retrain to fix error") from er
         cls.local_strategies[game_id] = pulled_strategy
         return True
 
@@ -443,7 +464,8 @@ class AIPlayer(Player):
             if should_print_percent_done:
                 percent_done = (i / iterations) * 100
                 if percent_done >= last_percent_done + print_new_percent_change_amount:
-                    print(f"{int(percent_done)}% Complete. Game {i:,} of {iterations:,}.\r", end="")
+                    print(
+                        f"{int(percent_done)}% Complete. Game {i:,} of {iterations:,}.\r", end="")
                     last_percent_done = percent_done
 
         end = time()
@@ -451,7 +473,8 @@ class AIPlayer(Player):
         if should_print_percent_done:
             print(f"100% Complete. Game {i:,} of {iterations:,}.\r", end="")
             print()
-            print(f"Training process complete. {iterations:,} games played in {seconds_to_time(int(end-start))}.")
+            print(
+                f"Training process complete. {iterations:,} games played in {seconds_to_time(int(end-start))}.")
 
     @classmethod
     def timed_train(cls, game: Game, train_time_seconds: int = 60, should_print_percent_done: bool = False, print_new_percent_change_amount: int = 1) -> None:
@@ -483,9 +506,11 @@ class AIPlayer(Player):
                     last_percent_done = percent_done
 
         if should_print_percent_done:
-            print(f"100% Complete. {bot_game.game_count:,} games played.\r", end="")
+            print(
+                f"100% Complete. {bot_game.game_count:,} games played.\r", end="")
             print()
-            print(f"Training process complete. {bot_game.game_count:,} games played in {seconds_to_time(train_time_seconds)}.")
+            print(
+                f"Training process complete. {bot_game.game_count:,} games played in {seconds_to_time(train_time_seconds)}.")
 
     def take_turn(self, game: Game) -> None:
         strategy = self.local_strategies.setdefault(game.id, {})
@@ -568,8 +593,7 @@ class AIPlayer(Player):
 
 
 def create_training_game(game: Game) -> Game:
-    players = [AIPlayer(player.char, player.color, start_in_training_mode=True)
-               for player in game.players]
+    players = [AIPlayer(player.char, player.color, start_in_training_mode=True) for player in game.players]
     board = Board(game.board.width, game.board.height,
                   game.board.peices_to_win_horizontal, game.board.peices_to_win_vertical,  game.board.peices_to_win_diagonal)
 
@@ -582,25 +606,13 @@ def seconds_to_time(seconds: int) -> str:
     return f"{hours:d}:{minutes:02d}:{seconds:02d}"
 
 
-def rotate_90_degree(l):
-    return type(l)(type(l[0])(x[::-1]) for x in zip(*l))
+def rotate_90_degree(l: list[list[object]]) -> list[list[object]]:
+    return list(x[::-1] for x in zip(*l))
 
 
-def mirror_x(l):
-    return type(l)(type(l[0])(x[::-1]) for x in l)
+def mirror_x(l: list[list[object]]) -> list[list[object]]:
+    return list(x[::-1] for x in l)
 
-def is_same_arrangement(a, b):
-    if len(a) != len(b): return False
-    
-    unique_a = set(a)
-    unique_b = set(b)
-    
-    if len(unique_a) != len(unique_b): return False
-
-    a_arrangement = set(tuple(i for i, elem in enumerate(a) if elem == unique_item) for unique_item in unique_a)
-    b_arrangement = set(tuple(i for i, elem in enumerate(b) if elem == unique_item) for unique_item in unique_b)
-
-    return a_arrangement == b_arrangement
 
 def pick_weighted_random_key(d: dict[object, int]) -> object:
     return choices(list(d.keys()), d.values())[0]
@@ -620,30 +632,25 @@ def centered_padding(s: str, amount: int, *, buffer: str = " ") -> str:
     return (buffer * (side_amount + extra)) + str(s) + (buffer * side_amount)
 
 
-def sum_dict_values(*dicts: dict[object, int], start=None) -> dict[object, int]:
-    if start is None:
-        start = {}
-    for d in dicts:
-        for key, value in d.items():
-            start[key] = value + d.get(key, 0)
-    return start
-
-
-def get_bool_input(prompt: str) -> None:
-    user_input = input_s(prompt + " (y/n)").lower()
-    return user_input in ("y", "yes", "true")
-
-
-def input_s(prompt=""):
+def input_s(prompt = "") -> str:
     return input(prompt + ": ").strip()
 
+DEFAULT_SENTINAL = object()
 
-def get_int_input(prompt: str, *, min: int = float("-inf"), max: int = float("inf"), default = None) -> None:
-    
-    def func(x: str):
-        if x is default:
-            return default
-        
+def get_bool_input(prompt: str, default: bool = DEFAULT_SENTINAL) -> None:
+    def func(x: str) -> bool:
+        x = x.lower()
+        if x in ("y", "yes", "true"):
+            return True
+        elif x in ("n", "no", "false"):
+            return False
+        raise ValueError("input must be Yes or No")
+
+    return get_valid_input(prompt + "(y/n)", func, default = default, convert_default = False)
+
+def get_int_input(prompt: str, *, min: int = float("-inf"), max: int = float("inf"), default: int = DEFAULT_SENTINAL) -> int:
+
+    def func(x: str) -> int:
         try:
             x = int(x)
         except ValueError:
@@ -654,13 +661,13 @@ def get_int_input(prompt: str, *, min: int = float("-inf"), max: int = float("in
             raise ValueError(f"input must be smaller than {max}")
         return x
 
-    return get_valid_input(prompt, func, default=default, convert_default = False)
+    return get_valid_input(prompt, func, default = default, convert_default = False)
 
 
-def get_valid_input(prompt: str, converter, *, input_func=input_s, default=None, convert_default=True):
-    if default is not None:
+def get_valid_input(prompt: str, converter: callable, *, input_func = input_s, default = None, convert_default: bool = True):
+    if default is not DEFAULT_SENTINAL:
         prompt += f" (default is {default})"
-    
+
     while True:
         try:
             user_input = input_func(prompt)
