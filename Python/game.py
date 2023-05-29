@@ -5,24 +5,20 @@ from random import choices
 from time import time
 from abc import ABC, abstractmethod
 
-
 class Config:
     OFFSET_FOR_HUMANS = 1
 
     CYCLE_FIRST_PLAYER = True
     AI_PLAYER_RAND_START = True
     
-    DEFAULT_PLAYER_COUNT = 2
+    DEFAULT_PLAYER_CHARS = ["X", "O"]
+    DEFAULT_PLAYER_COUNT = len(DEFAULT_PLAYER_CHARS)
     
-    COLOR_MODE = True
-    
-    FANCY_BOARD_CHAR_SET = "┼", "─", "│"
-    # FANCY_BOARD_CHAR_SET = "\u253C", "\u2500", "\u2502"
-    
-    BASIC_BOARD_CHAR_SET = "+", "-", "|"
-    
-    used_board_char_set = FANCY_BOARD_CHAR_SET
+    # ordered by chance of working with start being least likely
+    BOARD_CHAR_SETS = [("┼", "─", "│"), ("+", "-", "|")]
  
+DEFAULT_PLAYER_CHARS_ORDERED = Config.DEFAULT_PLAYER_CHARS + [chr(i) for i in range(ord('A'), ord('Z')+1) if chr(i) not in Config.DEFAULT_PLAYER_CHARS]
+
 STR_COLOR_CODES = {
     "red": "\u001b[31m",
     "blue": "\u001b[34m",
@@ -35,25 +31,27 @@ STR_COLOR_CODES = {
 STR_BOLD_CODE = "\033[1m"
 STR_RESET_CODE = "\033[0m"
 
-
-# PLAYER_CHAR_DEFAULT_ORDERD = "".join(chr(i) for i in range(ord('A'),ord('Z')+1))
-PLAYER_CHAR_DEFAULTS = "XO" + "ABCDEFGHIJKLMNPQRSTUVWYZ"
-
 STR_ENCHANSER_CODES = list(STR_COLOR_CODES.values()) + \
     [STR_BOLD_CODE, STR_RESET_CODE]
 
 def main() -> None:
     # hacky way to get check if terminal supports the fancy unicode charchters
-    welcome_message = "Welcome to tic-tac-toe with Python!"
-    try:
-        print(Config.used_board_char_set[1], welcome_message, Config.used_board_char_set[1])
-    except UnicodeError as ex:
-        Config.used_board_char_set = Config.BASIC_BOARD_CHAR_SET
-        print(Config.used_board_char_set[1], welcome_message, Config.used_board_char_set[1])
-        
+    printed_welcome_message = False
+    used_board_char_set_index = 0
+    while not printed_welcome_message:
+        try:
+            h_line = Config.BOARD_CHAR_SETS[used_board_char_set_index][1]
+            print(h_line, "Welcome to tic-tac-toe with Python!", h_line)
+        except UnicodeError as ex:
+            used_board_char_set_index += 1
+        else:
+            printed_welcome_message = True
+    Game.used_board_char_set = Config.BOARD_CHAR_SETS[used_board_char_set_index]
+    
     print()
 
-    # should_use_colors = bool_input("Does you console support ASCII color codes if your not sure, \u001b[31mis this red for you\033[0m")
+    Game.should_use_colors = True
+    # Game.should_use_colors = bool_input("Does you console support ASCII color codes if your not sure, \u001b[31mis this red for you\033[0m")
     # print()
 
     board = make_tic_tac_toe_board()
@@ -146,10 +144,10 @@ def make_players() -> list["Player"]:
 
         make_ai = get_bool_input("Bot")
 
-        letter = get_valid_input("Letter", get_valid_letter, default=PLAYER_CHAR_DEFAULTS[i])
+        letter = get_valid_input("Letter", get_valid_letter, default=DEFAULT_PLAYER_CHARS_ORDERED[i])
 
         color = None
-        if Config.COLOR_MODE:
+        if Game.should_use_colors:
             color = get_valid_input("Color", get_valid_color, default=color_key_options[i])
 
         player_type = AIPlayer if make_ai else HumanPlayer
@@ -158,7 +156,11 @@ def make_players() -> list["Player"]:
     
     return players
 
-class Game:   
+class Game:
+    used_board_char_set = Config.BOARD_CHAR_SETS[-1]
+    should_use_colors = True
+    
+      
     def __init__(self, board: "Board", players: list["Player"]) -> None:
         self.board = board
         self.players = players
@@ -228,10 +230,11 @@ class Board:
         self.peices_to_win_horizontal = peices_to_win_horizontal
         self.peices_to_win_vertical = peices_to_win_vertical
         self.peices_to_win_diagonal = peices_to_win_diagonal
-
+        
         self.placed: int
         self.board: list[list[object]]
         self.reset()
+        
 
     def reset(self) -> None:
         self.placed = 0
@@ -321,7 +324,7 @@ class Board:
 
     def __str__(self) -> str:
         # I'm so sorry future self, but I realised it was possible and this project does not matter so I just did it.
-        cross, h_line, v_line = Config.used_board_char_set
+        cross, h_line, v_line = Game.used_board_char_set
         return "\n" + (("\n" + cross.join([h_line + (h_line * self.max_cell_len) + h_line] * self.width) + h_line + "\n").join([" " + ((" " + v_line + " ").join([centered_padding(str(item if item else self.to_loc(i, j)), self.max_cell_len) for j, item in enumerate(row)]) + " ") for i, row in enumerate(self.board)])) + "\n"
 
 
@@ -363,7 +366,7 @@ class Player(ABC):
         return f"{self.__class__.__name__}(char={self.char}, wins={self.wins})"
 
     def __str__(self) -> str:
-        if Config.COLOR_MODE and self.color:
+        if Game.should_use_colors and self.color:
             return self.color + STR_BOLD_CODE + self.char + STR_RESET_CODE
         return self.char
 
