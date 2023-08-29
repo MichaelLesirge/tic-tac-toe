@@ -6,7 +6,7 @@ const sizeInputs = form.querySelectorAll("input.size");
 const boardSizeInputs = form.querySelectorAll("input.size.board-size");
 const winConditionInput = form.querySelector("input.size#win-condition");
 
-const winConstionExplanation = form.querySelector("#explanation");
+const winConditionExplanation = form.querySelector("#explanation");
 
 // only allow valid input
 sizeInputs.forEach((input) => {
@@ -21,26 +21,26 @@ sizeInputs.forEach((input) => {
 		}
 	});
 	
-	input.addEventListener("input", updateWinCondtionInputSettings);
+	input.addEventListener("input", updateWinConditionInputSettings);
 });
 
 boardSizeInputs.forEach((input) => {
 	input.setAttribute("value", DEFAULT_SIZE);
 });
 
-form.addEventListener("reset", () => setTimeout(updateWinCondtionInputSettings, 0))
-updateWinCondtionInputSettings()
+form.addEventListener("reset", () => setTimeout(updateWinConditionInputSettings, 0))
+updateWinConditionInputSettings()
 
-function updateWinCondtionInputSettings() {
+function updateWinConditionInputSettings() {
 	const maxPossibleWinCondition = getMaxInput(boardSizeInputs);
 	winConditionInput.setAttribute("max", maxPossibleWinCondition);
 
 	if (maxPossibleWinCondition < winConditionInput.value) {
-		winConstionExplanation.innerText = `Impossible to get ${winConditionInput.value} in a row with current board sizes.`;
+		winConditionExplanation.innerText = `Impossible to get ${winConditionInput.value} in a row with current board sizes.`;
 	} else if (winConditionInput.value) {
-		winConstionExplanation.innerText = `Get ${winConditionInput.value} in a row to win.`;
+		winConditionExplanation.innerText = `Get ${winConditionInput.value} in a row to win.`;
 	} else {
-		winConstionExplanation.innerText = `Get all the way across to win.`;
+		winConditionExplanation.innerText = `Get all the way across to win.`;
 	}
 };
 

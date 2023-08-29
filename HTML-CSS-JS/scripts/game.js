@@ -1,6 +1,6 @@
 import { MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE } from "./consts.js";
 
-// sorry for this mess of a proggram, I was learning JavaScript as I went.
+// sorry for this mess of a program, I was learning JavaScript as I went.
 
 const resetBoardButton = document.getElementById("reset-button");
 
@@ -48,7 +48,7 @@ class Cell {
 						break;
 					}
 					if (selectedEl) {
-				// make funtion that selects and unselects element
+				// make function that selects and unselects element
 				if (this.disabled) this.el.removeAttribute("tabIndex");
 				selectedEl.setAttribute("tabIndex", 0);
 				selectedEl.focus();
