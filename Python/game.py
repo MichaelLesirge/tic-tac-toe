@@ -104,8 +104,7 @@ def main() -> None:
         # scores
         print(f"Ties: {game.tied_game_count}")
         for player in players:
-            print(
-                f"{player}{' (AI)' if isinstance(player, AIPlayer) else ''}: {player.wins}")
+            print(f"{player}{' (AI)' if isinstance(player, AIPlayer) else ''}: {player.wins}")
         print()
 
         playing = get_bool_input("Do you want to play again")
@@ -319,8 +318,7 @@ class Board:
             str(player)), self.max_cell_len)
 
         if not self.is_valid_location(row, col):
-            raise ValueError(
-                f"location must be from {self.min_loc} to {self.max_loc}")
+            raise ValueError(f"location must be from {self.min_loc} to {self.max_loc}")
         if not self.is_empty_location(row, col):
             raise ValueError("location is already occupied")
 
@@ -332,7 +330,7 @@ class Board:
         return f"{self.__class__.__name__}({self.width}, {self.height}, {self.pieces_to_win_horizontal}, {self.pieces_to_win_vertical}, {self.pieces_to_win_diagonal})"
 
     def __str__(self) -> str:
-        # I'm so sorry future self, but I realised it was possible and this project does not matter so I just did it.
+        # I'm so sorry future self, but I realized it was possible and this project does not matter so I just did it.
         cross, h_line, v_line = Game.used_board_char_set
         return "\n" + (("\n" + cross.join([h_line + (h_line * self.max_cell_len) + h_line] * self.width) + h_line + "\n").join([" " + ((" " + v_line + " ").join([centered_padding(str(item if item else self.to_loc(i, j)), self.max_cell_len) for j, item in enumerate(row)]) + " ") for i, row in enumerate(self.board)])) + "\n"
 
@@ -388,8 +386,7 @@ class HumanPlayer(Player):
         def make_play(loc):
             game.board.place(loc, self)
 
-        get_valid_input("Enter where you want to go",
-                        make_play, input_func=get_int_input)
+        get_valid_input("Enter where you want to go", make_play, input_func=get_int_input)
 
 
 class AIPlayer(Player):
@@ -454,8 +451,7 @@ class AIPlayer(Player):
             if should_print_percent_done:
                 percent_done = (i / iterations) * 100
                 if percent_done >= last_percent_done + print_new_percent_change_amount:
-                    print(
-                        f"{int(percent_done)}% Complete. Game {i:,} of {iterations:,}.\r", end="")
+                    print(f"{int(percent_done)}% Complete. Game {i:,} of {iterations:,}.\r", end="")
                     last_percent_done = percent_done
 
         end = time()
@@ -495,11 +491,9 @@ class AIPlayer(Player):
                     last_percent_done = percent_done
 
         if should_print_percent_done:
-            print(
-                f"100% Complete. {bot_game.game_count:,} games played.\r", end="")
+            print(f"100% Complete. {bot_game.game_count:,} games played.\r", end="")
             print()
-            print(
-                f"Training process complete. {bot_game.game_count:,} games played in {seconds_to_time(train_time_seconds)}.")
+            print(f"Training process complete. {bot_game.game_count:,} games played in {seconds_to_time(train_time_seconds)}.")
 
     def take_turn(self, game: Game) -> None:
         strategy = self.local_strategies.setdefault(game.id, {})
@@ -564,7 +558,7 @@ class AIPlayer(Player):
             play_func(board, self.get_relative_board_state(board))
 
     def get_relative_board_state(self, board: Board) -> tuple[tuple[int]]:
-        # TODO make this work relatively for different players. ex: " me | p1 | p2 " == " me | p2 | p1 "
+        # TODO clean up this code and make this work relatively for different players. ex: " me | p1 | p2 " == " me | p2 | p1 "
         mapper = {self: 0}
         new_board = []
         for row in board.board:
@@ -595,7 +589,7 @@ def seconds_to_time(seconds: int) -> str:
 
 
 def rotate_90_degree(l: list[list[object]]) -> list[list[object]]:
-    return list(x[::-1] for x in zip(*l))
+    return list(list(x[::-1]) for x in zip(*l))
 
 
 def mirror_x(l: list[list[object]]) -> list[list[object]]:
@@ -634,7 +628,7 @@ def get_bool_input(prompt: str, default: bool = DEFAULT_SENTINEL) -> None:
             return False
         raise ValueError("input must be Yes or No")
 
-    return get_valid_input(prompt + "(y/n)", func, default = default, convert_default = False)
+    return get_valid_input(prompt + " (y/n)", func, default = default, convert_default = False)
 
 def get_int_input(prompt: str, *, min: int = float("-inf"), max: int = float("inf"), default: int = DEFAULT_SENTINEL) -> int:
 
@@ -652,14 +646,14 @@ def get_int_input(prompt: str, *, min: int = float("-inf"), max: int = float("in
     return get_valid_input(prompt, func, default = default, convert_default = False)
 
 
-def get_valid_input(prompt: str, converter: callable, *, input_func = input_s, default = None, convert_default: bool = True):
+def get_valid_input(prompt: str, converter: callable, *, input_func = input_s, default = DEFAULT_SENTINEL, convert_default: bool = True):
     if default is not DEFAULT_SENTINEL:
         prompt += f" (default is {default})"
 
     while True:
         try:
             user_input = input_func(prompt)
-            if default is not None and user_input == "":
+            if default is not DEFAULT_SENTINEL and user_input == "":
                 if convert_default:
                     return converter(default)
                 else:
