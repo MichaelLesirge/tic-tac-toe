@@ -125,7 +125,7 @@ public:
         }
         if (get(row, col) != FILLER)
         {
-            throw std::invalid_argument("Location is already occuiped");
+            throw std::invalid_argument("Location is already occupied");
         }
         set(row, col, val);
         placed++;
