@@ -48,9 +48,9 @@ public class Game {
             int turnCount = 0;
             board.reset();
 
-            boolean gameover = false;
+            boolean gameOver = false;
 
-            while (!gameover) {
+            while (!gameOver) {
                 Player currentPlayer = players[turnCount % players.length];
 
                 System.out.println("\n" + board + "\n");
@@ -75,7 +75,7 @@ public class Game {
 
                     System.out.println("\n" + board + "\n");
 
-                    gameover = true;
+                    gameOver = true;
 
                     if (isCurrentPlayerWinner) {
                         System.out.println(String.format("Player %s wins!", currentPlayer));

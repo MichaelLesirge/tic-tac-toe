@@ -5,9 +5,9 @@ import game.Player;
 public class TicTacToeBoard extends Board<Player> {
     private final static int DEFAULT_SIZE = 3;
 
-    private final Integer peicesToWinHorizontal;
-    private final Integer peicesToWinVertical;
-    private final Integer peicesToWinDiagonal;
+    private final Integer piecesToWinHorizontal;
+    private final Integer piecesToWinVertical;
+    private final Integer piecesToWinDiagonal;
 
     private final boolean shouldCheckHorizontal;
     private final boolean shouldCheckVertical;
@@ -22,7 +22,7 @@ public class TicTacToeBoard extends Board<Player> {
      */
     public TicTacToeBoard(int width, int height) {
         // set win the amount in a row you have to get to win to the length of the row
-        // only set a horizontal win condtion if board is perfect square
+        // only set a horizontal win condition if board is perfect square
         this(width, height, width, height, width == height ? width : null);
     }
 
@@ -30,8 +30,8 @@ public class TicTacToeBoard extends Board<Player> {
      * Construct a width by height board where you win by getting the specified
      * number of peicesToWin in a row
      */
-    public TicTacToeBoard(int width, int height, int peicesToWin) {
-        this(width, height, peicesToWin, peicesToWin, peicesToWin);
+    public TicTacToeBoard(int width, int height, int piecesToWin) {
+        this(width, height, piecesToWin, piecesToWin, piecesToWin);
     }
 
     /**
@@ -41,18 +41,18 @@ public class TicTacToeBoard extends Board<Player> {
      */
     public TicTacToeBoard(
             int width, int height,
-            Integer peicesToWinHorizontal, Integer peicesToWinVertical, Integer peicesToWinDiagonal) {
+            Integer piecesToWinHorizontal, Integer piecesToWinVertical, Integer piecesToWinDiagonal) {
 
         super(width, height);
 
-        this.shouldCheckHorizontal = peicesToWinHorizontal != null && peicesToWinHorizontal <= this.width;
-        this.shouldCheckVertical = peicesToWinVertical != null && peicesToWinVertical <= this.height;
-        this.shouldCheckDiagonal = peicesToWinDiagonal != null
-                && (peicesToWinDiagonal <= this.width || peicesToWinDiagonal <= this.height);
+        this.shouldCheckHorizontal = piecesToWinHorizontal != null && piecesToWinHorizontal <= this.width;
+        this.shouldCheckVertical = piecesToWinVertical != null && piecesToWinVertical <= this.height;
+        this.shouldCheckDiagonal = piecesToWinDiagonal != null
+                && (piecesToWinDiagonal <= this.width || piecesToWinDiagonal <= this.height);
 
-        this.peicesToWinHorizontal = peicesToWinHorizontal;
-        this.peicesToWinVertical = peicesToWinVertical;
-        this.peicesToWinDiagonal = peicesToWinDiagonal;
+        this.piecesToWinHorizontal = piecesToWinHorizontal;
+        this.piecesToWinVertical = piecesToWinVertical;
+        this.piecesToWinDiagonal = piecesToWinDiagonal;
     }
 
     public boolean isTie() {
@@ -71,8 +71,8 @@ public class TicTacToeBoard extends Board<Player> {
 
     private boolean checkHorizontal(Player player) {
         for (int row = 0; row < height; row++) {
-            for (int col = 0; col < width - peicesToWinHorizontal + 1; col++) {
-                if (countSequence(row, col, 0, 1, player) >= peicesToWinHorizontal) {
+            for (int col = 0; col < width - piecesToWinHorizontal + 1; col++) {
+                if (countSequence(row, col, 0, 1, player) >= piecesToWinHorizontal) {
                     return true;
                 }
             }
@@ -81,9 +81,9 @@ public class TicTacToeBoard extends Board<Player> {
     }
 
     private boolean checkVertical(Player player) {
-        for (int row = 0; row < height - peicesToWinVertical + 1; row++) {
+        for (int row = 0; row < height - piecesToWinVertical + 1; row++) {
             for (int col = 0; col < width; col++) {
-                if (countSequence(row, col, 1, 0, player) >= peicesToWinVertical) {
+                if (countSequence(row, col, 1, 0, player) >= piecesToWinVertical) {
                     return true;
                 }
             }
@@ -92,11 +92,11 @@ public class TicTacToeBoard extends Board<Player> {
     }
 
     private boolean checkDiagonal(Player player) {
-        for (int row = 0; row < height - peicesToWinDiagonal + 1; row++) {
-            for (int col = 0; col < width - peicesToWinDiagonal + 1; col++) {
-                if (countSequence(row, col, 1, 1, player) >= peicesToWinDiagonal ||
-                        countSequence(row, col + peicesToWinDiagonal - 1, 1, -1,
-                                player) >= peicesToWinDiagonal) {
+        for (int row = 0; row < height - piecesToWinDiagonal + 1; row++) {
+            for (int col = 0; col < width - piecesToWinDiagonal + 1; col++) {
+                if (countSequence(row, col, 1, 1, player) >= piecesToWinDiagonal ||
+                        countSequence(row, col + piecesToWinDiagonal - 1, 1, -1,
+                                player) >= piecesToWinDiagonal) {
                     return true;
                 }
             }

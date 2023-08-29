@@ -106,7 +106,7 @@ public class Board<T> {
         // final String intersetionLine = "+";
         final String vertLine = "│";
         final String horizontalLine = "─";
-        final String intersetionLine = "┼";
+        final String intersectionLine = "┼";
 
         String divider = " " + vertLine + " ";
 
@@ -136,9 +136,9 @@ public class Board<T> {
             final_rows[row] = " " + String.join(divider, final_row) + " ";
         }
 
-        final String spliter = ((horizontalLine + (horizontalLine.repeat(maxValSize)) + horizontalLine) + intersetionLine).repeat(this.width);
-        final String spliterRow = "\n" + spliter.substring(0, spliter.length() - 1) + "\n";
+        final String splitter = ((horizontalLine + (horizontalLine.repeat(maxValSize)) + horizontalLine) + intersectionLine).repeat(this.width);
+        final String splitterRow = "\n" + splitter.substring(0, splitter.length() - 1) + "\n";
 
-        return String.join(spliterRow, final_rows);
+        return String.join(splitterRow, final_rows);
     }
 }

@@ -549,7 +549,7 @@ class AIPlayer(Player):
                 option[loc] += points
 
     def make_play_any_rotation(self, board: Board, strategy, play_func):
-        # spin the board to fit than keep spinning it back to orginal
+        # spin the board to fit than keep spinning it back to original
         placed = False
         for i in range(2):
             for j in range(4):
