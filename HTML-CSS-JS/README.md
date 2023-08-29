@@ -8,9 +8,10 @@ Open without any download on [Githack](https://raw.githack.com/michael-lesirge/t
 - Custom board creation and custom win condition 
 
 ## Images
-<img src="https://user-images.githubusercontent.com/100492377/230738158-54f53606-99b7-4c5d-b8f7-07c192725337.png" alt="screenshot of Create Your Board page" width="600" height="375">
-<img src="https://user-images.githubusercontent.com/100492377/230738634-21a663cf-c2db-4ec7-bc2c-c154f7b91f5e.png" alt="screenshot of start of 3x3 game" width="600" height="375">
-<img src="https://user-images.githubusercontent.com/100492377/230738703-de8e0e94-0747-4854-8df0-79272028f4a4.png" alt="screenshot of 'O' winning game" width="600" height="375">
+![Board Creation Menu](https://github.com/michael-lesirge/tic-tac-toe/assets/100492377/b39d655f-00d5-4238-89a6-f830812ba71a)
+![Start Of Game](https://github.com/michael-lesirge/tic-tac-toe/assets/100492377/faf0f24e-d777-4071-9e58-24968b50fed3)
+![X Wins Game!](https://github.com/michael-lesirge/tic-tac-toe/assets/100492377/9a782c0d-071f-444c-9150-a1d03b60097e)
+
 
 ## Why I learned HTML, CSS, and JS
 I wanted to be able to create a website. I naturally learned it since I needed to make a frontend for my Python Django thing 
