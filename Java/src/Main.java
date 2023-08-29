@@ -1,18 +1,19 @@
-package game;
+
 
 import board.TicTacToeBoard;
+import game.Player;
 
 import java.util.Scanner;
 
-public class Game {
+public class Main {
     public static void main(String[] args) {
         final Scanner scanner = new Scanner(System.in);
 
         TicTacToeBoard board = null;
 
         final Player[] players = {
-                new Player('X', Player.Colors.RED),
-                new Player('O', Player.Colors.BLUE),
+            new Player('X', Player.Colors.RED),
+            new Player('O', Player.Colors.BLUE),
         };
 
         while (board == null) {
