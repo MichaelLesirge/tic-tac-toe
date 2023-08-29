@@ -88,15 +88,15 @@ class Cell {
 }
 
 class Board {
-	constructor(width, height, peicesToWinHorizontal, peicesToWinVertical, peicesToWinDiagonal) {
+	constructor(width, height, piecesToWinHorizontal, piecesToWinVertical, piecesToWinDiagonal) {
 		this.width = width;
 		this.height = height;
 
 		this.size = this.width * this.height;
 
-		this.peicesToWinHorizontal = peicesToWinHorizontal;
-		this.peicesToWinVertical = peicesToWinVertical;
-		this.peicesToWinDiagonal = peicesToWinDiagonal;
+		this.piecesToWinHorizontal = piecesToWinHorizontal;
+		this.piecesToWinVertical = piecesToWinVertical;
+		this.piecesToWinDiagonal = piecesToWinDiagonal;
 
 		this.turnCount = 0;
 		this.gameCount = 0;
@@ -129,12 +129,9 @@ class Board {
 			cell.set(currentPlayer);
 			cell.disable();
 
-			let isWinner = false;
-			let winningArray;
+			const winningArray = this.isPlayerWinner(currentPlayer);
 
-			[isWinner, winningArray] = this.isPlayerWinner(currentPlayer);
-
-			if (isWinner) {
+			if (winningArray) {
 				winningArray.forEach((cell) => cell.highlight());
 				this.gameOver();
 				displayInfo(currentPlayer + " Wins!");
@@ -155,91 +152,56 @@ class Board {
 		}
 	}
 
-	isPlayerWinner(player) {
-		// check verticle
-		if (this.isPossibleToWin(this.peicesToWinVertical)) {
-			const winningCells = new Array(this.peicesToWinVertical);
-			for (let y = 0; y < this.height; y++) {
-				let count = 0;
-				for (let x = 0; x < this.width; x++) {
-					const cell = this.getCell(x, y);
-					if (cell.val === player) {
-						winningCells[count] = cell;
-						if (++count >= this.peicesToWinVertical) {
-							return [true, winningCells];
-						}
-					} else {
-						count = 0;
-					}
-				}
-			}
-		}
+	getContinuousCells(x, y, dx, dy, player) {
+		let cells = [];
+        while (this.isInBoard(x, y) && this.getCell(x, y).val === player) {
+            cells.push(this.getCell(x, y))
+            x += dx;
+            y += dy;
+        }
+        return cells;
+    }
 
-		// check verticle
-		if (this.isPossibleToWin(this.peicesToWinHorizontal)) {
-			const winningCells = new Array(this.peicesToWinHorizontal);
-			for (let x = 0; x < this.width; x++) {
-				let count = 0;
-				for (let y = 0; y < this.height; y++) {
-					const cell = this.getCell(x, y);
-					if (cell.val === player) {
-						winningCells[count] = cell;
-						if (++count >= this.peicesToWinHorizontal) {
-							return [true, winningCells];
-						}
-					} else {
-						count = 0;
-					}
-				}
-			}
-		}
+    checkHorizontal(player) {
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width - this.piecesToWinHorizontal + 1; x++) {
+				const cells = this.getContinuousCells(x, y, 1, 0, player);
+                if (cells.length >= this.piecesToWinHorizontal) return cells;
+            }
+        }
+        return null;
+    }
 
-		if (this.isPossibleToWin(this.peicesToWinDiagonal)) {
-			const isWider = this.width >= this.height;
+    checkVertical(player) {
+        for (let y = 0; y < this.height - this.piecesToWinVertical + 1; y++) {
+            for (let x = 0; x < this.width; x++) {
+				const cells = this.getContinuousCells(x, y, 0, 1, player);
+                if (cells.length >= this.piecesToWinVertical) return cells;
+            }
+        }
+        return null;
+    }
 
-			const primary = isWider ? this.width : this.height;
-			const secondary = !isWider ? this.width : this.height;
+    checkDiagonal(player) {
+        for (let y = 0; y < this.height - this.piecesToWinDiagonal + 1; y++) {
+            for (let x = 0; x < this.width - this.piecesToWinDiagonal + 1; x++) {
+				const cellsD = this.getContinuousCells(x, y, 1, 1, player);
+				if (cellsD.length >= this.piecesToWinDiagonal) return cellsD
+				
+                const cellsU = this.getContinuousCells(x + this.piecesToWinDiagonal - 1, y, -1, 1, player);
+				if (cellsU.length >= this.piecesToWinDiagonal) return cellsU;
+            }
+        }
+        return null;
+    }
 
-			const winningCellsTL2BR = new Array(this.peicesToWinDiagonal);
-			const winningCellsTR2BL = new Array(this.peicesToWinDiagonal);
-
-			for (let i = this.peicesToWinDiagonal - secondary; i < primary - this.peicesToWinDiagonal + 1; i++) {
-				let countTL2BR = 0;
-				let countTR2BL = 0;
-				for (let j = Math.max(0, -i); j < Math.min(secondary, primary - i); j++) {
-					// top left to buttom right
-					const xTL2BR = isWider ? j : i + j;
-					const yTL2BR = isWider ? i + j : j;
-
-					// top right to buttom left
-					const xTR2BL = isWider ? j : primary - (i + j) - 1;
-					const yTR2BL = isWider ? primary - (i + j) - 1 : j;
-
-					const cellTL2BR = this.getCell(xTL2BR, yTL2BR);
-					if (cellTL2BR.val === player) {
-						winningCellsTL2BR[countTL2BR] = cellTL2BR;
-						if (++countTL2BR >= this.peicesToWinDiagonal) {
-							return [true, winningCellsTL2BR];
-						}
-					} else {
-						countTL2BR = 0;
-					}
-
-					const cellTR2BL = this.getCell(xTR2BL, yTR2BL);
-					if (cellTR2BL.val === player) {
-						winningCellsTR2BL[countTR2BL] = cellTR2BL;
-						if (++countTR2BL >= this.peicesToWinDiagonal) {
-							return [true, winningCellsTR2BL];
-						}
-					} else {
-						countTR2BL = 0;
-					}
-				}
-			}
-		}
-
-		return [false, undefined];
-	}
+    isPlayerWinner(player) {
+        return (
+            (this.isPossibleToWin(this.piecesToWinHorizontal) && this.checkHorizontal(player)) ||
+            (this.isPossibleToWin(this.piecesToWinVertical) && this.checkVertical(player)) ||
+            (this.isPossibleToWin(this.piecesToWinDiagonal) && this.checkDiagonal(player))
+        );
+    }
 
 	newGame() {
 		this.isPlaying = true;
@@ -256,12 +218,8 @@ class Board {
 		this.gameCount++;
 	}
 
-	isPossibleToWin(peicesToWin) {
-		return this.turnCount > (peicesToWin - 1) * players.length;
-	}
-
-	isInBoard(x, y) {
-		return x > -1 && x < this.width && y > -1 && y < this.height;
+	isPossibleToWin(piecesToWin) {
+		return this.turnCount > (piecesToWin - 1) * players.length;
 	}
 
 	isInBoard(x, y) {
@@ -283,7 +241,6 @@ class Board {
 	}
 
 	isMidGame() {
-		console.log(board.isPlaying, board.turnCount);
 		return board.isPlaying && board.turnCount != 1;
 	}
 
@@ -352,7 +309,7 @@ function makeBoard() {
 		return undefined;
 	}
 
-	const oldParems = params.toString();
+	const oldParams = params.toString();
 
 	const getUpdateValidSizeParam = (name) =>
 		getUpdateValidNumberParam(name, MIN_SIZE, SUGGESTED_MAX_SIZE, DEFAULT_SIZE, (name, num, max) => `Board ${name} of ${num} is to larger than recomend max of ${max}`);
@@ -369,10 +326,10 @@ function makeBoard() {
 		(name, num, max) => `Impossible to get ${num} in a row with current board sizes of ${boardTitle}`
 	);
 
-	const newParms = params.toString();
-	if (oldParems !== newParms) {
+	const newParams = params.toString();
+	if (oldParams !== newParams) {
 		const newURL = new URL(location);
-		newURL.search = newParms;
+		newURL.search = newParams;
 		history.pushState({}, null, newURL);
 	}
 
