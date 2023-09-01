@@ -1,9 +1,7 @@
-
+import java.util.Scanner;
 
 import board.TicTacToeBoard;
 import game.Player;
-
-import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {

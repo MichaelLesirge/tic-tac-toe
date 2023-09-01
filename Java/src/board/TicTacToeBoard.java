@@ -18,7 +18,7 @@ public class TicTacToeBoard extends Board<Player> {
     }
 
     /**
-     * Construct a width by height board where you win by getting accros the board
+     * Construct a width by height board where you win by getting across the board
      */
     public TicTacToeBoard(int width, int height) {
         // set win the amount in a row you have to get to win to the length of the row
@@ -28,7 +28,7 @@ public class TicTacToeBoard extends Board<Player> {
 
     /**
      * Construct a width by height board where you win by getting the specified
-     * number of peicesToWin in a row
+     * number of piecesToWin in a row
      */
     public TicTacToeBoard(int width, int height, int piecesToWin) {
         this(width, height, piecesToWin, piecesToWin, piecesToWin);
@@ -36,7 +36,7 @@ public class TicTacToeBoard extends Board<Player> {
 
     /**
      * Construct a width by height board where you win by getting the specified
-     * number of peicesToWin in a row for each way to win. Use negitive one to make
+     * number of piecesToWin in a row for each way to win. Use negative one to make
      * it impossible
      */
     public TicTacToeBoard(

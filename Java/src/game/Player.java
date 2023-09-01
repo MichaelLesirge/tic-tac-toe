@@ -38,11 +38,11 @@ public class Player {
     }
 
     public Player(char letter, Colors color) throws IllegalArgumentException {
-        
+
         if (!Character.isLetter(letter)) {
             throw new IllegalArgumentException(String.format("letter must be a letter not %s", letter));
         }
-        
+
         this.letter = letter;
         this.color = color;
 
@@ -61,7 +61,8 @@ public class Player {
     public String toString() {
         final String letter = String.valueOf(this.letter);
 
-        if (this.color == null) return letter;
+        if (this.color == null)
+            return letter;
 
         final String boldCode = "\033[1m";
 
