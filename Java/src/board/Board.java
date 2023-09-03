@@ -103,7 +103,7 @@ public class Board<T> {
     public String toString() {
         // final String vertLine = "|";
         // final String horizontalLine = "-";
-        // final String intersetionLine = "+";
+        // final String intersectionLine = "+";
         final String vertLine = "│";
         final String horizontalLine = "─";
         final String intersectionLine = "┼";
@@ -136,7 +136,8 @@ public class Board<T> {
             final_rows[row] = " " + String.join(divider, final_row) + " ";
         }
 
-        final String splitter = ((horizontalLine + (horizontalLine.repeat(maxValSize)) + horizontalLine) + intersectionLine).repeat(this.width);
+        final String splitter = ((horizontalLine + (horizontalLine.repeat(maxValSize)) + horizontalLine)
+                + intersectionLine).repeat(this.width);
         final String splitterRow = "\n" + splitter.substring(0, splitter.length() - 1) + "\n";
 
         return String.join(splitterRow, final_rows);
