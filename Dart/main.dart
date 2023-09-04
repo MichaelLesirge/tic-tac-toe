@@ -8,6 +8,13 @@ class Board {
   final int height;
   final List<List<String?>> board;
 
+  // named constructor
+  Board.fromArray(this.board) : height = board.length, width = board[0].length;
+
+  // named redirect constructor
+  Board.fromSize(int size) : this(size, size);
+
+  // main constrictor, I really like the way you can do this.attribute in constructor arguments so you don't have to manually set them 
   Board(this.width, this.height) : this.board = List.generate(height, (_) => List<String?>.filled(width, null), growable: false) {}
 
   void reset() {
@@ -17,7 +24,11 @@ class Board {
   }
 
   bool isFull() {
-    return itemsPlaced >= (width * height);
+    return itemsPlaced >= size;
+  }
+
+  bool isValidLocation(final int row, final int col) {
+    return row < 0 || row >= height || col < 0 || col >= width;
   }
 
   int xToCol(final int x) => x - 1;
@@ -26,9 +37,8 @@ class Board {
   int colToX(final int col) => col + 1;
   int rowToY(final int row) => height - row;
 
-  bool isValidLocation(final int row, final int col) {
-    return row < 0 || row >= height || col < 0 || col >= width;
-  }
+  // getters
+  int get size => width * height;
 
   bool isEmptyLocation(final int row, final int col) {
     return board[row][col] == null;
@@ -169,6 +179,7 @@ int intInput(String prompt, {int? min, int? max, int? defaultValue, String promp
   defaultValue: defaultValue.toString(), promptPostfix: promptPostfix, errorMessage: errorMessage);
 }
 
+// templates
 List<T> listInput<T>(String prompt, T Function(String) converter, {String sep = ",", int? len, int? minLen, int? maxLen,
  String? defaultValue, String promptPostfix = ": ", String? errorMessage}) {
   return validInput(prompt, (source) {
