@@ -1,6 +1,4 @@
-import 'dart:ffi';
 import 'dart:io';
-import 'dart:math';
 
 class Board {
   int itemsPlaced = 0;
@@ -19,46 +17,62 @@ class Board {
   }
 
   bool isFull() {
-    return itemsPlaced > width * height;
+    return itemsPlaced >= (width * height);
   }
 
-  void place(int row, int col, final String item) {
-    row += height - col;
-    col -= 1;
+  int xToCol(final int x) => x - 1;
+  int yToRow(final int y) => height - y;
+  
+  int colToX(final int col) => col + 1;
+  int rowToY(final int row) => height - row;
 
-    if (row < 0 || row >= height || col < 0 || col >= width)
-      throw Exception("Invalid Location. Location is not in board.");
+  bool isValidLocation(final int row, final int col) {
+    return row < 0 || row >= height || col < 0 || col >= width;
+  }
 
-    if (board[row][col] != null)
-      throw Exception("Invalid Location. Location is already occupied.");
+  bool isEmptyLocation(final int row, final int col) {
+    return board[row][col] == null;
+  }
+
+  void place(final int x, final int y, final String item) {
+    final int row = yToRow(y);
+    final int col = xToCol(x);
+
+    if (isValidLocation(row, col))
+      throw "Invalid Location, location is not in board.";
+
+    if (!isEmptyLocation(row, col))
+      throw "Invalid Location, location is already occupied.";
 
     board[row][col] = item;
 
     itemsPlaced++;
-    maxLenItem = max(item.length, maxLenItem);
+    maxLenItem = max([item.length, maxLenItem]);
   }
 
   @override
   String toString() {
     const String cross = "┼", horizontalLine = "─", verticalLine = "│";
 
-    final int maxRowLabel = height.toString().length;
-    final int itemSize = max(max(maxLenItem, maxRowLabel), 1);
+    final int maxRowLabelLen = height.toString().length;
+    final int itemSize = max([maxLenItem, maxRowLabelLen, 1]);
 
     final String horizontalSep = " " + verticalLine + " ";
     final String verticalSectionSep = horizontalLine * (itemSize + horizontalSep.length - 1);
     final String verticalRowSep =  List.filled(width, verticalSectionSep).join(cross);
 
-    final String lastLineIndex = List.generate(width, (index) => centerStr((index + 1).toString(), itemSize + horizontalSep.length - 1)).join(" " * verticalLine.length);
+    final String lastLineIndex = List.generate(width, (colIndex) => 
+      centerStr(colToX(colIndex).toString(), itemSize + horizontalSep.length - 1))
+    .join(" " * verticalLine.length);
 
     StringBuffer output = StringBuffer();
 
     for (final (rowIndex, row) in board.indexed) {
-      output.write((rowIndex + 1).toString().padRight(maxRowLabel));
+      output.write(rowToY(rowIndex).toString().padRight(maxRowLabelLen));
       output.write(
         " " + row.map((item) => centerStr(item ?? "", itemSize)).join(horizontalSep)
       );
-      output.write("\n" + (" " * (maxRowLabel)) + (rowIndex == height - 1 ? lastLineIndex : verticalRowSep) + "\n");
+      output.write("\n" + (" " * (maxRowLabelLen)) + (rowIndex == height - 1 ? lastLineIndex : verticalRowSep) + "\n");
     }
 
     return output.toString();
@@ -66,57 +80,123 @@ class Board {
 }
 
 void main() {
-  final int width = int_input("width");
-  final int height = int_input("height");
+  final int width = intInput("width", defaultValue: 3, min: 1, errorMessage: "Invalid input, must be a positive number");
+  final int height = intInput("height", defaultValue: 3, min: 1);
 
   final Board board = Board(width, height);
 
-  final String defaultPlayers = "X, O";
-
-  final String userPlays = input("What players do you want (default ${defaultPlayers})");
-  final List<String> players = (userPlays.length == 0 ? defaultPlayers : userPlays)
-    .split(",")
-    .map((e) => e.trim().toUpperCase())
-    .toList();
+  final List<String> players = listInput("What players do you want", (e) => e.trim().toUpperCase(), defaultValue: "X, O", minLen: 1);
 
   bool going = true;
   int gameNumber = 0;
 
-  print(board);
+  final Map<String?, int> scores = Map.fromIterable([...players, null], value: (_) => 0);
 
   while (going) {
     int turnNumber = 0;
 
     String? winner = null;
 
-    while (board.isFull() && winner == null) {
+    while (!board.isFull() && winner == null) {
       String currentPlayer = players[(turnNumber + gameNumber) % players.length];
 
+      print("\n${board}\n");
+      print("${currentPlayer}'s turn");
+
+      bool needsToPlace = true;
+
+      while (needsToPlace) {
+        final List<int> location = listInput("Where do you want to go", int.parse, len: 2, errorMessage: "Invalid input, must x, y number pair. Example \"1, 2\".");
+
+        try {
+          final int x = location[0], y = location[1];
+          board.place(x, y, currentPlayer);       
+          needsToPlace = false;
+        } catch (e) {
+          print(e);
+        }
+      }
       turnNumber++;
     }
 
+    print(board);
+
+    scores[winner] = scores[winner]! + 1;
+
+    for (final item in scores.entries) {
+      print("${item.key ?? "Ties"}: {${item.value}}");
+    }
+
+    board.reset();
     gameNumber++;
+
+    going = boolInput("Do you want to play again", defaultValue: true);
   }
+
 }
 
 String centerStr(String s, int width, {String buffer = " "}) {
-    final int extra_len = width - s.length;
-    if (extra_len < 1) return s;
-    final int side_amount = extra_len ~/ 2;
-    final int extra = extra_len % 2;
-    return (buffer * (side_amount + extra)) + s + (buffer * side_amount);
+    final int extraLen = width - s.length;
+    if (extraLen < 1) return s;
+    final int sideAmount = extraLen ~/ 2;
+    final int extra = extraLen % 2;
+    return (buffer * (sideAmount + extra)) + s + (buffer * sideAmount);
 }
 
-int int_input(String prompt, {String promptPostfix = ": ", String errorMessage = "Invalid number"}) {
-  int? output = null;
-  while (output == null) {
+int max(Iterable<int> values) {
+  return values.reduce((current, next) => current > next ? current : next);
+}
+
+// All of this just go get valid user input \/
+
+bool boolInput(String prompt, {bool? defaultValue}) {
+    return validInput(prompt, (source) {
+      source = source.toLowerCase().trim();
+      if (["y", "yes", "true"].contains(source)) return true;
+      if (["n", "no", "false"].contains(source)) return false;
+      if (defaultValue != null) return defaultValue;
+      throw "Invalid input, Must be yes or no.";
+    }, promptPostfix: " (${defaultValue == true ? "Y" : "y"}/${defaultValue == false ? "N" : "n"})? ");
+}
+
+int intInput(String prompt, {int? min, int? max, int? defaultValue, String promptPostfix = ": ", String? errorMessage = "Invalid input, must be number"}) {
+  return validInput(prompt, (source) {
+    final num = int.parse(source);
+    if (min != null && num < min) throw "Must be greater or equal to than ${min}";
+    if (max != null && num >= max) throw "Must have less than ${max}";
+    return num;
+  },
+  defaultValue: defaultValue.toString(), promptPostfix: promptPostfix, errorMessage: errorMessage);
+}
+
+List<T> listInput<T>(String prompt, T Function(String) converter, {String sep = ",", int? len, int? minLen, int? maxLen,
+ String? defaultValue, String promptPostfix = ": ", String? errorMessage}) {
+  return validInput(prompt, (source) {
+    final items = source.split(sep).map(converter).toList();
+    if (len != null && items.length != len) throw "Must have ${len} values separated by \"${sep}\"";
+    if (minLen != null && items.length < minLen) throw "Must have more than ${minLen} values separated by \"${sep}\"";
+    if (maxLen != null && items.length >= maxLen) throw "Must have less than ${maxLen} values separated by \"${sep}\"";
+    return items;
+  },
+  defaultValue: defaultValue, promptPostfix: promptPostfix, errorMessage: errorMessage);
+}
+
+T validInput<T>(String prompt, T Function(String) converter, {String? defaultValue, String promptPostfix = ": ", String? errorMessage}) {
+  while (true) {
     try {
-      output = int.parse(input(prompt, promptPostfix: promptPostfix));
+      String userInput = defaultValue == null ? 
+        input(prompt, promptPostfix: promptPostfix) : 
+        defaultInput(prompt, defaultValue, promptPostfix: promptPostfix);
+      return converter(userInput);
     } catch (e) {
-      print(errorMessage);
+      print(errorMessage ?? e.toString());
     }
   }
-  return output;
+}
+
+String defaultInput(String prompt, String defaultValue, {String promptPostfix = ": ", String? defaultMessage}) {
+  String userInput = input(prompt + (defaultMessage ?? " (default ${defaultValue})"), promptPostfix: promptPostfix);
+  return userInput.length > 0 ? userInput : defaultValue;
 }
 
 String input(String prompt, {String promptPostfix = ": "}) {
