@@ -17,11 +17,11 @@ public class Board<T> {
     public Board(int width, int height) throws IllegalArgumentException {
         if (width <= 0) {
             throw new IllegalArgumentException(
-                    String.format("Board width must be must be a positive number not %s", width));
+                    String.format("Board width must be must be a positive number not %s.", width));
         }
         if (height <= 0) {
             throw new IllegalArgumentException(
-                    String.format("Board height must be must be a positive number, not %s", height));
+                    String.format("Board height must be must be a positive number, not %s.", height));
         }
 
         this.width = width;
@@ -85,10 +85,10 @@ public class Board<T> {
         int col = pos[1];
 
         if (!isInBoard(row, col)) {
-            throw new IllegalArgumentException(String.format("Location %s is not in board", loc));
+            throw new IllegalArgumentException(String.format("Location %s is not in board.", loc));
         }
         if (!isEmpty(row, col)) {
-            throw new IllegalArgumentException(String.format("Location %s is already taken", loc));
+            throw new IllegalArgumentException(String.format("Location %s is already taken.", loc));
         }
 
         this.set(row, col, val);

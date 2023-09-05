@@ -1,19 +1,38 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import board.TicTacToeBoard;
 import game.Player;
+import game.Player.Colors;
 
 public class Main {
     public static void main(String[] args) {
         final Scanner scanner = new Scanner(System.in);
+        
+        final Colors[] colors = {Colors.RED, Colors.BLUE, Colors.GREEN, Colors.YELLOW, Colors.PURPLE, Colors.CYAN};
+        final ArrayList<Player> players = new ArrayList<>();
+        
+        while (players.size() == 0) {
+            System.out.print("Enter your players (default is X, O): ");
+            final char[] userInput = scanner.nextLine().toUpperCase().toCharArray();
+            if (userInput.length == 0) {
+                players.add(new Player('X', colors[0]));
+                players.add(new Player('O', colors[1]));
+            }
+            for (char c : userInput) {
+                try {
+                    if (c != ' ' && c != ',') {
+                        players.add(new Player(c, colors[players.size() % colors.length]));
+                    } 
+                } catch (IllegalArgumentException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+
+        }
 
         TicTacToeBoard board = null;
-
-        final Player[] players = {
-            new Player('X', Player.Colors.RED),
-            new Player('O', Player.Colors.BLUE),
-        };
-
+        
         while (board == null) {
             final int width = getValidInt("Enter board width", TicTacToeBoard.DEFAULT_SIZE, scanner);
             if (width > 30) System.out.println("\u001B[33mWarning: Board width might be to big for console size. Line overflow may make board appear distorted.\u001B[0m");
@@ -40,7 +59,7 @@ public class Main {
             boolean gameOver = false;
 
             while (!gameOver) {
-                Player currentPlayer = players[turnCount % players.length];
+                Player currentPlayer = players.get(turnCount % players.size());
 
                 System.out.println("\n" + board + "\n");
 
@@ -121,7 +140,7 @@ public class Main {
             try {
                 String userInput = scanner.nextLine();
                 num = userInput.length() == 0 ? defaultValue : Integer.parseInt(userInput);
-            } catch (java.util.InputMismatchException e) {
+            } catch (java.lang.NumberFormatException e) {
                 System.out.println("Invalid input. Must be number.");
                 scanner.nextLine();
             }
