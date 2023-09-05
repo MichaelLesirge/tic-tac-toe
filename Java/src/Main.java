@@ -28,7 +28,7 @@ public class Main {
 
             try {
                 if (customWinCondition) {
-                    final int customWinAmount = getValidInt("Enter peices needed to win", scanner);
+                    final int customWinAmount = getValidInt("Enter pieces needed to win", scanner);
                     board = new TicTacToeBoard(width, height, customWinAmount);
                 }
                 else {
