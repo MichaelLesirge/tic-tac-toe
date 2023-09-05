@@ -15,25 +15,15 @@ public class Main {
         };
 
         while (board == null) {
-            final int width = getValidInt("Enter board width", scanner);
-            
-            if (width > 30) {
-                System.out.println("\u001B[33mWarning: Board width might be to big for console size. Line overflow may make board appear distorted.\u001B[0m");
-            }
+            final int width = getValidInt("Enter board width", TicTacToeBoard.DEFAULT_SIZE, scanner);
+            if (width > 30) System.out.println("\u001B[33mWarning: Board width might be to big for console size. Line overflow may make board appear distorted.\u001B[0m");
 
-            final int height = getValidInt("Enter board height", scanner);
+            final int height = getValidInt("Enter board height", TicTacToeBoard.DEFAULT_SIZE, scanner);
 
-
-            final boolean customWinCondition = askYesOrNo("Add custom amount to win", scanner);
+            final int customWinAmount = getValidInt("Enter pieces needed to win", -1, "across", scanner);
 
             try {
-                if (customWinCondition) {
-                    final int customWinAmount = getValidInt("Enter pieces needed to win", scanner);
-                    board = new TicTacToeBoard(width, height, customWinAmount);
-                }
-                else {
-                    board = new TicTacToeBoard(width, height);
-                }
+                board = (customWinAmount == -1 ? new TicTacToeBoard(width, height) : new TicTacToeBoard(width, height, customWinAmount));
             } catch (IllegalArgumentException e) {
                 System.out.println(e.getMessage());
             }
@@ -107,20 +97,36 @@ public class Main {
     }
 
     private static int getValidInt(final String prompt, Scanner scanner) {
-        int num = 0;
-        boolean needsValidInput = true;
-        while (needsValidInput) {
+        Integer num = null;
+        while (num == null) {
             System.out.print(prompt + ": ");
             try {
                 num = scanner.nextInt();
-                needsValidInput = false;
             } catch (java.util.InputMismatchException e) {
                 System.out.println("Invalid input. Must be number.");
                 scanner.nextLine();
             }
         }
         return num;
+    }
 
+    private static int getValidInt(final String prompt, final int defaultValue, Scanner scanner) {
+        return getValidInt(prompt, defaultValue, Integer.toString(defaultValue), scanner);
+    }
+
+    private static int getValidInt(final String prompt, final int defaultValue, final String defaultValueName, Scanner scanner) {
+        Integer num = null;
+        while (num == null) {
+            System.out.print(prompt + " (default is " + defaultValueName + "): ");
+            try {
+                String userInput = scanner.nextLine();
+                num = userInput.length() == 0 ? defaultValue : Integer.parseInt(userInput);
+            } catch (java.util.InputMismatchException e) {
+                System.out.println("Invalid input. Must be number.");
+                scanner.nextLine();
+            }
+        }
+        return num;
     }
 
     private static boolean askYesOrNo(final String prompt, final Scanner scanner) {
@@ -128,6 +134,6 @@ public class Main {
         scanner.nextLine();
 
         final String input = scanner.nextLine().toLowerCase();
-        return input.equals("y") || input.equals("yes");
+        return !(input.equals("n") || input.equals("no") || input.equals("false"));
     }
 }

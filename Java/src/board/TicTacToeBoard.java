@@ -3,11 +3,11 @@ package board;
 import game.Player;
 
 public class TicTacToeBoard extends Board<Player> {
-    private final static int DEFAULT_SIZE = 3;
+    public final static int DEFAULT_SIZE = 3;
 
-    private final Integer piecesToWinHorizontal;
-    private final Integer piecesToWinVertical;
-    private final Integer piecesToWinDiagonal;
+    private final int piecesToWinHorizontal;
+    private final int piecesToWinVertical;
+    private final int piecesToWinDiagonal;
 
     private final boolean shouldCheckHorizontal;
     private final boolean shouldCheckVertical;
@@ -23,7 +23,7 @@ public class TicTacToeBoard extends Board<Player> {
     public TicTacToeBoard(int width, int height) {
         // set win the amount in a row you have to get to win to the length of the row
         // only set a horizontal win condition if board is perfect square
-        this(width, height, width, height, width == height ? width : null);
+        this(width, height, width, height, width == height ? width : -1);
     }
 
     /**
@@ -41,13 +41,13 @@ public class TicTacToeBoard extends Board<Player> {
      */
     public TicTacToeBoard(
             int width, int height,
-            Integer piecesToWinHorizontal, Integer piecesToWinVertical, Integer piecesToWinDiagonal) {
+            int piecesToWinHorizontal, int piecesToWinVertical, int piecesToWinDiagonal) {
 
         super(width, height);
 
-        this.shouldCheckHorizontal = piecesToWinHorizontal != null && piecesToWinHorizontal <= this.width;
-        this.shouldCheckVertical = piecesToWinVertical != null && piecesToWinVertical <= this.height;
-        this.shouldCheckDiagonal = piecesToWinDiagonal != null
+        this.shouldCheckHorizontal = piecesToWinHorizontal != -1 && piecesToWinHorizontal <= this.width;
+        this.shouldCheckVertical = piecesToWinVertical != -1 && piecesToWinVertical <= this.height;
+        this.shouldCheckDiagonal = piecesToWinDiagonal != -1
                 && (piecesToWinDiagonal <= this.width || piecesToWinDiagonal <= this.height);
 
         this.piecesToWinHorizontal = piecesToWinHorizontal;
