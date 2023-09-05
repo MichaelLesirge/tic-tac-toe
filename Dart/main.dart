@@ -27,8 +27,8 @@ class Board {
     return itemsPlaced >= size;
   }
 
-  bool isValidLocation(final int row, final int col) {
-    return row < 0 || row >= height || col < 0 || col >= width;
+  bool isInBoard(final int row, final int col) {
+    return row > -1 && row < height && col > -1 && col < width;
   }
 
   int xToCol(final int x) => x - 1;
@@ -48,7 +48,7 @@ class Board {
     final int row = yToRow(y);
     final int col = xToCol(x);
 
-    if (isValidLocation(row, col))
+    if (!isInBoard(row, col))
       throw "Invalid Location, location is not in board.";
 
     if (!isEmptyLocation(row, col))
@@ -58,6 +58,29 @@ class Board {
 
     itemsPlaced++;
     maxLenItem = max([item.length, maxLenItem]);
+  }
+
+  int countDirection(final String item, int row, int col, final int drow, final int dcol) {
+    int count = 0;
+    while (isInBoard(row, col) && board[row][col] == item) {
+      count++;
+      row += drow;
+      col += dcol;
+    }
+    return count;
+  }
+
+  bool isWinner(String item) {
+    for (int row = 0; row < height; row++) {
+      if (countDirection(item, row, 0, 0, 1) >= width) return true;
+    }
+    for (int col = 0; col < width; col++) {
+      if (countDirection(item, 0, col, 1, 0) >= height) return true;
+    }
+    if (width == height) {
+      if (countDirection(item, 0, 0, 1, 1) >= width || countDirection(item, 0, width-1, 1, -1) >= width) return true;
+    }
+    return false;
   }
 
   @override
@@ -126,6 +149,11 @@ void main() {
           print(e);
         }
       }
+
+      if (board.isWinner(currentPlayer)) {
+        winner = currentPlayer;
+      }
+
       turnNumber++;
     }
 
@@ -133,9 +161,11 @@ void main() {
 
     scores[winner] = scores[winner]! + 1;
 
+    print("Scores");
     for (final item in scores.entries) {
-      print("${item.key ?? "Ties"}: {${item.value}}");
+      print("${item.key ?? "Ties"}: ${item.value}");
     }
+    print("");
 
     board.reset();
     gameNumber++;
@@ -180,13 +210,13 @@ int intInput(String prompt, {int? min, int? max, int? defaultValue, String promp
 }
 
 // templates
-List<T> listInput<T>(String prompt, T Function(String) converter, {String sep = ",", int? len, int? minLen, int? maxLen,
+List<T> listInput<T>(String prompt, T Function(String) converter, {String splitOn = r"[,\s]", int? len, int? minLen, int? maxLen,
  String? defaultValue, String promptPostfix = ": ", String? errorMessage}) {
   return validInput(prompt, (source) {
-    final items = source.split(sep).map(converter).toList();
-    if (len != null && items.length != len) throw "Must have ${len} values separated by \"${sep}\"";
-    if (minLen != null && items.length < minLen) throw "Must have more than ${minLen} values separated by \"${sep}\"";
-    if (maxLen != null && items.length >= maxLen) throw "Must have less than ${maxLen} values separated by \"${sep}\"";
+    final items = source.split(RegExp(splitOn)).where((e) => e.length > 0).map(converter).toList();
+    if (len != null && items.length != len) throw "Must have ${len} values separated by \"${splitOn}\"";
+    if (minLen != null && items.length < minLen) throw "Must have more than ${minLen} values separated by \"${splitOn}\"";
+    if (maxLen != null && items.length >= maxLen) throw "Must have less than ${maxLen} values separated by \"${splitOn}\"";
     return items;
   },
   defaultValue: defaultValue, promptPostfix: promptPostfix, errorMessage: errorMessage);
