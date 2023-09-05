@@ -3,7 +3,7 @@ package board;
 import java.util.ArrayList;
 
 public class Board<T> {
-    private static final int loc_offset = 1;
+    private static final int locOffset = 1;
 
     protected final int width;
     protected final int height;
@@ -48,11 +48,11 @@ public class Board<T> {
     }
 
     protected int toLoc(int i, int j) {
-        return (i * this.width) + j + Board.loc_offset;
+        return (i * this.width) + j + Board.locOffset;
     }
 
     protected int[] toPos(int loc) {
-        loc -= Board.loc_offset;
+        loc -= Board.locOffset;
         int row = loc / this.width;
         int col = loc - (this.width * row);
         int arr[] = { row, col };
@@ -112,34 +112,34 @@ public class Board<T> {
 
         int maxValSize = 1;
 
-        final int[][] rows_lengths = new int[this.height][this.width];
+        final int[][] rowsLengths = new int[this.height][this.width];
         for (int row = 0; row < height; row++) {
-            final int[] row_lengths = new int[this.width];
+            final int[] rowLengths = new int[this.width];
             for (int col = 0; col < width; col++) {
                 final int len = toString(row, col).replaceAll("\u001B\\[[;\\d]*m", "").length();
                 maxValSize = Math.max(maxValSize, len);
-                row_lengths[col] = len;
+                rowLengths[col] = len;
             }
-            rows_lengths[row] = row_lengths;
+            rowsLengths[row] = rowLengths;
         }
 
-        final String[] final_rows = new String[this.height];
+        final String[] finalRows = new String[this.height];
         for (int row = 0; row < height; row++) {
-            final String[] final_row = new String[this.width];
+            final String[] finalRow = new String[this.width];
             for (int col = 0; col < width; col++) {
                 final String val = toString(row, col);
-                final int needed_padding = maxValSize - rows_lengths[row][col];
-                String half = " ".repeat(Math.floorDiv(needed_padding, 2));
-                String extra = ((needed_padding % 2 == 0) ? "" : " ");
-                final_row[col] = half + extra + val + half;
+                final int neededPadding = maxValSize - rowsLengths[row][col];
+                String half = " ".repeat(Math.floorDiv(neededPadding, 2));
+                String extra = ((neededPadding % 2 == 0) ? "" : " ");
+                finalRow[col] = half + extra + val + half;
             }
-            final_rows[row] = " " + String.join(divider, final_row) + " ";
+            finalRows[row] = " " + String.join(divider, finalRow) + " ";
         }
 
         final String splitter = ((horizontalLine + (horizontalLine.repeat(maxValSize)) + horizontalLine)
                 + intersectionLine).repeat(this.width);
         final String splitterRow = "\n" + splitter.substring(0, splitter.length() - 1) + "\n";
 
-        return String.join(splitterRow, final_rows);
+        return String.join(splitterRow, finalRows);
     }
 }
