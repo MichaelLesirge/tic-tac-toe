@@ -28,6 +28,8 @@ public class Player {
         }
     }
 
+    static private boolean useColors = false;
+
     final private char letter;
     final private Colors color;
 
@@ -57,11 +59,19 @@ public class Player {
         winCount++;
     }
 
+    public static void enableStringColors() {
+        Player.useColors = true;
+    }
+
+    public static void disableStringColors() {
+        Player.useColors = false;
+    } 
+
     @Override
     public String toString() {
         final String letter = String.valueOf(this.letter);
 
-        if (this.color == null)
+        if (!Player.useColors || this.color == null)
             return letter;
 
         final String boldCode = "\033[1m";

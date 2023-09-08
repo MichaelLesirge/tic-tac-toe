@@ -10,6 +10,13 @@ public class Board<T> {
 
     protected final int size;
 
+    public static final String[] boxDrawingLinesUnicode = {"│", "─", "┼"};
+    public static final String[] boxDrawingLinesBasic = {"|", "-", "+"};
+
+    private static String vertLine;
+    private static String horizontalLine;
+    private static String intersectionLine;
+
     private int itemsPlaced;
 
     private final ArrayList<ArrayList<T>> board;
@@ -35,6 +42,14 @@ public class Board<T> {
         }
 
         this.reset();
+
+        setBoardDrawingStrings(boxDrawingLinesUnicode);
+    }
+
+    public static void setBoardDrawingStrings(String[] lines) { 
+        vertLine = lines[0];
+        horizontalLine = lines[1];
+        intersectionLine = lines[2];
     }
 
     public void reset() {
@@ -101,13 +116,6 @@ public class Board<T> {
 
     @Override
     public String toString() {
-        // final String vertLine = "|";
-        // final String horizontalLine = "-";
-        // final String intersectionLine = "+";
-        final String vertLine = "│";
-        final String horizontalLine = "─";
-        final String intersectionLine = "┼";
-
         String divider = " " + vertLine + " ";
 
         int maxValSize = 1;

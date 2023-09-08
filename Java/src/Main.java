@@ -7,12 +7,18 @@ import game.Player.Colors;
 
 public class Main {
     public static void main(String[] args) {
-        final boolean shouldClear = true;
+        final boolean SHOULD_CLEAR_SCREEN = false;
+        final boolean SHOULD_USE_COLORS = true;
+        final boolean SHOULD_USE_BOX_DRAWING_CHARS = true;
 
-        if (shouldClear) {
+        if (!SHOULD_USE_COLORS)
+            Player.disableStringColors();
+
+        if (!SHOULD_USE_BOX_DRAWING_CHARS)
+            TicTacToeBoard.setBoardDrawingStrings(TicTacToeBoard.boxDrawingLinesBasic);
+
+        if (SHOULD_CLEAR_SCREEN)
             System.out.print("\033[H\033[2J");
-            System.out.flush();
-        }
 
         final Scanner scanner = new Scanner(System.in);
         
@@ -66,7 +72,7 @@ public class Main {
             boolean gameOver = false;
 
             while (!gameOver) {
-                if (shouldClear) {
+                if (SHOULD_CLEAR_SCREEN) {
                     System.out.print("\033[H\033[2J");
                     System.out.flush();
                 }
