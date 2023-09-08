@@ -13,11 +13,10 @@ public class Main {
 
         Player.setColorMode(SHOULD_USE_COLORS);
 
-        if (!SHOULD_USE_BOX_DRAWING_CHARS)
-            TicTacToeBoard.setBoardDrawingStrings(TicTacToeBoard.boxDrawingLinesBasic);
+        TicTacToeBoard.setBoardDrawingStrings(SHOULD_USE_BOX_DRAWING_CHARS ? TicTacToeBoard.boxDrawingLinesBasic : TicTacToeBoard.boxDrawingLinesBasic);
 
-        if (SHOULD_CLEAR_SCREEN)
-            System.out.print("\033[H\033[2J");
+        if (SHOULD_CLEAR_SCREEN) clearScreen();
+            
 
         final Scanner scanner = new Scanner(System.in);
         
@@ -71,10 +70,7 @@ public class Main {
             boolean gameOver = false;
 
             while (!gameOver) {
-                if (SHOULD_CLEAR_SCREEN) {
-                    System.out.print("\033[H\033[2J");
-                    System.out.flush();
-                }
+                if (SHOULD_CLEAR_SCREEN) clearScreen();
 
                 Player currentPlayer = players.get(turnCount % players.size());
 
@@ -98,6 +94,7 @@ public class Main {
 
                 if (isCurrentPlayerWinner || isTie) {
 
+                    if (SHOULD_CLEAR_SCREEN) clearScreen();
                     System.out.println("\n" + board + "\n");
 
                     gameOver = true;
@@ -170,5 +167,10 @@ public class Main {
 
         final String input = scanner.nextLine().toLowerCase();
         return !(input.equals("n") || input.equals("no") || input.equals("false"));
+    }
+
+    private static void clearScreen() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
     }
 }
