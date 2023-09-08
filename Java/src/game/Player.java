@@ -28,7 +28,7 @@ public class Player {
         }
     }
 
-    static private boolean useColors = false;
+    static private boolean useColors = true;
 
     final private char letter;
     final private Colors color;
@@ -59,13 +59,9 @@ public class Player {
         winCount++;
     }
 
-    public static void enableStringColors() {
-        Player.useColors = true;
+    public static void setColorMode(boolean useColors) {
+        Player.useColors = useColors;
     }
-
-    public static void disableStringColors() {
-        Player.useColors = false;
-    } 
 
     @Override
     public String toString() {
