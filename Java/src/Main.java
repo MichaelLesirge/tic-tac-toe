@@ -7,12 +7,11 @@ import game.Player.Colors;
 
 public class Main {
     public static void main(String[] args) {
-        final boolean SHOULD_CLEAR_SCREEN = false;
+        final boolean SHOULD_CLEAR_SCREEN = true;
         final boolean SHOULD_USE_COLORS = true;
         final boolean SHOULD_USE_BOX_DRAWING_CHARS = true;
 
-        if (!SHOULD_USE_COLORS)
-            Player.disableStringColors();
+        Player.setColorMode(SHOULD_USE_COLORS);
 
         if (!SHOULD_USE_BOX_DRAWING_CHARS)
             TicTacToeBoard.setBoardDrawingStrings(TicTacToeBoard.boxDrawingLinesBasic);
