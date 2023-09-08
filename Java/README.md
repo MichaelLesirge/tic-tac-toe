@@ -6,10 +6,9 @@ The goal of this project was to learn the most about Java as I could in one proj
 - Colors and nice ASCII art board
 
 ## Images / Demo
-![Basic 3x3 Game](https://github.com/michael-lesirge/tic-tac-toe/assets/100492377/1c253352-e776-44d4-a273-cf6e3aa711f8)
-![Crazy 6x3 Game](https://github.com/michael-lesirge/tic-tac-toe/assets/100492377/8a370cdb-9f5c-406d-8b15-2d80f6b93270)
+![3x3 Normal Game](https://github.com/michael-lesirge/tic-tac-toe/assets/100492377/b5d5ddca-5947-4225-a1dd-1917c9621a33)
 
-
+![6x3 Crazy Game](https://github.com/michael-lesirge/tic-tac-toe/assets/100492377/02e38c96-5be5-4d2e-b97c-90f07ff41ccc)
 
 ## Why I learned Java
 Learned it for robotics and because I wanted to make Minecraft Mod
