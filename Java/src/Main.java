@@ -159,7 +159,6 @@ public class Main {
                 num = userInput.length() == 0 ? defaultValue : Integer.parseInt(userInput);
             } catch (java.lang.NumberFormatException e) {
                 System.out.println("Invalid input. Must be number.");
-                scanner.nextLine();
             }
         }
         return num;
