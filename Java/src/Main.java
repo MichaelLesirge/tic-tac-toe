@@ -7,9 +7,14 @@ import game.Player.Colors;
 
 public class Main {
     public static void main(String[] args) {
+        final Scanner scanner = new Scanner(System.in);
+
         final boolean SHOULD_CLEAR_SCREEN = true;
+        // final boolean SHOULD_CLEAR_SCREEN = askYesOrNo("Do you want the screen to be cleared", scanner);
         final boolean SHOULD_USE_COLORS = true;
+        // final boolean SHOULD_USE_COLORS = askYesOrNo("Do you want colors", scanner);
         final boolean SHOULD_USE_BOX_DRAWING_CHARS = true;
+        // final boolean SHOULD_USE_BOX_DRAWING_CHARS = askYesOrNo("Do you want fancy box drawing charters for the board", scanner);
 
         Player.setColorMode(SHOULD_USE_COLORS);
 
@@ -17,9 +22,7 @@ public class Main {
 
         if (SHOULD_CLEAR_SCREEN) clearScreen();
             
-
-        final Scanner scanner = new Scanner(System.in);
-        
+          
         final Colors[] colors = {Colors.RED, Colors.BLUE, Colors.GREEN, Colors.YELLOW, Colors.PURPLE, Colors.CYAN};
         final ArrayList<Player> players = new ArrayList<>();
         
