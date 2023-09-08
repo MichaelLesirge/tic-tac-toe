@@ -7,6 +7,13 @@ import game.Player.Colors;
 
 public class Main {
     public static void main(String[] args) {
+        final boolean shouldClear = true;
+
+        if (shouldClear) {
+            System.out.print("\033[H\033[2J");
+            System.out.flush();
+        }
+
         final Scanner scanner = new Scanner(System.in);
         
         final Colors[] colors = {Colors.RED, Colors.BLUE, Colors.GREEN, Colors.YELLOW, Colors.PURPLE, Colors.CYAN};
@@ -59,6 +66,11 @@ public class Main {
             boolean gameOver = false;
 
             while (!gameOver) {
+                if (shouldClear) {
+                    System.out.print("\033[H\033[2J");
+                    System.out.flush();
+                }
+
                 Player currentPlayer = players.get(turnCount % players.size());
 
                 System.out.println("\n" + board + "\n");
