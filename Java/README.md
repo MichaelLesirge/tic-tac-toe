@@ -11,4 +11,4 @@ The goal of this project was to learn the most about Java as I could in one proj
 ![6x3 Crazy Game](https://github.com/michael-lesirge/tic-tac-toe/assets/100492377/02e38c96-5be5-4d2e-b97c-90f07ff41ccc)
 
 ## Why I learned Java
-Learned it for robotics and because I wanted to make Minecraft Mod
+Learned it for robotics and because I wanted to make Minecraft Mods.
