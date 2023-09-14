@@ -7,7 +7,8 @@ Tic-Tac-Toe game with Dart. Purposely over complicated to learn a bunch about da
 - Nice ASCII art board
 - Choose where you want to go on X, Y grid
 
-## Images
+## Demos
+#### Crazy game
 ![Gif of full game](https://github.com/michael-lesirge/tic-tac-toe/assets/100492377/cbfcc1bc-cfd8-492c-a8ec-019afe6b6c06)
 
 ## Why I learned Dart
