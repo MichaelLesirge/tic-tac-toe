@@ -131,9 +131,11 @@ void main() {
     String? winner = null;
 
     while (!board.isFull() && winner == null) {
+      print("\x1B[2J\x1B[0;0H");
+
       String currentPlayer = players[(turnNumber + gameNumber) % players.length];
 
-      print("\n${board}\n");
+      print("${board}\n");
       print("${currentPlayer}'s turn");
 
       bool needsToPlace = true;
@@ -157,11 +159,12 @@ void main() {
       turnNumber++;
     }
 
+    print("\x1B[2J\x1B[0;0H");
     print(board);
 
     scores[winner] = scores[winner]! + 1;
 
-    print("Scores");
+    print("\nScores");
     for (final item in scores.entries) {
       print("${item.key ?? "Ties"}: ${item.value}");
     }
