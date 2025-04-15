@@ -1,0 +1,154 @@
+Disp "Loading...
+
+0→O
+0→P
+0→Q
+
+0→T
+0→U
+0→V
+
+0→Y
+0→Z
+0→L
+
+ClrHome
+
+Disp "
+Disp "        7 | 8 | 9
+Disp "       ---+---+---
+Disp "        4 | 5 | 6
+Disp "       ---+---+---
+Disp "        1 | 2 | 3
+Disp "
+Disp "Press corresponding numpad
+Disp "     button to place
+
+0→B
+getKey→K
+While K=0 and B<150
+B+1→B
+getKey→K
+End
+
+ClrHome
+
+Disp "
+Disp "          |   |  
+Disp "       ---+---+---
+Disp "          |   |  
+Disp "       ---+---+---
+Disp "          |   |  
+Disp "
+Disp "   Current Player is X
+
+0→I :"Turn Count
+
+0→W :"Winner
+
+While W=0 and I<9:
+
+:"Player Select
+If remainder(I,2)=0:Then
+1→C :"Current Player
+"X"→Str0 :"Current Player Icon
+Else
+­1→C :"Current Player
+"O"→Str0 :"Current Player Icon
+End
+
+Output(8,22,Str0
+
+:"Player Move
+1→M :"Needs to move flag
+While M
+
+getKey→K :"Key
+
+If K=72 and O=0:Then
+C→O
+Output(2,9,Str0
+0→M
+End
+
+If K=73 and P=0:Then
+C→P
+Output(2,13,Str0
+0→M
+End
+
+If K=74 and Q=0:Then
+C→Q
+Output(2,17,Str0
+0→M
+End
+
+If K=82 and T=0:Then
+C→T
+Output(4,9,Str0
+0→M
+End
+
+If K=83 and U=0:Then
+C→U
+Output(4,13,Str0
+0→M
+End
+
+If K=84 and V=0:Then
+C→V
+Output(4,17,Str0
+0→M
+End
+
+If K=92 and Y=0:Then
+C→Y
+Output(6,9,Str0
+0→M
+End
+
+If K=93 and Z=0:Then
+C→Z
+Output(6,13,Str0
+0→M
+End
+
+If K=94 and L=0:Then
+C→L
+Output(6,17,Str0
+0→M
+End
+
+End
+
+C*3→A :"Winning amount
+:"Win detection
+If (O+P+Q=A) or (T+U+V=A) or (Y+Z+L=A) or (O+T+Y=A) or (P+U+Z=A) or (Q+V+L=A) or (O+U+L=A) or (Q+U+Y=A):Then
+C→W
+End
+
+:"Tick
+I+1→I
+
+End
+
+Output(1,int((N-9)/2)+1,"Game Over
+If W:Then
+Output(8,1,"      Player "+Str0+" Wins      
+Else
+Output(8,1,"           TIE           
+End
+
+Output(9,int((N-22)/2)+1,"Press 5 to play again.
+
+getKey→K
+While K=0
+getKey→K
+End
+
+If K=83
+prgmTICTAK
+
+ClrHome
+Disp "TicTakToe by ML
+
