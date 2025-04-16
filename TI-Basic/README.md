@@ -5,9 +5,10 @@ Simple Tic-Tac-Toe game with TI-Basic. Meant to run on a TI84 graphing calculato
 ## Special features
 - Runs on TI-84 Graphing Calculator
 - Uses numpad of calculator as position selection
+- Optimised to only redraw needed chars to increase FPS
+- Optimised logic
 
-## Demo
-
+## Demos
 
 
 ## Why I learned TI-Basic
