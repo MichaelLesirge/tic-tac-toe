@@ -13,9 +13,14 @@ Video demos of each game running, and a list of special features that make it mo
 - Adaptive AI player trained on many games on specific game configuration
 - Player input verification
 
-https://github.com/user-attachments/assets/eb942b90-12b1-4aee-a7d9-e267c0f6270c
+<details>
+<summary>▶️ Show Video Demos</summary>
 
-https://github.com/user-attachments/assets/ed84190d-3586-41c2-999d-bb2d6cbdc498
+[![Basic player vs computer game](https://github.com/user-attachments/assets/eb942b90-12b1-4aee-a7d9-e267c0f6270c)](https://github.com/user-attachments/assets/eb942b90-12b1-4aee-a7d9-e267c0f6270c)
+
+[![Custom game](https://github.com/user-attachments/assets/ed84190d-3586-41c2-999d-bb2d6cbdc498)](https://github.com/user-attachments/assets/ed84190d-3586-41c2-999d-bb2d6cbdc498)
+
+</details>
 
 ### Java
 - Optional custom board creation and win condition
@@ -25,16 +30,26 @@ https://github.com/user-attachments/assets/ed84190d-3586-41c2-999d-bb2d6cbdc498
 - Flexible object oriented design
 - Player input verification
 
-https://github.com/user-attachments/assets/7c114e2f-1960-465e-a991-7410b2cdb26e
+<details>
+<summary>▶️ Show Video Demos</summary>
 
-https://github.com/user-attachments/assets/5473e516-9a8a-4171-9823-6b148de8e4d4
+[![Default game](https://github.com/user-attachments/assets/7c114e2f-1960-465e-a991-7410b2cdb26e)](https://github.com/user-attachments/assets/7c114e2f-1960-465e-a991-7410b2cdb26e)
+
+[![Custom game](https://github.com/user-attachments/assets/5473e516-9a8a-4171-9823-6b148de8e4d4)](https://github.com/user-attachments/assets/5473e516-9a8a-4171-9823-6b148de8e4d4)
+
+</details>
 
 ### C++
 - Use words like top/middle/button and left/middle/right instead of just row column numbers, with player input verification
 - Attempted usage of good C++ practices (using const, some usage of standard library)
 - Silly usage of some advanced features like templates and fold expressions to try them out (used in custom Python like print function)
 
-https://github.com/user-attachments/assets/ecd702f8-539b-45ed-99d0-b87d18b8aabe
+<details>
+<summary>▶️ Show Video Demo</summary>
+
+[![C++ Game](https://github.com/user-attachments/assets/ecd702f8-539b-45ed-99d0-b87d18b8aabe)](https://github.com/user-attachments/assets/ecd702f8-539b-45ed-99d0-b87d18b8aabe)
+
+</details>
 
 ### TI-Basic
 - Runs on TI-84 Graphing Calculator
@@ -42,7 +57,12 @@ https://github.com/user-attachments/assets/ecd702f8-539b-45ed-99d0-b87d18b8aabe
 - Optimised to only redraw needed chars to prevent extra screen refreshes
 - Player input verification
 
-https://github.com/user-attachments/assets/1a47ba68-34e1-4680-8550-2fb9c12557ab
+<details>
+<summary>▶️ Show Video Demo</summary>
+
+[![TI-Basic running on calculator](https://github.com/user-attachments/assets/1a47ba68-34e1-4680-8550-2fb9c12557ab)](https://github.com/user-attachments/assets/1a47ba68-34e1-4680-8550-2fb9c12557ab)
+
+</details>
 
 ### Dart
 - Custom board creation
@@ -50,9 +70,14 @@ https://github.com/user-attachments/assets/1a47ba68-34e1-4680-8550-2fb9c12557ab
 - Nice ASCII art board without extra clutter and screen clearing
 - Choose where you want to go on X, Y grid, with player input verification
 
-https://github.com/user-attachments/assets/466739ec-b19e-43b2-a3e6-c36e0b6a3be6
+<details>
+<summary>▶️ Show Video Demos</summary>
 
-https://github.com/user-attachments/assets/beb08ac6-cde2-4ccd-a3df-c2d6a88b7df4
+[![Default game](https://github.com/user-attachments/assets/466739ec-b19e-43b2-a3e6-c36e0b6a3be6)](https://github.com/user-attachments/assets/466739ec-b19e-43b2-a3e6-c36e0b6a3be6)
+
+[![Custom game](https://github.com/user-attachments/assets/beb08ac6-cde2-4ccd-a3df-c2d6a88b7df4)](https://github.com/user-attachments/assets/beb08ac6-cde2-4ccd-a3df-c2d6a88b7df4)
+
+</details>
 
 ### HTML-CSS-JS
 - Only one with GUI, runs on web
@@ -61,6 +86,3 @@ https://github.com/user-attachments/assets/beb08ac6-cde2-4ccd-a3df-c2d6a88b7df4
 - Plain HTML, CSS, and JS with no frameworks on libraries, tried to get a good understanding of basics. DOM manipulation only.
 
 Live demo: https://raw.githack.com/michaellesirge/tic-tac-toe/main/HTML-CSS-JS/index.html
-
-## Plans
-I probably won't make any new ones of these for a while so I can get better at the stuff I sort of know, but when I do feel like learning a new language it will probably either be TypeScript, Go, C#, or maybe even Rust.
